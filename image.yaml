@@ -21,7 +21,7 @@ envs:
       example: password
       description: Password corresponding to AMQ_USERNAME
     - name: AMQ_ROLE
-      example: CN=localhost, OU=broker, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+      example: role
       description: Role corresponding to AMQ_USERNAME
     - name: AMQ_NAME
       example: broker
@@ -45,15 +45,8 @@ modules:
       install:
           - name: dynamic-resources
           - name: s2i-common
-          - name: os-amq-secure-mgmt-console
-          - name: os-amq-optional
           - name: os-java-run
-          - name: os-amq-launch
           - name: os-partition
-          - name: os-java-jolokia
-          - name: os-amq-jolokia
-          - name: os-amq-s2i
-          - name: os-amq-permissions
           - name: openshift-passwd
           - name: os-logging
 packages:
