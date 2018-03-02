@@ -1,0 +1,74 @@
+schema_version: 1
+
+name: "jboss-amq-7/amq71-openshift"
+description: "Red Hat JBoss AMQ 7.1 OpenShift container image"
+version: "1.4"
+from: "jboss-amq-7/amq71:latest"
+labels:
+    - name: "io.k8s.description"
+      value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
+    - name: "io.k8s.display-name"
+      value: "JBoss A-MQ 7.1"
+    - name: "io.openshift.tags"
+      value: "messaging,amq,java,jboss,xpaas"
+    - name: "io.openshift.s2i.scripts-url"
+      value: "image:///usr/local/s2i"
+envs:
+    - name: AMQ_USERNAME
+      example: username
+      description: Username for AMQ authentication
+    - name: AMQ_PASSWORD
+      example: password
+      description: Password corresponding to AMQ_USERNAME
+    - name: AMQ_ROLE
+      example: CN=localhost, OU=broker, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+      description: Role corresponding to AMQ_USERNAME
+    - name: AMQ_NAME
+      example: broker
+      description: The name of the Broker
+
+ports:
+    - value: 5672
+    - value: 5671
+    - value: 1883
+    - value: 8181
+    - value: 61613
+    - value: 61612
+    - value: 61616
+    - value: 61617
+modules:
+      repositories:
+          - name: cct_module
+            git:
+                  url: https://github.com/jboss-openshift/cct_module.git
+                  ref: master
+      install:
+          - name: dynamic-resources
+          - name: s2i-common
+          - name: os-amq-secure-mgmt-console
+          - name: os-amq-optional
+          - name: os-java-run
+          - name: os-amq-launch
+          - name: os-partition
+          - name: os-java-jolokia
+          - name: os-amq-jolokia
+          - name: os-amq-s2i
+          - name: os-amq-permissions
+          - name: openshift-passwd
+          - name: os-logging
+packages:
+      repositories:
+          - jboss-os
+          - jboss-ocp
+          - jboss-rhscl
+      install:
+          - PyYAML
+
+run:
+      user: 185
+      cmd:
+          - "/opt/amq/bin/launch.sh"
+osbs:
+      repository:
+            name: jboss-amq-7-docker
+            branch: jb-amq71
