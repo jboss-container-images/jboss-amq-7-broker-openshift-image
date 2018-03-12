@@ -1,10 +1,12 @@
 schema_version: 1
 
-name: "jboss-amq-7/amq71-openshift"
+name: "amq-broker-7/amq-broker-71-openshift"
 description: "Red Hat JBoss AMQ 7.1 OpenShift container image"
 version: "1.4"
-from: "jboss-amq-7/amq71:latest"
+from: "amq-broker-7/amq-broker-71:latest"
 labels:
+    - name: "com.redhat.component"
+      value: "amq-7-broker-71-openshift-container "
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
@@ -49,6 +51,7 @@ modules:
           - name: os-partition
           - name: openshift-passwd
           - name: os-logging
+          - name: os-amq-permissions
 packages:
       repositories:
           - jboss-os
@@ -63,5 +66,5 @@ run:
           - "/opt/amq/bin/launch.sh"
 osbs:
       repository:
-            name: jboss-amq-7-docker
-            branch: jb-amq71
+            name: containers/amq-7-broker
+            branch: rh-amq-broker-7.1-openshift-rhel-7
