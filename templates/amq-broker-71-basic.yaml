@@ -3,7 +3,7 @@ kind: Template
 labels:
   template: amq-broker-71-basic
   xpaas: 1.4.9
-message: A new messaging service has been created in your project. It will handle the protocol(s) "${MQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USERNAME}/${AMQ_PASSWORD}.
+message: A new messaging service has been created in your project. It will handle the protocol(s) "${MQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for JBoss AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
@@ -14,6 +14,20 @@ metadata:
     version: 1.4.9
   name: amq-broker-71-basic
 objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's Jolokia port.
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-amq-jolokia
+  spec:
+    ports:
+    - port: 8161
+      targetPort: 8161
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
   kind: Service
   metadata:
@@ -74,22 +88,6 @@ objects:
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: Supports node discovery for mesh formation.
-      service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-mesh
-  spec:
-    clusterIP: None
-    ports:
-    - name: mesh
-      port: 61616
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
@@ -112,31 +110,45 @@ objects:
       spec:
         containers:
         - env:
-          - name: AMQ_USERNAME
-            value: ${AMQ_USERNAME}
+          - name: AMQ_USER
+            value: ${AMQ_USER}
           - name: AMQ_PASSWORD
             value: ${AMQ_PASSWORD}
+          - name: AMQ_ROLE
+            value: ${AMQ_ROLE}
+          - name: AMQ_NAME
+            value: ${AMQ_NAME}
           - name: AMQ_TRANSPORTS
             value: ${MQ_PROTOCOL}
           - name: AMQ_QUEUES
             value: ${MQ_QUEUES}
           - name: AMQ_TOPICS
             value: ${MQ_TOPICS}
-          - name: AMQ_MESH_SERVICE_NAME
-            value: ${APPLICATION_NAME}-amq-mesh
-          - name: AMQ_MESH_SERVICE_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
           - name: AMQ_STORAGE_USAGE_LIMIT
             value: ${AMQ_STORAGE_USAGE_LIMIT}
           - name: AMQ_QUEUE_MEMORY_LIMIT
             value: ${AMQ_QUEUE_MEMORY_LIMIT}
           image: amq-broker-71-openshift
           imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5672
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 5672
+            timeoutSeconds: 1          
           name: ${APPLICATION_NAME}-amq
           ports:
-          - containerPort: 8778
+          - containerPort: 8161
             name: jolokia
             protocol: TCP
           - containerPort: 5672
@@ -149,14 +161,8 @@ objects:
             name: stomp
             protocol: TCP
           - containerPort: 61616
-            name: tcp
+            name: artemis
             protocol: TCP
-          readinessProbe:
-            exec:
-              command:
-              - /bin/bash
-              - -c
-              - /opt/amq/bin/readinessProbe.sh
         terminationGracePeriodSeconds: 60
     triggers:
     - imageChangeParams:
@@ -189,12 +195,20 @@ parameters:
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
   generate: expression
-  name: AMQ_USERNAME
+  name: AMQ_USER
 - description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
   displayName: AMQ Password
   from: '[a-zA-Z0-9]{8}'
   generate: expression
   name: AMQ_PASSWORD
+- description: User role for standard broker user.
+  displayName: AMQ Role
+  name: AMQ_ROLE
+  value: admin
+- description: The name of the broker
+  displayName: AMQ Name
+  name: AMQ_NAME
+  value: broker
 - description: Sets the store disk limit usage in activemq.xml. If the value set is greater than the disk size, it will be resized to the available disk space.
   displayName: AMQ Store Usage Limit
   name: AMQ_STORAGE_USAGE_LIMIT
@@ -206,4 +220,4 @@ parameters:
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
   required: true
-  value: openshift
+  value: broker

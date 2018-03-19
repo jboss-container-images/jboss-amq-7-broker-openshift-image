@@ -6,7 +6,7 @@ version: "1.4"
 from: "amq-broker-7/amq-broker-71:latest"
 labels:
     - name: "com.redhat.component"
-      value: "amq-7-broker-71-openshift-container "
+      value: "amq-7-broker-71-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
@@ -16,18 +16,18 @@ labels:
     - name: "io.openshift.s2i.scripts-url"
       value: "image:///usr/local/s2i"
 envs:
-    - name: AMQ_USERNAME
+    - name: AMQ_USER
       example: username
       description: Username for AMQ authentication
     - name: AMQ_PASSWORD
       example: password
-      description: Password corresponding to AMQ_USERNAME
+      description: Password corresponding to AMQ_PASSWORD
     - name: AMQ_ROLE
       example: role
-      description: Role corresponding to AMQ_USERNAME
+      description: Role corresponding to AMQ_ROLE
     - name: AMQ_NAME
       example: broker
-      description: The name of the Broker
+      description: Name of the Broker corresponding to AMQ_NAME
 
 ports:
     - value: 5672
@@ -44,6 +44,10 @@ modules:
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
                   ref: master
+          - name: amq-launch
+            path: modules/amq-launch
+          - name: amq-jolokia-access
+            path: modules/amq-jolokia-access            
       install:
           - name: dynamic-resources
           - name: s2i-common
@@ -52,6 +56,8 @@ modules:
           - name: openshift-passwd
           - name: os-logging
           - name: os-amq-permissions
+          - name: amq-launch
+          - name: amq-jolokia-access
 packages:
       repositories:
           - jboss-os
