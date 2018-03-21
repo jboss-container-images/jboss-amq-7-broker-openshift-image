@@ -5,3 +5,29 @@ NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-image[R
 # License
 
 See link:LICENSE[LICENSE] file.
+
+## Deploying to minishift
+
+First you want to install minishift https://docs.openshift.org/latest/minishift/getting-started/installing.html.  Start it up and set the environment
+```
+$ minishift start
+$ eval $(minishift oc-env)
+$ eval $(minishift docker-env)
+$ oc login #developer
+```
+Using Cekit build the image http://concreate.readthedocs.io/en/develop/
+```
+$ concreate build
+```
+Deploy the project. 
+```
+$ oc new-project broker
+$ oc create -n broker -f amq-7-image-streams.yaml
+$ oc process -n broker -f templates/amq-71-broker-basic.yaml -p APPLICATION_NAME=broker-app -p AMQ_USER=<username> -p AMQ_PASSWORD=<amqpassword>  | oc create -n broker -f -
+```
+Push the image.  You will need the ip address of openshifts docker registry.  You can get this from the image stream in the openshift console
+```
+$ docker login -u developer -p $(oc whoami -t) openshift-docker-ip:5000
+$ docker tag amq-broker-7-tech-preview/amq-broker71-openshift:latest openshift-docker-ip:5000/broker/amq-broker71-openshift:1.0
+$ docker push openshift-docker-ip:5000/broker/amq-broker71-openshift:1.0
+```

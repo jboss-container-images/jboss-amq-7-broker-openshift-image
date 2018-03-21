@@ -1,10 +1,12 @@
 schema_version: 1
 
-name: "jboss-amq-7/amq71-openshift"
+name: "amq-broker-7/amq-broker-71-openshift"
 description: "Red Hat JBoss AMQ 7.1 OpenShift container image"
 version: "1.4"
-from: "jboss-amq-7/amq71:latest"
+from: "amq-broker-7/amq-broker-71:latest"
 labels:
+    - name: "com.redhat.component"
+      value: "amq-7-broker-71-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
@@ -14,18 +16,72 @@ labels:
     - name: "io.openshift.s2i.scripts-url"
       value: "image:///usr/local/s2i"
 envs:
-    - name: AMQ_USERNAME
+    - name: AMQ_USER
       example: username
       description: Username for AMQ authentication
     - name: AMQ_PASSWORD
       example: password
-      description: Password corresponding to AMQ_USERNAME
+      description: Password corresponding to AMQ_PASSWORD
     - name: AMQ_ROLE
-      example: role
-      description: Role corresponding to AMQ_USERNAME
+      example: admin
+      description: Role corresponding to AMQ_ROLE
     - name: AMQ_NAME
       example: broker
-      description: The name of the Broker
+      description: Name of the Broker corresponding to AMQ_NAME
+    - name: AMQ_EXTRA_ARGS
+      description: Additional arguments
+      example: "true"
+    - name: SCRIPT_DEBUG
+      description: If set to true, ensurses that the bash scripts are executed with the -x option, printing the commands and their arguments as they are executed.
+      example: "true"
+    - name: AMQ_CLUSTERED
+      description: Enable Clustering
+      example: "true"
+    - name: AMQ_REPLICATED
+      description: Enable broker replication
+      example: "true"
+    - name: AMQ_SLAVE
+      description: Valid for shared store or replication.  Is this a slave?
+      example: "true"
+    - name: AMQ_RESET_CONFIG
+      description: Overwrite configuration at destination directory
+      example: "true"
+    - name: AMQ_CLUSTER_USER
+      description: The cluster user to use for clustering
+      example: "true"
+    - name: AMQ_CLUSTER_PASSWORD
+      description: The cluster password to use for clustering
+      example: "true"
+    - name: JAVA_MAX_MEM_RATIO
+      description: This is used to calculate a default maximal heap memory based on a containers restriction. If used in a container without any memory constraints for the container then this option has no effect. If there is a memory constraint then `-Xmx` is set to a ratio of the container available memory as set here. The default is `50` which means 50% of the available memory is used as an upper boundary. You can skip this mechanism by setting this value to `0` in which case no `-Xmx` option is added.
+      example: "50"
+    - name: JAVA_INITIAL_MEM_RATIO
+      description: This is used to calculate a default initial heap memory based the maximumal heap memory.  The default is `100` which means 100% of the maximal heap is used for the initial heap size.  You can skip this mechanism by setting this value to `0` in which case no `-Xms` option is added.
+      example: "100"
+    - name: JAVA_MAX_INITIAL_MEM
+      description: The maximum size of the initial heap memory, if the calculated default initial heap is larger then it will be capped at this value.  The default is 4096 MB.
+      example: "4096"
+    - name: JAVA_CORE_LIMIT
+      description: Core limit as described in https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt.  Used to configure the number of GC threads and parallelism for ForkJoinPool.  Defaults to container core limit.
+      example: "2"
+    - name: JAVA_DIAGNOSTICS
+      description: Set this to get some diagnostics information to standard output when things are happening. **Disabled by default.**
+      example: "true"
+    - name: GC_MIN_HEAP_FREE_RATIO
+      description: Minimum percentage of heap free after GC to avoid expansion.
+      example: "20"
+    - name: GC_MAX_HEAP_FREE_RATIO
+      description: Maximum percentage of heap free after GC to avoid shrinking.
+      example: "40"
+    - name: GC_TIME_RATIO
+      description: Specifies the ratio of the time spent outside the garbage collection (for example, the time spent for application execution) to the time spent in the garbage collection.
+      example: "4"
+    - name: GC_ADAPTIVE_SIZE_POLICY_WEIGHT
+      description: The weighting given to the current GC time versus previous GC times.
+      example: "90"
+    - name: GC_MAX_METASPACE_SIZE
+      description: The maximum metaspace size.
+      example: "100"
 
 ports:
     - value: 5672
@@ -42,6 +98,10 @@ modules:
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
                   ref: master
+          - name: amq-launch
+            path: modules/amq-launch
+          - name: amq-jolokia-access
+            path: modules/amq-jolokia-access            
       install:
           - name: dynamic-resources
           - name: s2i-common
@@ -49,6 +109,9 @@ modules:
           - name: os-partition
           - name: openshift-passwd
           - name: os-logging
+          - name: os-amq-permissions
+          - name: amq-launch
+          - name: amq-jolokia-access
 packages:
       repositories:
           - jboss-os
@@ -63,5 +126,5 @@ run:
           - "/opt/amq/bin/launch.sh"
 osbs:
       repository:
-            name: jboss-amq-7-docker
-            branch: jb-amq71
+            name: containers/amq-7-broker
+            branch: rh-amq-broker-7.1-openshift-rhel-7
