@@ -68,6 +68,7 @@ function configure() {
 
         $AMQ_HOME/bin/artemis create broker $AMQ_ARGS --java-options "$JAVA_OPTS"
     	$AMQ_HOME/bin/configure_jolokia_access.sh /home/jboss/broker/etc/jolokia-access.xml
+	$AMQ_HOME/bin/configure_configmap.sh
     fi
 
 }
