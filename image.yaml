@@ -101,7 +101,9 @@ modules:
           - name: amq-launch
             path: modules/amq-launch
           - name: amq-jolokia-access
-            path: modules/amq-jolokia-access            
+            path: modules/amq-jolokia-access
+          - name: amq-configmap
+            path: modules/amq-configmap            
       install:
           - name: dynamic-resources
           - name: s2i-common
@@ -112,6 +114,7 @@ modules:
           - name: os-amq-permissions
           - name: amq-launch
           - name: amq-jolokia-access
+          - name: amq-configmap
 packages:
       repositories:
           - jboss-os
