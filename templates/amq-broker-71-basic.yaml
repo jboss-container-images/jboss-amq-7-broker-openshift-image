@@ -119,16 +119,16 @@ objects:
           - name: AMQ_NAME
             value: ${AMQ_NAME}
           - name: AMQ_TRANSPORTS
-            value: ${MQ_PROTOCOL}
+            value: ${AMQ_PROTOCOL}
           - name: AMQ_QUEUES
-            value: ${MQ_QUEUES}
-          - name: AMQ_TOPICS
-            value: ${MQ_TOPICS}
-          - name: AMQ_STORAGE_USAGE_LIMIT
-            value: ${AMQ_STORAGE_USAGE_LIMIT}
+            value: ${AMQ_QUEUES}
+          - name: AMQ_ADDRESSES
+            value: ${AMQ_ADDRESSES}
+          - name: AMQ_GLOBAL_MAX_SIZE
+            value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_QUEUE_MEMORY_LIMIT
             value: ${AMQ_QUEUE_MEMORY_LIMIT}
-          image: amq-broker-71-openshift
+          image: amq-broker71-openshift
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -183,14 +183,14 @@ parameters:
   value: broker
 - description: 'Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`.'
   displayName: AMQ Protocols
-  name: MQ_PROTOCOL
+  name: AMQ_PROTOCOL
   value: openwire
 - description: Queue names, separated by commas. These queues will be automatically created when the broker starts. If left empty, queues will be still created dynamically.
   displayName: Queues
-  name: MQ_QUEUES
+  name: AMQ_QUEUES
 - description: Topic names, separated by commas. These topics will be automatically created when the broker starts. If left empty, topics will be still created dynamically.
   displayName: Topics
-  name: MQ_TOPICS
+  name: AMQ_ADDRESSES
 - description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
@@ -209,9 +209,9 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
-- description: Sets the store disk limit usage in activemq.xml. If the value set is greater than the disk size, it will be resized to the available disk space.
-  displayName: AMQ Store Usage Limit
-  name: AMQ_STORAGE_USAGE_LIMIT
+- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
+  displayName: AMQ Global Max Size
+  name: AMQ_GLOBAL_MAX_SIZE
   value: 100 gb
 - description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
   displayName: ImageStream Namespace
