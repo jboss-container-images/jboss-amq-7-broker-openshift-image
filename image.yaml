@@ -91,7 +91,6 @@ envs:
     - name: GC_MAX_METASPACE_SIZE
       description: The maximum metaspace size.
       example: "100"
-
 ports:
     - value: 5672
     - value: 5671
@@ -120,7 +119,8 @@ modules:
           - name: amq.broker71.configmap
           - name: amq.broker71.launch
           - name: amq.broker71.s2i
-          
+          - name: amq.custom.config
+        
 packages:
       repositories:
           - jboss-os
