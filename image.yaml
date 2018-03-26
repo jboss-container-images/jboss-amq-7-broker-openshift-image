@@ -107,26 +107,20 @@ modules:
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
                   ref: master
-          - name: amq-launch
-            path: modules/amq-launch
-          - name: amq-jolokia-access
-            path: modules/amq-jolokia-access
-          - name: amq-configmap
-            path: modules/amq-configmap
-          - name: amq-broker-s2i
-            path: modules/amq-broker-s2i            
+          - path: modules
       install:
           - name: dynamic-resources
           - name: s2i-common
           - name: os-amq-s2i          
-          - name: amq-broker-s2i
           - name: os-java-run
           - name: openshift-passwd
           - name: os-logging
           - name: os-amq-permissions
-          - name: amq-launch
-          - name: amq-jolokia-access
-          - name: amq-configmap
+          - name: amq.broker71.jolokia.access
+          - name: amq.broker71.configmap
+          - name: amq.broker71.launch
+          - name: amq.broker71.s2i
+          
 packages:
       repositories:
           - jboss-os

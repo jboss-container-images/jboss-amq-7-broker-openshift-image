@@ -1,6 +1,6 @@
 schema_version: 1
 
-name: amq-jolokia-access
+name: amq.broker71.jolokia.access
 version: '1.0'
 execute:
     - script: install.sh    
