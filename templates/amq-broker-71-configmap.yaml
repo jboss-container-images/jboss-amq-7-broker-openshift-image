@@ -3,7 +3,7 @@ kind: Template
 labels:
   template: amq-broker-71-configmap
   xpaas: 1.4.9
-message: A new messaging service has been created in your project. It will handle the protocol(s) "${MQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
+message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for JBoss AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
@@ -21,7 +21,7 @@ parameters:
   value: broker
 - description: 'Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt`, and `hornetq`.'
   displayName: AMQ Protocols
-  name: MQ_PROTOCOL
+  name: AMQ_PROTOCOL
   value: openwire
 - description: Queue names, separated by commas. These queues will be automatically created when the broker starts. If left empty, queues will be still created dynamically.
   displayName: Queues
@@ -162,7 +162,7 @@ objects:
           - name: AMQ_NAME
             value: ${AMQ_NAME}
           - name: AMQ_TRANSPORTS
-            value: ${MQ_PROTOCOL}
+            value: ${AMQ_PROTOCOL}
           - name: AMQ_QUEUES
             value: ${MQ_QUEUES}
           - name: AMQ_TOPICS

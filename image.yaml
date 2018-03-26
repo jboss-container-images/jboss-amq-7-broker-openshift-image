@@ -2,7 +2,7 @@ schema_version: 1
 
 name: "amq-broker-7/amq-broker-71-openshift"
 description: "Red Hat JBoss AMQ 7.1 OpenShift container image"
-version: "1.4"
+version: "1.0"
 from: "amq-broker-7/amq-broker-71:latest"
 labels:
     - name: "com.redhat.component"
@@ -28,6 +28,15 @@ envs:
     - name: AMQ_NAME
       example: broker
       description: Name of the Broker corresponding to AMQ_NAME
+    - name: AMQ_ADDRESSES
+      example: mytopic
+      description: Comma separated list of addresses
+    - name: AMQ_QUEUES
+      example: myqueue
+      description: Comma separated list of queues
+    - name: AMQ_TRANSPORTS
+      example: openwire
+      description: "Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`"
     - name: AMQ_EXTRA_ARGS
       description: Additional arguments
       example: "true"
@@ -98,23 +107,20 @@ modules:
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
                   ref: master
-          - name: amq-launch
-            path: modules/amq-launch
-          - name: amq-jolokia-access
-            path: modules/amq-jolokia-access
-          - name: amq-configmap
-            path: modules/amq-configmap            
+          - path: modules
       install:
           - name: dynamic-resources
           - name: s2i-common
+          - name: os-amq-s2i          
           - name: os-java-run
-          - name: os-partition
           - name: openshift-passwd
           - name: os-logging
           - name: os-amq-permissions
-          - name: amq-launch
-          - name: amq-jolokia-access
-          - name: amq-configmap
+          - name: amq.broker71.jolokia.access
+          - name: amq.broker71.configmap
+          - name: amq.broker71.launch
+          - name: amq.broker71.s2i
+          
 packages:
       repositories:
           - jboss-os
