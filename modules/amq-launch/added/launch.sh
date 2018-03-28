@@ -157,9 +157,10 @@ function configure() {
 
         $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
         $AMQ_HOME/bin/configure_jolokia_access.sh ${instanceDir}/etc/jolokia-access.xml
-		updateAcceptors ${instanceDir}
-        $AMQ_HOME/bin/configure_configmap.sh
+        updateAcceptors ${instanceDir}
+        $AMQ_HOME/bin/configure_configmap.sh ${instanceDir}
         $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
+	$AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
     fi
 }
 
