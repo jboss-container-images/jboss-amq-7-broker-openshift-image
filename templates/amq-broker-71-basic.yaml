@@ -1,14 +1,14 @@
 apiVersion: v1
-kind: Template
+kind:  
 labels:
   template: amq-broker-71-basic
-  xpaas: 1.4.9
+  xpaas: 1.4.10
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for JBoss AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: JBoss AMQ 7.1 (Ephemeral, no SSL)
+    openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
     version: 1.4.9
@@ -145,7 +145,7 @@ objects:
             successThreshold: 1
             tcpSocket:
               port: 5672
-            timeoutSeconds: 1          
+            timeoutSeconds: 1
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
