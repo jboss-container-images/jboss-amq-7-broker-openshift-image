@@ -116,7 +116,6 @@ modules:
           - name: os-logging
           - name: os-amq-permissions
           - name: amq.broker71.jolokia.access
-          - name: amq.broker71.configmap
           - name: amq.broker71.launch
           - name: amq.broker71.s2i
           - name: amq.custom.config
