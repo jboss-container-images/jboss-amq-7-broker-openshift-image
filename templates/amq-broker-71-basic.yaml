@@ -1,5 +1,5 @@
 apiVersion: v1
-kind:  
+kind: Template
 labels:
   template: amq-broker-71-basic
   xpaas: 1.4.10
@@ -130,22 +130,12 @@ objects:
             value: ${AMQ_QUEUE_MEMORY_LIMIT}
           image: amq-broker71-openshift
           imagePullPolicy: Always
-          livenessProbe:
-            failureThreshold: 3
-            initialDelaySeconds: 90
-            periodSeconds: 10
-            successThreshold: 1
-            tcpSocket:
-              port: 5672
-            timeoutSeconds: 1
           readinessProbe:
-            failureThreshold: 3
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            successThreshold: 1
-            tcpSocket:
-              port: 5672
-            timeoutSeconds: 1
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/amq/bin/readinessProbe.sh"            
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -188,8 +178,8 @@ parameters:
 - description: Queue names, separated by commas. These queues will be automatically created when the broker starts. If left empty, queues will be still created dynamically.
   displayName: Queues
   name: AMQ_QUEUES
-- description: Topic names, separated by commas. These topics will be automatically created when the broker starts. If left empty, topics will be still created dynamically.
-  displayName: Topics
+- description: Address names, separated by commas. These addresses will be automatically created when the broker starts. If left empty, addresses will be still created dynamically.
+  displayName: Addresses
   name: AMQ_ADDRESSES
 - description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
   displayName: AMQ Username
@@ -217,4 +207,4 @@ parameters:
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
   required: true
-  value: openshift
+  value: openshift 
