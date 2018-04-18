@@ -105,9 +105,9 @@ fi
 
 function configure() {
     instanceDir=$1
-
+    
     export CONTAINER_ID=$HOSTNAME
-    if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" ]; then
+    if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" -o ! -f ${instanceDir}/bin/artemis ]; then
         AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --host $BROKER_IP "
         if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
             AMQ_ARGS="--user $AMQ_USER --password $AMQ_PASSWORD $AMQ_ARGS "
@@ -169,7 +169,7 @@ function removeWhiteSpace() {
 
 function runServer() {
     instanceDir="${HOME}/${AMQ_NAME}"
-    
+
     configure $instanceDir
     echo "Running Broker"
     exec ${instanceDir}/bin/artemis run
