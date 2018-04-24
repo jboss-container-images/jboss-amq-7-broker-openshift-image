@@ -70,36 +70,35 @@ function updateAcceptors() {
     for protocol in ${protocols[@]}; do
       case "${protocol}" in
         "openwire")
-acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://${BROKER_IP}:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
+acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
           if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://${BROKER_IP}:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+    acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://0.0.0.0:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
           fi
           ;;
         "mqtt")
-acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://${BROKER_IP}:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
+acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
           if sslEnabled ; then
-acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://${BROKER_IP}:8883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://0.0.0.0:8883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
           fi
           ;;
         "amqp")
-acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://${BROKER_IP}:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"      
+acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"      
           if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://${BROKER_IP}:5671?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+    acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://0.0.0.0:5671?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
           fi
           ;;
         "stomp")
-acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://${BROKER_IP}:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
+acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
           if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://${BROKER_IP}:61612?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+    acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://0.0.0.0:61612?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
           fi
           ;;
         "hornetq")
-acceptors="${acceptors}            <acceptor name=\"hornetq\">tcp://${BROKER_IP}:5445?protocols=HORNETQ,STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
+acceptors="${acceptors}            <acceptor name=\"hornetq\">tcp://0.0.0.0:5445?protocols=HORNETQ,STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
           ;;
       esac
     done
     sed -i -ne "/<acceptors>/ {p; i $acceptors" -e ":a; n; /<\/acceptors>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
-    sed -i "s/\${BROKER_IP}/${BROKER_IP}/g" ${instanceDir}/etc/broker.xml
 fi
 }
 
@@ -108,7 +107,7 @@ function configure() {
     
     export CONTAINER_ID=$HOSTNAME
     if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" -o ! -f ${instanceDir}/bin/artemis ]; then
-        AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --host $BROKER_IP "
+        AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --host 0.0.0.0 "
         if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
             AMQ_ARGS="--user $AMQ_USER --password $AMQ_PASSWORD $AMQ_ARGS "
         fi
