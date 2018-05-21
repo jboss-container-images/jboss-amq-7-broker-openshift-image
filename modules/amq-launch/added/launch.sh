@@ -101,15 +101,18 @@ acceptors="${acceptors}            <acceptor name=\"hornetq\">tcp://0.0.0.0:5445
     sed -i -ne "/<acceptors>/ {p; i $acceptors" -e ":a; n; /<\/acceptors>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
 fi
 }
-
+      
 function configure() {
     instanceDir=$1
     
     export CONTAINER_ID=$HOSTNAME
     if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" -o ! -f ${instanceDir}/bin/artemis ]; then
-        AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --host 0.0.0.0 "
+    AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP "
         if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
             AMQ_ARGS="--user $AMQ_USER --password $AMQ_PASSWORD $AMQ_ARGS "
+        fi
+        if [ -n "$AMQ_DATA_DIR" ]; then
+            AMQ_ARGS="$AMQ_ARGS --data ${AMQ_DATA_DIR}"
         fi
         if [ -n "$AMQ_QUEUES" ]; then
             AMQ_ARGS="$AMQ_ARGS --queues $(removeWhiteSpace $AMQ_QUEUES)"
@@ -136,13 +139,16 @@ function configure() {
         fi
         if [ "$AMQ_CLUSTERED" = "true" ]; then
             echo "Broker will be clustered"
-            AMQ_ARGS="$AMQ_ARGS --clustered --cluster-user=$AMQ_CLUSTER_USER --cluster-password=$AMQ_CLUSTER_PASSWORD"
+            AMQ_ARGS="$AMQ_ARGS --clustered --cluster-user=$AMQ_CLUSTER_USER --cluster-password=$AMQ_CLUSTER_PASSWORD --host $BROKER_IP"
             if [ "$AMQ_REPLICATED" = "true" ]; then
+                echo "Broker will be clustered $AMQ_REPLICATED"
                 AMQ_ARGS="$AMQ_ARGS --replicated"
             fi
             if [ "$AMQ_SLAVE" = "true" ]; then
                 AMQ_ARGS="$AMQ_ARGS --slave"
             fi
+        else
+			AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"
         fi
         if [ "$AMQ_RESET_CONFIG" = "true" ]; then
             AMQ_ARGS="$AMQ_ARGS --force"
@@ -158,8 +164,8 @@ function configure() {
         $AMQ_HOME/bin/configure_jolokia_access.sh ${instanceDir}/etc/jolokia-access.xml
         updateAcceptors ${instanceDir}
         $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
-	$AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
-    fi
+        $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
+	fi
 }
 
 function removeWhiteSpace() {
@@ -167,11 +173,13 @@ function removeWhiteSpace() {
 }
 
 function runServer() {
+	echo "Configuring Broker"
     instanceDir="${HOME}/${AMQ_NAME}"
 
     configure $instanceDir
     echo "Running Broker"
     exec ${instanceDir}/bin/artemis run
+
 }
 
 runServer
