@@ -158,7 +158,7 @@ objects:
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
-            mountPath: /opt/amq/data
+            mountPath: ${AMQ_DATA_DIR}
         terminationGracePeriodSeconds: 60
     volumeClaimTemplates:
     - apiVersion: v1
@@ -231,6 +231,10 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
