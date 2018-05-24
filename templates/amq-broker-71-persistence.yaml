@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 labels:
   template: amq-broker-71-persistence
-  xpaas: 1.4.10
+  xpaas: 1.4.12
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
