@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 labels:
   template: amq-broker-71-custom
-  xpaas: 1.4.9
+  xpaas: 1.4.12
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
@@ -18,7 +18,7 @@ objects:
   kind: Service
   metadata:
     annotations:
-      description: The broker's Jolokia port.
+      description: The broker's console Jolokia port.
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq-jolokia
@@ -132,7 +132,7 @@ objects:
             value: ${BROKER_XML}
           - name: LOGGING_PROPERTIES
             value: ${LOGGING_PROPERTIES}
-          image: amq-broker71-openshift
+          image: amq-broker-71-openshift
           imagePullPolicy: Always
           readinessProbe:
             exec:
@@ -165,10 +165,20 @@ objects:
         - ${APPLICATION_NAME}-amq
         from:
           kind: ImageStreamTag
-          name: amq-broker71-openshift:1.0
+          name: amq-broker-71-openshift:1.0
           namespace: ${IMAGE_STREAM_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: console
+  spec:
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}-amq-jolokia
 parameters:
 - description: The name for the application.
   displayName: Application Name
