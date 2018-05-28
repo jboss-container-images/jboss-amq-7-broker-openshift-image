@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-71-basic
+  template: amq-broker-71-persistence-with-clustering
   xpaas: 1.4.12
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
@@ -12,7 +12,7 @@ metadata:
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
     version: 1.4.9
-  name: amq-broker-71-basic
+  name: amq-broker-71-persistence-with-clustering
 objects:
 - apiVersion: v1
   kind: Service
@@ -88,15 +88,68 @@ objects:
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
-  kind: DeploymentConfig
+  kind: Service
+  metadata:
+    annotations:
+      description: The JGroups ping port for clustering.
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ping
+  spec:
+    clusterIP: None  
+    ports:
+      - targetPort: 8888
+        port: 8888
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq      
+- apiVersion: apps/v1
+  kind: StatefulSet
   metadata:
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
+    annotations:
+      statefulsets.kubernetes.io/drainer-pod-template: |
+        {
+          "metadata": {
+            "labels": {
+              "app": "${APPLICATION_NAME}-amq-drainer"
+            }
+          },
+          "spec": {
+            "terminationGracePeriodSeconds": 5,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "POD_NAMESPACE",
+                    "valueFrom": {
+                    "fieldRef": {
+                      "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  }
+                ]              
+                "image": "172.30.230.48:5000/openshift/amq-broker-71-openshift:1.0@sha256:8370bab1d0cfffbeb66067fa7ad64e883dffe96d3cb0c1ed0e6212ecd9eeb9f2",
+                "name": "${APPLICATION_NAME}-amq",
+                
+                "command": ["/bin/sh", "-c", "echo \"Draining data... this takes 10 seconds!\" ; /opt/amq/bin/drain.sh; sleep 100 ; rm /var/data/test.txt; echo \"Data deleted!\""],               
+                "volumeMounts": [
+                  {
+                    "name": "${APPLICATION_NAME}-amq-pvol",
+                    "mountPath": "${AMQ_DATA_DIR}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
   spec:
-    replicas: 1
+    replicas: ${AMQ_REPLICAS}
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
+      matchLabels:
+        app: ${APPLICATION_NAME}-amq
     strategy:
       rollingParams:
         maxSurge: 0
@@ -106,6 +159,7 @@ objects:
         labels:
           application: ${APPLICATION_NAME}
           deploymentConfig: ${APPLICATION_NAME}-amq
+          app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
       spec:
         containers:
@@ -128,14 +182,27 @@ objects:
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_QUEUE_MEMORY_LIMIT
             value: ${AMQ_QUEUE_MEMORY_LIMIT}
-          image: amq-broker-71-openshift
-          imagePullPolicy: Always
-          readinessProbe:
-            exec:
-              command:
-              - "/bin/bash"
-              - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"            
+          - name: AMQ_DATA_DIR
+            value: ${AMQ_DATA_DIR}
+          - name: AMQ_CLUSTERED
+            value: ${AMQ_CLUSTERED}
+          - name: AMQ_REPLICATED
+            value: ${AMQ_REPLICATED} 
+          - name: AMQ_REPLICAS
+            value: ${AMQ_REPLICAS}                                   
+          - name: AMQ_CLUSTER_USER
+            value: ${AMQ_CLUSTER_USER}
+          - name: AMQ_CLUSTER_PASSWORD
+            value: ${AMQ_CLUSTER_PASSWORD}
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+            value: '8888'
+
+          image: "172.30.230.48:5000/openshift/amq-broker-71-openshift:1.0@sha256:8370bab1d0cfffbeb66067fa7ad64e883dffe96d3cb0c1ed0e6212ecd9eeb9f2"         
+          imagePullPolicy: Always            
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -153,7 +220,23 @@ objects:
           - containerPort: 61616
             name: artemis
             protocol: TCP
-        terminationGracePeriodSeconds: 60
+          volumeMounts:
+          - name: ${APPLICATION_NAME}-amq-pvol
+            mountPath: ${AMQ_DATA_DIR}
+        serviceAccount: ${APPLICATION_NAME}-service-account
+        serviceAccountName: ${APPLICATION_NAME}-service-account           
+        terminationGracePeriodSeconds: 5
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ${APPLICATION_NAME}-amq-pvol
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 1Gi            
     triggers:
     - imageChangeParams:
         automatic: true
@@ -174,7 +257,7 @@ objects:
   spec:
     to:
       kind: Service
-      name: ${APPLICATION_NAME}-amq-jolokia    
+      name: ${APPLICATION_NAME}-amq-jolokia  
 parameters:
 - description: The name for the application.
   displayName: Application Name
@@ -191,6 +274,11 @@ parameters:
 - description: Address names, separated by commas. These addresses will be automatically created when the broker starts. If left empty, addresses will be still created dynamically.
   displayName: Addresses
   name: AMQ_ADDRESSES
+- description: Size of the volume used by AMQ for persisting messages.
+  displayName: AMQ Volume Size
+  name: VOLUME_CAPACITY
+  value: 1Gi
+  required: true
 - description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
@@ -209,6 +297,32 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data  
+- description: Clustered
+  displayName: clustered
+  name: AMQ_CLUSTERED
+  value: 'true'
+- description: Number of broker replicas for a cluster
+  displayName: Number of Replicas
+  name: AMQ_REPLICAS
+  value: '2'  
+- description: Replicated
+  displayName: replicated
+  name: AMQ_REPLICATED
+  value: 'false'  
+- description: Clustered user
+  displayName: cluster user
+  from: user[a-zA-Z0-9]{3}
+  generate: expression  
+  name: AMQ_CLUSTER_USER
+- description: Clustered password
+  displayName: cluster password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression  
+  name: AMQ_CLUSTER_PASSWORD
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
@@ -217,4 +331,4 @@ parameters:
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
   required: true
-  value: openshift 
+  value: openshift
