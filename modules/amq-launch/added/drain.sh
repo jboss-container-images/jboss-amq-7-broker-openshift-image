@@ -5,7 +5,6 @@ export BROKER_IP=`hostname -I | cut -f 1 -d ' '`
 instanceDir="${HOME}/${AMQ_NAME}"
 
 ENDPOINT_NAME="${AMQ_NAME}-amq-tcp"
-POD_NAMESPACE=`cat ${AMQ_DATA_DIR"/podnamespace`
 
 endpointsUrl="https://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/api/v1/namespaces/${POD_NAMESPACE}/"
 endpointsAuth="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
@@ -33,6 +32,8 @@ while [ 1 ]; do
 
 	count=$(( count + 1 ))
 done
+
+source /opt/amq/bin/launch.sh
 
 SCALE_TO_BROKER_IP=$ip
 
