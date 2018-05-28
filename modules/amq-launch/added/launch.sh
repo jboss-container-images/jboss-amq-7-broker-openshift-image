@@ -200,16 +200,16 @@ function removeWhiteSpace() {
 }
 
 function runServer() {
-	echo ${POD_NAMESPACE} > ${AMQ_DATA_DIR}/podnamespace
 	
 	echo "Configuring Broker"
     instanceDir="${HOME}/${AMQ_NAME}"
 
     configure $instanceDir
 
-    echo "Running Broker"
-    exec ${instanceDir}/bin/artemis run
-
+	if [ "$1" = "start" ]; then
+    	echo "Running Broker"
+    	exec ${instanceDir}/bin/artemis run
+    fi
 }
 
-runServer
+runServer $1
