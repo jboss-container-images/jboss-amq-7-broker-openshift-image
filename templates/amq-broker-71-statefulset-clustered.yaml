@@ -159,6 +159,12 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/amq/bin/readinessProbe.sh"                   
           image: amq-broker-71-openshift:1.0
           imagePullPolicy: Always
           lifecycle:
