@@ -11,7 +11,7 @@ metadata:
     openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
-    version: 1.4.9
+    version: 1.4.12
   name: amq-broker-71-persistence-with-clustering
 objects:
 - apiVersion: v1
@@ -200,7 +200,7 @@ objects:
                 "image": "amq-broker-71-openshift:1.0",
                 "name": "${APPLICATION_NAME}-amq",
                 
-                "command": ["/bin/sh", "-c", "echo \"Draining data... this takes 10 seconds!\" ; /opt/amq/bin/drain.sh; sleep 1000 ; rm /var/data/test.txt; echo \"Data deleted!\""],               
+                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed!\""],               
                 "volumeMounts": [
                   {
                     "name": "${APPLICATION_NAME}-amq-pvol",
@@ -266,6 +266,12 @@ objects:
                 fieldPath: metadata.namespace
           - name: OPENSHIFT_DNS_PING_SERVICE_PORT
             value: '8888'
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/amq/bin/readinessProbe.sh"             
           image: "amq-broker-71-openshift:1.0"         
           imagePullPolicy: Always            
           name: ${APPLICATION_NAME}-amq
