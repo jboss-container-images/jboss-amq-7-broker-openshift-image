@@ -142,7 +142,7 @@ objects:
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
-            name: jolokia
+            name: console-jolokia
             protocol: TCP
           - containerPort: 5672
             name: amqp

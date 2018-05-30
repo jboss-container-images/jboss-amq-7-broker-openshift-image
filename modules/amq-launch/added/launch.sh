@@ -7,6 +7,7 @@ if [ "${SCRIPT_DEBUG}" = "true" ] ; then
     echo "Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed"
 fi
 
+
 export BROKER_IP=`hostname -I | cut -f 1 -d ' '`
 CONFIG_TEMPLATES=/config_templates
 #Set the memory options
@@ -14,6 +15,7 @@ JAVA_OPTS="$(adjust_java_options ${JAVA_OPTS})"
 
 #GC Option conflicts with the one already configured.
 JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
+JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
 function sslPartial() {
     [ -n "$AMQ_KEYSTORE_TRUSTSTORE_DIR" -o -n "$AMQ_KEYSTORE" -o -n "$AMQ_TRUSTSTORE" -o -n "$AMQ_KEYSTORE_PASSWORD" -o -n "$AMQ_TRUSTSTORE_PASSWORD" ]
@@ -57,57 +59,74 @@ function configureSSL() {
 }
 
 function updateAcceptors() {
-
-    instanceDir=$1	
-    echo "keystorepassword $keyStorePassword"
-    echo "keystore filepath: $keyStorePath"
+	if sslEnabled ; then
+    	instanceDir=$1	
+    	echo "keystorepassword $keyStorePassword"
+    	echo "keystore filepath: $keyStorePath"
 	
-    IFS=',' read -a protocols <<< $(find_env "AMQ_PROTOCOL" "openwire,amqp,stomp,mqtt,hornetq")
-    connectionsAllowed=$(find_env "AMQ_MAX_CONNECTIONS" "1000")
+    	IFS=',' read -a protocols <<< $(find_env "AMQ_TRANSPORTS" "openwire,amqp,stomp,mqtt,hornetq")
+    	connectionsAllowed=$(find_env "AMQ_MAX_CONNECTIONS" "1000")
 
-    if [ "${#protocols[@]}" -ne "0" ]; then
-    acceptors=""
-    for protocol in ${protocols[@]}; do
-      case "${protocol}" in
-        "openwire")
-acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
-          if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"artemis\">tcp://0.0.0.0:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
-          fi
-          ;;
-        "mqtt")
-acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
-          if sslEnabled ; then
-acceptors="${acceptors}            <acceptor name=\"mqtt\">tcp://0.0.0.0:8883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
-          fi
-          ;;
-        "amqp")
-acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed}</acceptor>\n"      
-          if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"amqp\">tcp://0.0.0.0:5671?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
-          fi
-          ;;
-        "stomp")
-acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
-          if sslEnabled ; then
-    acceptors="${acceptors}            <acceptor name=\"stomp\">tcp://0.0.0.0:61612?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
-          fi
-          ;;
-        "hornetq")
-acceptors="${acceptors}            <acceptor name=\"hornetq\">tcp://0.0.0.0:5445?protocols=HORNETQ,STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed}</acceptor>\n"
-          ;;
-      esac
-    done
-    sed -i -ne "/<acceptors>/ {p; i $acceptors" -e ":a; n; /<\/acceptors>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
+    	if [ "${#protocols[@]}" -ne "0" ]; then
+    		acceptors=""
+    		for protocol in ${protocols[@]}; do
+    		case "${protocol}" in
+        	"openwire")
+				acceptors="${acceptors}            <acceptor name=\"artemis-ssl\">tcp://${ACCEPTOR_IP}:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+        	;;
+        	"mqtt")
+				acceptors="${acceptors}            <acceptor name=\"mqtt-ssl\">tcp://${ACCEPTOR_IP}:8883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+        	;;
+        	"amqp")
+    			acceptors="${acceptors}            <acceptor name=\"amqp-ssl\">tcp://${ACCEPTOR_IP}:5671?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+        	;;
+        	"stomp")
+    			acceptors="${acceptors}            <acceptor name=\"stomp-ssl\">tcp://${ACCEPTOR_IP}:61612?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true;connectionsAllowed=${connectionsAllowed};sslEnabled=true;keyStorePath=${keyStorePath};keyStorePassword=${keyStorePassword}</acceptor>\n"
+        	;;
+    		esac
+    		done
+    	fi
+	safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')	    	
+	sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml    
 fi
 }
-      
+
+function modifyDiscovery() {
+    discoverygroup=""
+discoverygroup="${discoverygroup}       <discovery-group name=\"my-discovery-group\">"
+    discoverygroup="${discoverygroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
+    discoverygroup="${discoverygroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
+    discoverygroup="${discoverygroup}          <refresh-timeout>10000</refresh-timeout>"
+    discoverygroup="${discoverygroup}       </discovery-group>	"
+	sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
+
+    broadcastgroup=""		
+    broadcastgroup="${broadcastgroup}       <broadcast-group name=\"my-broadcast-group\">"
+    broadcastgroup="${broadcastgroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
+    broadcastgroup="${broadcastgroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
+    broadcastgroup="${broadcastgroup}          <connector-ref>artemis</connector-ref>"
+    broadcastgroup="${broadcastgroup}       </broadcast-group>	"
+	sed -i -ne "/<broadcast-groups>/ {p; i $broadcastgroup" -e ":a; n; /<\/broadcast-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
+
+    clusterconnections=""
+    clusterconnections="${clusterconnections}       <cluster-connection name=\"my-cluster\">"
+	clusterconnections="${clusterconnections}          <connector-ref>artemis</connector-ref>"
+    clusterconnections="${clusterconnections}          <retry-interval>500</retry-interval>"
+    clusterconnections="${clusterconnections}          <use-duplicate-detection>true</use-duplicate-detection>"
+    clusterconnections="${clusterconnections}          <message-load-balancing>STRICT</message-load-balancing>"
+    clusterconnections="${clusterconnections}          <max-hops>1</max-hops>"
+    clusterconnections="${clusterconnections}          <discovery-group-ref discovery-group-name=\"my-discovery-group\"/>"
+    clusterconnections="${clusterconnections}       </cluster-connection>	"
+	sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml							
+}
+
+         
 function configure() {
     instanceDir=$1
     
     export CONTAINER_ID=$HOSTNAME
     if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" -o ! -f ${instanceDir}/bin/artemis ]; then
-    AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP "
+    	AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --java-options=-Djava.net.preferIPv4Stack=true "
         if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
             AMQ_ARGS="--user $AMQ_USER --password $AMQ_PASSWORD $AMQ_ARGS "
         fi
@@ -147,8 +166,10 @@ function configure() {
             if [ "$AMQ_SLAVE" = "true" ]; then
                 AMQ_ARGS="$AMQ_ARGS --slave"
             fi
+            ACCEPTOR_IP=$BROKER_IP
         else
-			AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"
+        	AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"
+			ACCEPTOR_IP="0.0.0.0"
         fi
         if [ "$AMQ_RESET_CONFIG" = "true" ]; then
             AMQ_ARGS="$AMQ_ARGS --force"
@@ -161,8 +182,14 @@ function configure() {
         echo "Creating Broker with args $AMQ_ARGS"
 
         $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
+        if [ "$AMQ_CLUSTERED" = "true" ]; then
+			modifyDiscovery
+		fi
         $AMQ_HOME/bin/configure_jolokia_access.sh ${instanceDir}/etc/jolokia-access.xml
-        updateAcceptors ${instanceDir}
+        if [ "$AMQ_KEYSTORE_TRUSTSTORE_DIR" ]; then
+        	echo "Updating acceptors for SSL"
+        	updateAcceptors ${instanceDir}
+		fi
         $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
         $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
 	fi
@@ -173,13 +200,16 @@ function removeWhiteSpace() {
 }
 
 function runServer() {
+	
 	echo "Configuring Broker"
     instanceDir="${HOME}/${AMQ_NAME}"
 
     configure $instanceDir
-    echo "Running Broker"
-    exec ${instanceDir}/bin/artemis run
 
+	if [ "$1" = "start" ]; then
+    	echo "Running Broker"
+    	exec ${instanceDir}/bin/artemis run
+    fi
 }
 
-runServer
+runServer $1

@@ -43,6 +43,9 @@ envs:
     - name: SCRIPT_DEBUG
       description: If set to true, ensurses that the bash scripts are executed with the -x option, printing the commands and their arguments as they are executed.
       example: "true"
+    - name: AMQ_DATA_DIR
+      description: Allows you to set the data directory to be on persistent storage.
+      example: /opt/amq/data      
     - name: AMQ_CLUSTERED
       description: Enable Clustering
       example: "true"
@@ -95,11 +98,15 @@ ports:
     - value: 5672
     - value: 5671
     - value: 1883
-    - value: 8181
+    - value: 8161
+    - value: 9876
     - value: 61613
     - value: 61612
     - value: 61616
     - value: 61617
+    - value: 7800
+    - value: 8888
+    
 modules:
       repositories:
           - name: cct_module
@@ -115,11 +122,11 @@ modules:
           - name: openshift-passwd
           - name: os-logging
           - name: os-amq-permissions
+          - name: os-java-jolokia
           - name: amq.broker71.jolokia.access
           - name: amq.broker71.launch
           - name: amq.broker71.s2i
-          - name: amq.custom.config
-        
+          - name: amq.custom.config   
 packages:
       repositories:
           - jboss-os
@@ -132,6 +139,7 @@ run:
       user: 185
       cmd:
           - "/opt/amq/bin/launch.sh"
+          - "start"                
 osbs:
       repository:
             name: containers/amq-7-broker
