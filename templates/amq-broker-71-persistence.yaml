@@ -11,7 +11,7 @@ metadata:
     openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
-    version: 1.4.9
+    version: 1.4.12
   name: amq-broker-71-persistence
 objects:
 - apiVersion: v1
