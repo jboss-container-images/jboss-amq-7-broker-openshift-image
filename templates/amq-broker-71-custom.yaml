@@ -126,8 +126,6 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
-          - name: AMQ_QUEUE_MEMORY_LIMIT
-            value: ${AMQ_QUEUE_MEMORY_LIMIT}
           - name: BROKER_XML
             value: ${BROKER_XML}
           - name: LOGGING_PROPERTIES

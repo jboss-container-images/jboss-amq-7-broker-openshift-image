@@ -203,8 +203,6 @@ objects:
               value: ${AMQ_KEYSTORE_PASSWORD}           
             - name: AMQ_GLOBAL_MAX_SIZE
               value: ${AMQ_GLOBAL_MAX_SIZE}
-            - name: AMQ_QUEUE_MEMORY_LIMIT
-              value: ${AMQ_QUEUE_MEMORY_LIMIT}
             image: amq-broker-71-openshift
             imagePullPolicy: Always
             readinessProbe:
