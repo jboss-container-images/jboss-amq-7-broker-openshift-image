@@ -11,7 +11,7 @@ metadata:
     openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
-    version: 1.4.9
+    version: 1.4.12
   name: amq-broker-71-statefulset-clustered
 objects:
 - apiVersion: v1
@@ -143,8 +143,6 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
-          - name: AMQ_QUEUE_MEMORY_LIMIT
-            value: ${AMQ_QUEUE_MEMORY_LIMIT}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
           - name: AMQ_CLUSTERED
@@ -192,8 +190,6 @@ objects:
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
             mountPath: /opt/amq/data
-        serviceAccount: ${APPLICATION_NAME}-service-account
-        serviceAccountName: ${APPLICATION_NAME}-service-account           
         terminationGracePeriodSeconds: 60
     volumeClaimTemplates:
     - apiVersion: v1

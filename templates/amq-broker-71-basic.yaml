@@ -11,7 +11,7 @@ metadata:
     openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
-    version: 1.4.9
+    version: 1.4.12
   name: amq-broker-71-basic
 objects:
 - apiVersion: v1
@@ -126,8 +126,6 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
-          - name: AMQ_QUEUE_MEMORY_LIMIT
-            value: ${AMQ_QUEUE_MEMORY_LIMIT}
           image: amq-broker-71-openshift
           imagePullPolicy: Always
           readinessProbe:
