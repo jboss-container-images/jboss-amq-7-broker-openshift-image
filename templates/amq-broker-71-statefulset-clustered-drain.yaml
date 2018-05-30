@@ -118,8 +118,6 @@ objects:
             }
           },
           "spec": {
-            "serviceAccount": "${APPLICATION_NAME}-service-account",
-            "serviceAccountName": "${APPLICATION_NAME}-service-account",          
             "terminationGracePeriodSeconds": 5,
             "containers": [
               {
@@ -155,10 +153,6 @@ objects:
                   {
                     "name": "AMQ_GLOBAL_MAX_SIZE",
                     "value": "${AMQ_GLOBAL_MAX_SIZE}"
-                  },
-                  {
-                    "name": "AMQ_QUEUE_MEMORY_LIMIT",
-                    "value": "${AMQ_QUEUE_MEMORY_LIMIT}"
                   },
                   {
                     "name": "AMQ_DATA_DIR",
@@ -246,8 +240,6 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
-          - name: AMQ_QUEUE_MEMORY_LIMIT
-            value: ${AMQ_QUEUE_MEMORY_LIMIT}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
           - name: AMQ_CLUSTERED
@@ -294,8 +286,6 @@ objects:
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
             mountPath: ${AMQ_DATA_DIR}
-        serviceAccount: ${APPLICATION_NAME}-service-account
-        serviceAccountName: ${APPLICATION_NAME}-service-account           
         terminationGracePeriodSeconds: 5
     volumeClaimTemplates:
     - apiVersion: v1
