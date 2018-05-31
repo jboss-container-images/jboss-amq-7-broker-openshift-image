@@ -11,26 +11,26 @@ endpointsAuth="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/servic
 
 endpointsCode=$(curl -s -o /dev/null -w "%{http_code}" -G -k -H "${endpointsAuth}" ${endpointsUrl})
 if [ $endpointsCode -ne 200 ]; then
-	echo "Can't find endpoints with ips status <${endpointsCode}>" 
-	exit 1
+  echo "Can't find endpoints with ips status <${endpointsCode}>" 
+  exit 1
 fi
 
 ENDPOINTS=$(curl -s -X GET -G -k -H "${endpointsAuth}" ${endpointsUrl}"endpoints/${ENDPOINT_NAME}")
 echo $ENDPOINTS
 count=0
 while [ 1 ]; do
-	ip=$(echo $ENDPOINTS | python -c "import sys, json; print json.load(sys.stdin)['subsets'][0]['addresses'][${count}]['ip']")
-	if [ $? -ne 0 ]; then
-		echo "Can't find ip to scale down to tried ${count} ips"
-		exit
-	fi
+  ip=$(echo $ENDPOINTS | python -c "import sys, json; print json.load(sys.stdin)['subsets'][0]['addresses'][${count}]['ip']")
+  if [ $? -ne 0 ]; then
+    echo "Can't find ip to scale down to tried ${count} ips"
+    exit
+  fi
 
-	echo "got ip ${ip} broker ip is ${BROKER_IP}"
-	if [ "$ip" != "$BROKER_IP" ]; then
-		break
-	fi
+  echo "got ip ${ip} broker ip is ${BROKER_IP}"
+  if [ "$ip" != "$BROKER_IP" ]; then
+    break
+  fi
 
-	count=$(( count + 1 ))
+  count=$(( count + 1 ))
 done
 
 source /opt/amq/bin/launch.sh
@@ -57,6 +57,6 @@ ps -C java
 
 while [ $? -eq 0 ]
 do
-	sleep 15;
-	ps -C java;
+  sleep 15;
+  ps -C java;
 done

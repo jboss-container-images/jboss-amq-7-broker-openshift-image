@@ -39,7 +39,7 @@
     <FD_SOCK/>
     <FD timeout="3000" max_tries="3" />
     <VERIFY_SUSPECT timeout="1500"  />
-	<BARRIER />
+    <BARRIER />
     <pbcast.NAKACK2 use_mcast_xmit="false"
                    discard_delivered_msgs="true"/>
     <UNICAST3 />
