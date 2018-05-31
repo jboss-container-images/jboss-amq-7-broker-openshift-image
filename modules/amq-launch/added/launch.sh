@@ -36,6 +36,41 @@ function find_env() {
   echo "${var:-$2}"
 }
 
+function configureUserAuthentication() {
+  if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
+    AMQ_ARGS="$AMQ_ARGS --user $AMQ_USER --password $AMQ_PASSWORD "
+  else
+    echo "Required variable missing: both AMQ_USER and AMQ_PASSWORD are required."
+    exit 1
+  fi
+  if [ -z "$AMQ_ALLOW_ANONYMOUS" ]; then
+    echo "-z is true"
+  fi
+  if [ -z "$AMQ_ALLOW_ANONYMOUS" -o "$AMQ_ALLOW_ANONYMOUS" = "true" ]; then
+    AMQ_ARGS="$AMQ_ARGS --allow-anonymous"
+  else
+    AMQ_ARGS="$AMQ_ARGS --require-login"
+  fi
+}
+
+function configureNetworking() {
+  if [ "$AMQ_CLUSTERED" = "true" ]; then
+    echo "Broker will be clustered"
+    AMQ_ARGS="$AMQ_ARGS --clustered --cluster-user=$AMQ_CLUSTER_USER --cluster-password=$AMQ_CLUSTER_PASSWORD --host $BROKER_IP"
+    if [ "$AMQ_REPLICATED" = "true" ]; then
+      echo "Broker will be clustered $AMQ_REPLICATED"
+      AMQ_ARGS="$AMQ_ARGS --replicated"
+    fi
+    if [ "$AMQ_SLAVE" = "true" ]; then
+      AMQ_ARGS="$AMQ_ARGS --slave"
+    fi
+    ACCEPTOR_IP=$BROKER_IP
+  else
+    AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"
+    ACCEPTOR_IP="0.0.0.0"
+  fi
+}
+
 function configureSSL() {
   sslDir=$(find_env "AMQ_KEYSTORE_TRUSTSTORE_DIR" "")
   keyStoreFile=$(find_env "AMQ_KEYSTORE" "")
@@ -60,7 +95,8 @@ function configureSSL() {
 
 function updateAcceptors() {
   if sslEnabled ; then
-    instanceDir=$1  
+    instanceDir=$1	
+    
     echo "keystorepassword $keyStorePassword"
     echo "keystore filepath: $keyStorePath"
 
@@ -86,7 +122,7 @@ function updateAcceptors() {
 esac
       done
     fi
-    safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')        
+    safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')	    	
     sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml    
   fi
 }
@@ -97,16 +133,16 @@ function modifyDiscovery() {
   discoverygroup="${discoverygroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
   discoverygroup="${discoverygroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
   discoverygroup="${discoverygroup}          <refresh-timeout>10000</refresh-timeout>"
-  discoverygroup="${discoverygroup}       </discovery-group>  "
-  sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml 
+  discoverygroup="${discoverygroup}       </discovery-group>	"
+  sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
 
-  broadcastgroup=""   
+  broadcastgroup=""		
   broadcastgroup="${broadcastgroup}       <broadcast-group name=\"my-broadcast-group\">"
   broadcastgroup="${broadcastgroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
   broadcastgroup="${broadcastgroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
   broadcastgroup="${broadcastgroup}          <connector-ref>artemis</connector-ref>"
-  broadcastgroup="${broadcastgroup}       </broadcast-group>  "
-  sed -i -ne "/<broadcast-groups>/ {p; i $broadcastgroup" -e ":a; n; /<\/broadcast-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml 
+  broadcastgroup="${broadcastgroup}       </broadcast-group>	"
+  sed -i -ne "/<broadcast-groups>/ {p; i $broadcastgroup" -e ":a; n; /<\/broadcast-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
 
   clusterconnections=""
   clusterconnections="${clusterconnections}       <cluster-connection name=\"my-cluster\">"
@@ -116,8 +152,8 @@ function modifyDiscovery() {
   clusterconnections="${clusterconnections}          <message-load-balancing>STRICT</message-load-balancing>"
   clusterconnections="${clusterconnections}          <max-hops>1</max-hops>"
   clusterconnections="${clusterconnections}          <discovery-group-ref discovery-group-name=\"my-discovery-group\"/>"
-  clusterconnections="${clusterconnections}       </cluster-connection> "
-  sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml             
+  clusterconnections="${clusterconnections}       </cluster-connection>	"
+  sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml							
 }
 
 
@@ -126,10 +162,8 @@ function configure() {
 
   export CONTAINER_ID=$HOSTNAME
   if [ ! -d ${instanceDir} -o "$AMQ_RESET_CONFIG" = "true" -o ! -f ${instanceDir}/bin/artemis ]; then
-    AMQ_ARGS="--role $AMQ_ROLE --name $AMQ_NAME --allow-anonymous --http-host $BROKER_IP --java-options=-Djava.net.preferIPv4Stack=true "
-    if [ -n "${AMQ_USER}" -a -n "${AMQ_PASSWORD}" ] ; then
-      AMQ_ARGS="--user $AMQ_USER --password $AMQ_PASSWORD $AMQ_ARGS "
-    fi
+    AMQ_ARGS="--silent --role $AMQ_ROLE --name $AMQ_NAME --http-host $BROKER_IP --java-options=-Djava.net.preferIPv4Stack=true "
+    configureUserAuthentication
     if [ -n "$AMQ_DATA_DIR" ]; then
       AMQ_ARGS="$AMQ_ARGS --data ${AMQ_DATA_DIR}"
     fi
@@ -156,32 +190,18 @@ function configure() {
     if [ -n "$GLOBAL_MAX_SIZE" ]; then
       AMQ_ARGS="$AMQ_ARGS --global-max-size $(removeWhiteSpace $GLOBAL_MAX_SIZE)"
     fi
-    if [ "$AMQ_CLUSTERED" = "true" ]; then
-      echo "Broker will be clustered"
-      AMQ_ARGS="$AMQ_ARGS --clustered --cluster-user=$AMQ_CLUSTER_USER --cluster-password=$AMQ_CLUSTER_PASSWORD --host $BROKER_IP"
-      if [ "$AMQ_REPLICATED" = "true" ]; then
-        echo "Broker will be clustered $AMQ_REPLICATED"
-        AMQ_ARGS="$AMQ_ARGS --replicated"
-      fi
-      if [ "$AMQ_SLAVE" = "true" ]; then
-        AMQ_ARGS="$AMQ_ARGS --slave"
-      fi
-      ACCEPTOR_IP=$BROKER_IP
-    else
-      AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"
-      ACCEPTOR_IP="0.0.0.0"
-    fi
     if [ "$AMQ_RESET_CONFIG" = "true" ]; then
       AMQ_ARGS="$AMQ_ARGS --force"
     fi
     if [ "$AMQ_EXTRA_ARGS" ]; then
       AMQ_ARGS="$AMQ_ARGS $AMQ_EXTRA_ARGS"
     fi
-
+    configureNetworking
     configureSSL
-    echo "Creating Broker with args $AMQ_ARGS"
 
+    echo "Creating Broker with args $AMQ_ARGS"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
+
     if [ "$AMQ_CLUSTERED" = "true" ]; then
       modifyDiscovery
     fi
@@ -190,6 +210,7 @@ function configure() {
       echo "Updating acceptors for SSL"
       updateAcceptors ${instanceDir}
     fi
+
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
   fi

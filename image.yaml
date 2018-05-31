@@ -25,6 +25,9 @@ envs:
     - name: AMQ_ROLE
       example: admin
       description: Role corresponding to AMQ_ROLE
+    - name: AMQ_ALLOW_ANONYMOUS
+      example: true
+      description: Enables anonymous configuration on security
     - name: AMQ_NAME
       example: broker
       description: Name of the Broker corresponding to AMQ_NAME
