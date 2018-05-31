@@ -155,6 +155,10 @@ objects:
                     "value": "${AMQ_GLOBAL_MAX_SIZE}"
                   },
                   {
+                    "name": "AMQ_ALLOW_ANONYMOUS",
+                    "value": "${AMQ_ALLOW_ANONYMOUS}"
+                  },
+                  {
                     "name": "AMQ_DATA_DIR",
                     "value": "${AMQ_DATA_DIR}"
                   },
@@ -240,6 +244,8 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
+          - name: AMQ_ALLOW_ANONYMOUS
+            value: ${AMQ_ALLOW_ANONYMOUS}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
           - name: AMQ_CLUSTERED
@@ -388,6 +394,9 @@ parameters:
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
   value: 100 gb
+- description: "Determines whether or not the broker will allow anonymous access."
+  displayName: AMQ Allow Anonymous
+  name: AMQ_ALLOW_ANONYMOUS
 - description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
