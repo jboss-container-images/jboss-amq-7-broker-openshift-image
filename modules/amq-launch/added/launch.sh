@@ -43,7 +43,6 @@ function configureUserAuthentication() {
     echo "Required variable missing: both AMQ_USER and AMQ_PASSWORD are required."
     exit 1
   fi
-   echo "<${AMQ_ALLOW_ANONYMOUS}> IS THE VALUE"
   if [ -z "$AMQ_ALLOW_ANONYMOUS" ]; then
     echo "-z is true"
   fi
