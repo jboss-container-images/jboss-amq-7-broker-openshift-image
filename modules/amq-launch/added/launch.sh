@@ -96,6 +96,7 @@ function configureSSL() {
 function updateAcceptors() {
   if sslEnabled ; then
     instanceDir=$1	
+    
     echo "keystorepassword $keyStorePassword"
     echo "keystore filepath: $keyStorePath"
 
@@ -195,7 +196,6 @@ function configure() {
     if [ "$AMQ_EXTRA_ARGS" ]; then
       AMQ_ARGS="$AMQ_ARGS $AMQ_EXTRA_ARGS"
     fi
-
     configureNetworking
     configureSSL
 

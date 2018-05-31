@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ true = "${DEBUG}" ] ; then
-    # short circuit readiness check in dev mode
-    exit 0
+  # short circuit readiness check in dev mode
+  exit 0
 fi
 
 OUTPUT=/tmp/readiness-output
