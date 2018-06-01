@@ -205,6 +205,8 @@ objects:
               value: ${AMQ_GLOBAL_MAX_SIZE}
             - name: AMQ_ALLOW_ANONYMOUS
               value: ${AMQ_ALLOW_ANONYMOUS}
+            - name: AMQ_DATA_DIR
+              value: ${AMQ_DATA_DIR}
             image: amq-broker-71-openshift
             imagePullPolicy: Always
             readinessProbe:
