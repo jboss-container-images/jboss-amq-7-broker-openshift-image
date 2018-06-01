@@ -191,7 +191,7 @@ objects:
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
-            mountPath: /opt/amq/data
+            mountPath: ${AMQ_DATA_DIR}
         terminationGracePeriodSeconds: 60
     volumeClaimTemplates:
     - apiVersion: v1
@@ -279,6 +279,10 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access."
   displayName: AMQ Allow Anonymous
   name: AMQ_ALLOW_ANONYMOUS
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data  
 - description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
