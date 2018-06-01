@@ -303,7 +303,7 @@ objects:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: 1Gi            
+            storage: ${VOLUME_CAPACITY}
     triggers:
     - imageChangeParams:
         automatic: true
@@ -375,7 +375,7 @@ parameters:
 - description: Number of broker replicas for a cluster
   displayName: Number of Replicas
   name: AMQ_REPLICAS
-  value: '2'  
+  value: '2'
 - description: Replicated
   displayName: replicated
   name: AMQ_REPLICATED
