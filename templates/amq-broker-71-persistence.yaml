@@ -108,6 +108,8 @@ objects:
           deploymentConfig: ${APPLICATION_NAME}-amq
           app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
+        annotations:
+          alpha.image.policy.openshift.io/resolve-names: '*'
       spec:
         containers:
         - env:
