@@ -110,6 +110,7 @@ objects:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
     annotations:
+      alpha.image.policy.openshift.io/resolve-names: '*'
       statefulsets.kubernetes.io/drainer-pod-template: |
         {
           "metadata": {
