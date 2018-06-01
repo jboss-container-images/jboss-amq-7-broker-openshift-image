@@ -191,7 +191,7 @@ objects:
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
-            mountPath: /opt/amq/data
+            mountPath: ${AMQ_DATA_DIR}
         terminationGracePeriodSeconds: 60
     volumeClaimTemplates:
     - apiVersion: v1
