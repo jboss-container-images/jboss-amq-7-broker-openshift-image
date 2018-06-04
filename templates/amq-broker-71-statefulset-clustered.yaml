@@ -8,9 +8,13 @@ metadata:
   annotations:
     description: Application template for JBoss AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
+    openshift.io/display-name: JBoss AMQ Broker 7.1 (no SSL, clustered)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
+    template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-jboss-amq/'
+    template.openshift.io/long-description: >-
+      This template defines resources needed to develop Red Hat AMQ Broker 7.1 based application, including a deployment configuration, using persistent storage. These can be deployed as standalone or in a mesh.
+    template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.12
   name: amq-broker-71-statefulset-clustered
 objects:
