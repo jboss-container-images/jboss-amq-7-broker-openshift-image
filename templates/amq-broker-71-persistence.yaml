@@ -131,8 +131,8 @@ objects:
             value: ${AMQ_ADDRESSES}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
-          - name: AMQ_ALLOW_ANONYMOUS
-            value: ${AMQ_ALLOW_ANONYMOUS}
+          - name: AMQ_REQUIRE_LOGIN
+            value: ${AMQ_REQUIRE_LOGIN}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
           image: ${IMAGE}
@@ -233,10 +233,11 @@ parameters:
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
   value: 100 gb
-- description: "Determines whether or not the broker will allow anonymous access."
-  displayName: AMQ Allow Anonymous
-  name: AMQ_ALLOW_ANONYMOUS
+- description: "Determines whether or not the broker will allow anonymous access, or require login."
+  displayName: AMQ Require Login
+  name: AMQ_REQUIRE_LOGIN
 - description: Broker Image
+  displayName: Image
   name: IMAGE
-  required: true
+  required: true  
   value: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-71-openshift:1.0
