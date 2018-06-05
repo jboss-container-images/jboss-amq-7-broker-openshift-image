@@ -172,7 +172,7 @@ objects:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: 1Gi            
+            storage: ${VOLUME_CAPACITY}
     triggers:
     - imageChangeParams:
         automatic: true
