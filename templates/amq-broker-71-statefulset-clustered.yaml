@@ -110,6 +110,7 @@ objects:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
   spec:
+    replicas: ${AMQ_REPLICAS}
     selector:
       matchLabels:
         app: ${APPLICATION_NAME}-amq
@@ -151,6 +152,8 @@ objects:
             value: ${AMQ_DATA_DIR}
           - name: AMQ_CLUSTERED
             value: ${AMQ_CLUSTERED}
+          - name: AMQ_REPLICATED
+            value: ${AMQ_REPLICATED}
           - name: AMQ_REPLICATED
             value: ${AMQ_REPLICATED}            
           - name: AMQ_CLUSTER_USER
@@ -205,7 +208,7 @@ objects:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: 1Gi            
+            storage: ${VOLUME_CAPACITY}
     triggers:
     - imageChangeParams:
         automatic: true
@@ -260,6 +263,10 @@ parameters:
   displayName: clustered
   name: AMQ_CLUSTERED
   value: 'true'
+- description: Number of broker replicas for a cluster
+  displayName: Number of Replicas
+  name: AMQ_REPLICAS
+  value: '2'
 - description: Replicated
   displayName: replicated
   name: AMQ_REPLICATED
