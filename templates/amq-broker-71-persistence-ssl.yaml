@@ -275,9 +275,11 @@ objects:
       application: ${APPLICATION_NAME}
     name: console
   spec:
+    tls:
+      termination: passthrough
     to:
       kind: Service
-      name: ${APPLICATION_NAME}-amq-jolokia    
+      name: ${APPLICATION_NAME}-amq-jolokia
 parameters:
 - description: The name for the application.
   displayName: Application Name
