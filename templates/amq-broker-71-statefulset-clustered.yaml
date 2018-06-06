@@ -6,11 +6,15 @@ labels:
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
-    description: Application template for JBoss AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
+    description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: JBoss AMQ Broker 7.1 (Ephemeral, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.1 (no SSL, clustered)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
+    template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
+    template.openshift.io/long-description: >-
+      This template defines resources needed to develop Red Hat AMQ Broker 7.1 based application, including a deployment configuration, using persistent storage. These can be deployed as standalone or in a mesh.
+    template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.12
   name: amq-broker-71-statefulset-clustered
 objects:
@@ -125,8 +129,6 @@ objects:
           deploymentConfig: ${APPLICATION_NAME}-amq
           app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
-        annotations:
-          alpha.image.policy.openshift.io/resolve-names: '*'
       spec:
         containers:
         - env:
@@ -169,9 +171,8 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"                   
-          image: amq-broker-71-openshift:1.0
-          imagePullPolicy: Always
+              - "/opt/amq/bin/readinessProbe.sh"
+          image: ${IMAGE}              
           lifecycle:
             preStop:
               exec:
@@ -210,15 +211,6 @@ objects:
           requests:
             storage: ${VOLUME_CAPACITY}
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APPLICATION_NAME}-amq
-        from:
-          kind: ImageStreamTag
-          name: amq-broker-71-openshift:1.0
-          namespace: ${IMAGE_STREAM_NAMESPACE}
-      type: ImageChange
     - type: ConfigChange
 parameters:
 - description: The name for the application.
@@ -291,9 +283,8 @@ parameters:
 - description: The directory to use for data storage
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
-  value: /opt/amq/data  
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
-  displayName: ImageStream Namespace
-  name: IMAGE_STREAM_NAMESPACE
+  value: /opt/amq/data
+- description: Broker Image
+  name: IMAGE
   required: true
-  value: openshift
+  value: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-71-openshift:1.0
