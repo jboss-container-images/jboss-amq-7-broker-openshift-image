@@ -129,8 +129,6 @@ objects:
           deploymentConfig: ${APPLICATION_NAME}-amq
           app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
-        annotations:
-          alpha.image.policy.openshift.io/resolve-names: '*'
       spec:
         containers:
         - env:
@@ -173,9 +171,8 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"                   
-          image: amq-broker-71-openshift:1.0
-          imagePullPolicy: Always
+              - "/opt/amq/bin/readinessProbe.sh"
+          image: ${IMAGE}              
           lifecycle:
             preStop:
               exec:
@@ -214,15 +211,6 @@ objects:
           requests:
             storage: ${VOLUME_CAPACITY}
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APPLICATION_NAME}-amq
-        from:
-          kind: ImageStreamTag
-          name: amq-broker-71-openshift:1.0
-          namespace: ${IMAGE_STREAM_NAMESPACE}
-      type: ImageChange
     - type: ConfigChange
 parameters:
 - description: The name for the application.
@@ -295,9 +283,8 @@ parameters:
 - description: The directory to use for data storage
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
-  value: /opt/amq/data  
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
-  displayName: ImageStream Namespace
-  name: IMAGE_STREAM_NAMESPACE
+  value: /opt/amq/data
+- description: Broker Image
+  name: IMAGE
   required: true
-  value: openshift
+  value: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-71-openshift:1.0

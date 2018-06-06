@@ -112,8 +112,6 @@ objects:
           deploymentConfig: ${APPLICATION_NAME}-amq
           app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
-        annotations:
-          alpha.image.policy.openshift.io/resolve-names: '*'
       spec:
         containers:
         - env:
@@ -137,8 +135,7 @@ objects:
             value: ${AMQ_ALLOW_ANONYMOUS}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
-          image: amq-broker-71-openshift:1.0
-          imagePullPolicy: Always
+          image: ${IMAGE}
           readinessProbe:
             exec:
               command:
@@ -178,15 +175,6 @@ objects:
           requests:
             storage: ${VOLUME_CAPACITY}
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APPLICATION_NAME}-amq
-        from:
-          kind: ImageStreamTag
-          name: amq-broker-71-openshift:1.0
-          namespace: ${IMAGE_STREAM_NAMESPACE}
-      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
@@ -248,8 +236,7 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access."
   displayName: AMQ Allow Anonymous
   name: AMQ_ALLOW_ANONYMOUS
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
-  displayName: ImageStream Namespace
-  name: IMAGE_STREAM_NAMESPACE
+- description: Broker Image
+  name: IMAGE
   required: true
-  value: openshift 
+  value: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-71-openshift:1.0
