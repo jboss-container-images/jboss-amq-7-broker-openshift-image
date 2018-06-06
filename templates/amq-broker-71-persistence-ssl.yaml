@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-71-ssl
+  template: amq-broker-71-persistence-ssl
   xpaas: 1.4.12
-message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content. 
+message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
 metadata:
   annotations:
-    description: An example Red Hat AMQ Broker application.  This template supports SSL and requires usage of OpenShift secrets.
+    description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Ephemeral with SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
-    tags: messaging,amq,jboss,hidden
-    template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
+    tags: messaging,amq,jboss
+    template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-jboss-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop Red Hat AMQ Broker 7.1 based application, including a deployment configuration, using ephemeral (temporary) storage and secure communication using SSL. These can be deployed as standalone or in a mesh.
+      This template defines resources needed to develop Red Hat AMQ Broker 7.1 based application, including a deployment configuration, persistent storage and secure communication using SSL. These can be deployed as standalone or in a mesh.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.12
-  name: amq-broker-71-ssl
+  name: amq-broker-71-persistence-ssl
 objects:
 - apiVersion: v1
   kind: Service
@@ -153,17 +153,17 @@ objects:
       - port: 61617
         targetPort: 61617
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq        
-- apiVersion: v1
-  kind: DeploymentConfig
+      deploymentConfig: ${APPLICATION_NAME}-amq
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
   metadata:
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
   spec:
-    replicas: 1
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
+      matchLabels:
+        app: ${APPLICATION_NAME}-amq
     strategy:
       rollingParams:
         maxSurge: 0
@@ -173,94 +173,100 @@ objects:
         labels:
           application: ${APPLICATION_NAME}
           deploymentConfig: ${APPLICATION_NAME}-amq
+          app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
       spec:
         containers:
-          - env:
-            - name: AMQ_USER
-              value: ${AMQ_USER}
-            - name: AMQ_PASSWORD
-              value: ${AMQ_PASSWORD}
-            - name: AMQ_ROLE
-              value: ${AMQ_ROLE}
-            - name: AMQ_NAME
-              value: ${AMQ_NAME}
-            - name: AMQ_TRANSPORTS
-              value: ${AMQ_PROTOCOL}
-            - name: AMQ_QUEUES
-              value: ${AMQ_QUEUES}
-            - name: AMQ_ADDRESSES
-              value: ${AMQ_ADDRESSES}
-            - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
-              value: /etc/amq-secret-volume
-            - name: AMQ_TRUSTSTORE
-              value: ${AMQ_TRUSTSTORE}
-            - name: AMQ_TRUSTSTORE_PASSWORD
-              value: ${AMQ_TRUSTSTORE_PASSWORD}
-            - name: AMQ_KEYSTORE
-              value: ${AMQ_KEYSTORE}
-            - name: AMQ_KEYSTORE_PASSWORD
-              value: ${AMQ_KEYSTORE_PASSWORD}
-            - name: AMQ_GLOBAL_MAX_SIZE
-              value: ${AMQ_GLOBAL_MAX_SIZE}
-            - name: AMQ_ALLOW_ANONYMOUS
-              value: ${AMQ_ALLOW_ANONYMOUS}
-            image: amq-broker-71-openshift
-            imagePullPolicy: Always
-            readinessProbe:
-              exec:
-                command:
-                - "/bin/bash"
-                - "-c"
-                - "/opt/amq/bin/readinessProbe.sh"
-            name: ${APPLICATION_NAME}-amq
-            ports:
-            - containerPort: 8161
-              name: console-jolokia
-              protocol: TCP
-            - containerPort: 5672
-              name: amqp
-              protocol: TCP
-            - containerPort: 5671
-              name: amqp-ssl
-              protocol: TCP
-            - containerPort: 1883
-              name: mqtt
-              protocol: TCP
-            - containerPort: 8883
-              name: mqtt-ssl
-              protocol: TCP
-            - containerPort: 61613
-              name: stomp
-              protocol: TCP
-            - containerPort: 61612
-              name: stomp-ssl
-              protocol: TCP
-            - containerPort: 61616
-              name: artemis
-              protocol: TCP
-            - containerPort: 61617
-              name: tcp-ssl
-              protocol: TCP
-            volumeMounts:
-              - mountPath: /etc/amq-secret-volume
-                name: broker-secret-volume
-                readOnly: true            
+        - env:
+          - name: AMQ_USER
+            value: ${AMQ_USER}
+          - name: AMQ_PASSWORD
+            value: ${AMQ_PASSWORD}
+          - name: AMQ_ROLE
+            value: ${AMQ_ROLE}
+          - name: AMQ_NAME
+            value: ${AMQ_NAME}
+          - name: AMQ_TRANSPORTS
+            value: ${AMQ_PROTOCOL}
+          - name: AMQ_QUEUES
+            value: ${AMQ_QUEUES}
+          - name: AMQ_ADDRESSES
+            value: ${AMQ_ADDRESSES}
+          - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
+            value: /etc/amq-secret-volume
+          - name: AMQ_TRUSTSTORE
+            value: ${AMQ_TRUSTSTORE}
+          - name: AMQ_TRUSTSTORE_PASSWORD
+            value: ${AMQ_TRUSTSTORE_PASSWORD}
+          - name: AMQ_KEYSTORE
+            value: ${AMQ_KEYSTORE}
+          - name: AMQ_KEYSTORE_PASSWORD
+            value: ${AMQ_KEYSTORE_PASSWORD}
+          - name: AMQ_GLOBAL_MAX_SIZE
+            value: ${AMQ_GLOBAL_MAX_SIZE}
+          - name: AMQ_ALLOW_ANONYMOUS
+            value: ${AMQ_ALLOW_ANONYMOUS}
+          - name: AMQ_DATA_DIR
+            value: ${AMQ_DATA_DIR}
+          image: ${IMAGE}
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/amq/bin/readinessProbe.sh"
+          name: ${APPLICATION_NAME}-amq
+          ports:
+          - containerPort: 8161
+            name: console-jolokia
+            protocol: TCP
+          - containerPort: 5672
+            name: amqp
+            protocol: TCP
+          - containerPort: 5671
+            name: amqp-ssl
+            protocol: TCP
+          - containerPort: 1883
+            name: mqtt
+            protocol: TCP
+          - containerPort: 8883
+            name: mqtt-ssl
+            protocol: TCP
+          - containerPort: 61613
+            name: stomp
+            protocol: TCP
+          - containerPort: 61612
+            name: stomp-ssl
+            protocol: TCP
+          - containerPort: 61616
+            name: artemis
+            protocol: TCP
+          - containerPort: 61617
+            name: tcp-ssl
+            protocol: TCP
+          volumeMounts:
+          - name: ${APPLICATION_NAME}-amq-pvol
+            mountPath: ${AMQ_DATA_DIR}
+          - mountPath: /etc/amq-secret-volume
+            name: broker-secret-volume
+            readOnly: true
         terminationGracePeriodSeconds: 60
         volumes:
         - name: broker-secret-volume
           secret:
-            secretName: ${AMQ_SECRET}      
+            secretName: ${AMQ_SECRET}
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ${APPLICATION_NAME}-amq-pvol
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: 1Gi            
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APPLICATION_NAME}-amq
-        from:
-          kind: ImageStreamTag
-          name: amq-broker-71-openshift:1.0
-          namespace: ${IMAGE_STREAM_NAMESPACE}
-      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
@@ -288,6 +294,11 @@ parameters:
 - description: Address names, separated by commas. These addresses will be automatically created when the broker starts. If left empty, addresses will be still created dynamically.
   displayName: Addresses
   name: AMQ_ADDRESSES
+- description: Size of the volume used by AMQ for persisting messages.
+  displayName: AMQ Volume Size
+  name: VOLUME_CAPACITY
+  value: 1Gi
+  required: true
 - description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
@@ -328,7 +339,11 @@ parameters:
 - description: Password for accessing SSL keystore
   displayName: A-MQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
-  required: true  
+  required: true
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
@@ -336,8 +351,7 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access."
   displayName: AMQ Allow Anonymous
   name: AMQ_ALLOW_ANONYMOUS
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
-  displayName: ImageStream Namespace
-  name: IMAGE_STREAM_NAMESPACE
+- description: Broker Image
+  name: IMAGE
   required: true
-  value: openshift
+  value: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-71-openshift:1.0
