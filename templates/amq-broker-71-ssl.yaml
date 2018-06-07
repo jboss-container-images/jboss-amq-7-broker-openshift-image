@@ -8,7 +8,7 @@ metadata:
   annotations:
     description: An example Red Hat AMQ Broker application.  This template supports SSL and requires usage of OpenShift secrets.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Ephemeral with SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Ephemeral, with SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss,hidden
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'

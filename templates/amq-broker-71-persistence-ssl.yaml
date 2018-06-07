@@ -8,7 +8,7 @@ metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Ephemeral, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.1 (Persistence, with SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-jboss-amq/'
