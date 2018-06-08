@@ -13,8 +13,6 @@ CONFIG_TEMPLATES=/config_templates
 #Set the memory options
 JAVA_OPTS="$(adjust_java_options ${JAVA_OPTS})"
 
-#GC Option conflicts with the one already configured.
-JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
 function sslPartial() {
@@ -199,6 +197,7 @@ function configure() {
     echo "Creating Broker with args $AMQ_ARGS"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
 
+    removeArtemisDefaultGcAndMemSettings
     if [ "$AMQ_CLUSTERED" = "true" ]; then
       modifyDiscovery
     fi
@@ -211,6 +210,13 @@ function configure() {
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
   fi
+}
+
+function removeArtemisDefaultGcAndMemSettings() {
+  #Use the memory and gc set calculated from cct_module, removing the ones that conflict
+  sed -i "s/-XX:+UseG1GC/ /" broker/etc/artemis.profile
+  sed -i "s/-Xms[[:alnum:]]*/ /" broker/etc/artemis.profile
+  sed -i "s/-Xmx[[:alnum:]]*/ /" broker/etc/artemis.profile
 }
 
 function removeWhiteSpace() {
