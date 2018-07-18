@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-71-custom
+  template: amq-broker-72-custom
   xpaas: 1.4.12
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.1 Custom Config (Ephemeral, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.2 Custom Config (Ephemeral, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,jboss
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop Red Hat AMQ Broker 7.1 based application, including a deployment configuration, using ephemeral (temporary) storage. These can be deployed as standalone or in a mesh.
+      This template defines resources needed to develop Red Hat AMQ Broker 7.2 based application, including a deployment configuration, using ephemeral (temporary) storage. These can be deployed as standalone or in a mesh.
     template.openshift.io/support-url: 'https://access.redhat.com'        
     version: 1.4.12
-  name: amq-broker-71-custom
+  name: amq-broker-72-custom
 objects:
 - apiVersion: v1
   kind: Service
@@ -136,7 +136,7 @@ objects:
             value: ${BROKER_XML}
           - name: LOGGING_PROPERTIES
             value: ${LOGGING_PROPERTIES}
-          image: amq-broker-71-openshift
+          image: amq-broker-72-openshift
           imagePullPolicy: Always
           readinessProbe:
             exec:
@@ -169,7 +169,7 @@ objects:
         - ${APPLICATION_NAME}-amq
         from:
           kind: ImageStreamTag
-          name: amq-broker-71-openshift:1.0
+          name: amq-broker-72-openshift:1.1
           namespace: ${IMAGE_STREAM_NAMESPACE}
       type: ImageChange
     - type: ConfigChange

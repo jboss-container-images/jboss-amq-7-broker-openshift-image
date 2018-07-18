@@ -1,16 +1,16 @@
 schema_version: 1
 
-name: "amq-broker-7/amq-broker-71-openshift"
-description: "Red Hat JBoss AMQ 7.1 OpenShift container image"
-version: "1.0"
-from: "amq-broker-7/amq-broker-71:latest"
+name: "amq-broker-7/amq-broker-72-openshift"
+description: "Red Hat AMQ 7.2 OpenShift container image"
+version: "1.1"
+from: "amq-broker-7/amq-broker-72:latest"
 labels:
     - name: "com.redhat.component"
-      value: "amq-7-broker-71-openshift-container"
+      value: "amq-7-broker-72-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
-      value: "JBoss A-MQ 7.1"
+      value: "Red Hat A-MQ 7.2"
     - name: "io.openshift.tags"
       value: "messaging,amq,java,jboss,xpaas"
     - name: "io.openshift.s2i.scripts-url"
@@ -99,7 +99,7 @@ envs:
       example: "100"
 ports:
     - value: 5672
-    - value: 5671
+    - value: 5672
     - value: 1883
     - value: 8161
     - value: 9876
@@ -126,9 +126,9 @@ modules:
           - name: os-logging
           - name: os-amq-permissions
           - name: os-java-jolokia
-          - name: amq.broker71.jolokia.access
-          - name: amq.broker71.launch
-          - name: amq.broker71.s2i
+          - name: amq.broker72.jolokia.access
+          - name: amq.broker72.launch
+          - name: amq.broker72.s2i
           - name: amq.custom.config   
 packages:
       repositories:
@@ -146,4 +146,4 @@ run:
 osbs:
       repository:
             name: containers/amq-7-broker
-            branch: rh-amq-broker-7.1-openshift-rhel-7
+            branch: rh-amq-broker-7.2-openshift-rhel-7
