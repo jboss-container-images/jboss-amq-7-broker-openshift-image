@@ -9,6 +9,18 @@ ENDPOINT_NAME="${AMQ_NAME}-amq-tcp"
 endpointsUrl="https://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/api/v1/namespaces/${POD_NAMESPACE}/"
 endpointsAuth="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
 
+function waitForJolokia() {
+  while : ;
+  do
+    sleep 5
+    curl -s -o /dev/null -G -k http://${AMQ_USER}:${AMQ_PASSWORD}@${BROKER_IP}:8161/console/jolokia
+    if [ $? -eq 0 ]; then
+      break
+    fi
+  done
+}
+
+
 endpointsCode=$(curl -s -o /dev/null -w "%{http_code}" -G -k -H "${endpointsAuth}" ${endpointsUrl})
 if [ $endpointsCode -ne 200 ]; then
   echo "Can't find endpoints with ips status <${endpointsCode}>" 
@@ -48,15 +60,6 @@ sed -i -ne "/<acceptors>/ {p; i $acceptor" -e ":a; n; /<\/acceptors>/ {p; b}; ba
 
 #start the broker and issue the scaledown command to drain the messages.
 ${instanceDir}/bin/artemis-service start
-sleep 15
-curl http://${AMQ_USER}:${AMQ_PASSWORD}@${BROKER_IP}:8161/console/jolokia/exec/org.apache.activemq.artemis:broker=%22broker%22/scaleDown/scaledownconnector
-
 tail -n 100 -f broker/log/artemis.log &
-
-ps -C java
-
-while [ $? -eq 0 ]
-do
-  sleep 15;
-  ps -C java;
-done
+waitForJolokia
+curl -s -o /dev/null -G -k http://${AMQ_USER}:${AMQ_PASSWORD}@${BROKER_IP}:8161/console/jolokia/exec/org.apache.activemq.artemis:broker=%22broker%22/scaleDown/scaledownconnector
