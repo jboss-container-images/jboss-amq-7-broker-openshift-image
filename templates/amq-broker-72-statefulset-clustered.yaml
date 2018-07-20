@@ -25,7 +25,7 @@ objects:
       description: The broker's Jolokia port.
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-jolokia
+    name: ${AMQ_NAME}-amq-jolokia
   spec:
     ports:
     - port: 8161
@@ -39,7 +39,7 @@ objects:
       description: The broker's AMQP port.
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-amqp
+    name: ${AMQ_NAME}-amq-amqp
   spec:
     ports:
     - port: 5672
@@ -53,7 +53,7 @@ objects:
       description: The broker's MQTT port.
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-mqtt
+    name: ${AMQ_NAME}-amq-mqtt
   spec:
     ports:
     - port: 1883
@@ -67,7 +67,7 @@ objects:
       description: The broker's STOMP port.
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-stomp
+    name: ${AMQ_NAME}-amq-stomp
   spec:
     ports:
     - port: 61613
@@ -79,12 +79,12 @@ objects:
   metadata:
     annotations:
       description: The broker's OpenWire port.
-      service.alpha.openshift.io/dependencies: '[{"name": "${APPLICATION_NAME}-amq-amqp",
-        "kind": "Service"},{"name": "${APPLICATION_NAME}-amq-mqtt", "kind": "Service"},{"name":
-        "${APPLICATION_NAME}-amq-stomp", "kind": "Service"}]'
+      service.alpha.openshift.io/dependencies: '[{"name": "${AMQ_NAME}-amq-amqp",
+        "kind": "Service"},{"name": "${AMQ_NAME}-amq-mqtt", "kind": "Service"},{"name":
+        "${AMQ_NAME}-amq-stomp", "kind": "Service"}]'
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-amq-tcp
+    name: ${AMQ_NAME}-amq-tcp
   spec:
     ports:
     - port: 61616
