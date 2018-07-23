@@ -19,6 +19,52 @@ metadata:
   name: amq-broker-72-statefulset-clustered
 objects:
 - apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: ${APPLICATION_NAME}-service-account
+    labels:
+      app: ${APPLICATION_NAME}
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: Role
+  metadata:
+    name: ${APPLICATION_NAME}-role
+    labels:
+      app: ${APPLICATION_NAME}
+  rules:
+  - apiGroups:
+    - ""
+    resources:
+    - endpoints
+    verbs:
+    - create
+    - delete
+    - deletecollection
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: RoleBinding
+  metadata:
+    name: ${APPLICATION_NAME}-role-binding
+    labels:
+      app: ${APPLICATION_NAME}
+  subjects:
+    - kind: ServiceAccount
+      name: ${APPLICATION_NAME}-service-account
+  roleRef:
+    kind: Role
+    name: ${APPLICATION_NAME}-role
+    apiGroup: rbac.authorization.k8s.io
+- apiVersion: v1
   kind: Service
   metadata:
     annotations:
@@ -123,6 +169,8 @@ objects:
             }
           },
           "spec": {
+            "serviceAccount": "${APPLICATION_NAME}-service-account",
+            "serviceAccountName": "${APPLICATION_NAME}-service-account",
             "terminationGracePeriodSeconds": 5,
             "containers": [
               {
@@ -200,7 +248,7 @@ objects:
                     "value": "8888"
                   }
                 ],
-                "image": "amq-broker-72-openshift:1.1",
+                "image": "${IMAGE}",
                 "name": "${APPLICATION_NAME}-amq",
 
                 "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed!\""],
@@ -390,3 +438,4 @@ parameters:
   name: IMAGE
   required: true
   value: amq-broker-72-openshift:1.1
+
