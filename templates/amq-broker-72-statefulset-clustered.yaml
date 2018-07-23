@@ -113,6 +113,107 @@ objects:
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
+    annotations:
+      alpha.image.policy.openshift.io/resolve-names: '*'
+      statefulsets.kubernetes.io/drainer-pod-template: |
+        {
+          "metadata": {
+            "labels": {
+              "app": "${APPLICATION_NAME}-amq-drainer"
+            }
+          },
+          "spec": {
+            "terminationGracePeriodSeconds": 5,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "AMQ_USER",
+                    "value": "${AMQ_USER}"
+                  },
+                  {
+                    "name": "AMQ_PASSWORD",
+                    "value": "${AMQ_PASSWORD}"
+                  },
+                  {
+                    "name": "AMQ_ROLE",
+                    "value": "${AMQ_ROLE}"
+                  },
+                  {
+                    "name": "AMQ_NAME",
+                    "value": "${AMQ_NAME}"
+                  },
+                  {
+                    "name": "AMQ_TRANSPORTS",
+                    "value": "${AMQ_PROTOCOL}"
+                  },
+                  {
+                    "name": "AMQ_QUEUES",
+                    "value": "${AMQ_QUEUES}"
+                  },
+                  {
+                    "name": "AMQ_ADDRESSES",
+                    "value": "${AMQ_ADDRESSES}"
+                  },
+                  {
+                    "name": "AMQ_GLOBAL_MAX_SIZE",
+                    "value": "${AMQ_GLOBAL_MAX_SIZE}"
+                  },
+                  {
+                    "name": "AMQ_ALLOW_ANONYMOUS",
+                    "value": "${AMQ_ALLOW_ANONYMOUS}"
+                  },
+                  {
+                    "name": "AMQ_DATA_DIR",
+                    "value": "${AMQ_DATA_DIR}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTERED",
+                    "value": "${AMQ_CLUSTERED}"
+                  },
+                  {
+                    "name": "AMQ_REPLICATED",
+                    "value": "${AMQ_REPLICATED}"
+                  },
+                  {
+                    "name": "AMQ_REPLICAS",
+                    "value": "${AMQ_REPLICAS}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTER_USER",
+                    "value": "${AMQ_CLUSTER_USER}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTER_PASSWORD",
+                    "value": "${AMQ_CLUSTER_PASSWORD}"
+                  },
+                  {
+                    "name": "POD_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  },
+                  {
+                    "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
+                    "value": "8888"
+                  }
+                ],
+                "image": "amq-broker-72-openshift:1.1",
+                "name": "${APPLICATION_NAME}-amq",
+
+                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed!\""],
+                "volumeMounts": [
+                  {
+                    "name": "${APPLICATION_NAME}-amq-pvol",
+                    "mountPath": "${AMQ_DATA_DIR}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
   spec:
     replicas: ${AMQ_REPLICAS}
     selector:
@@ -156,8 +257,8 @@ objects:
             value: ${AMQ_CLUSTERED}
           - name: AMQ_REPLICATED
             value: ${AMQ_REPLICATED}
-          - name: AMQ_REPLICATED
-            value: ${AMQ_REPLICATED}            
+          - name: AMQ_REPLICAS
+            value: ${AMQ_REPLICAS}
           - name: AMQ_CLUSTER_USER
             value: ${AMQ_CLUSTER_USER}
           - name: AMQ_CLUSTER_PASSWORD
