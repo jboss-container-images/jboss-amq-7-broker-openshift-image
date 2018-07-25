@@ -176,6 +176,10 @@ objects:
               {
                 "env": [
                   {
+                    "name": "AMQ_EXTRA_ARGS",
+                    "value": "--no-autotune"
+                  },
+                  {
                     "name": "AMQ_USER",
                     "value": "${AMQ_USER}"
                   },
