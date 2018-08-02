@@ -10,7 +10,7 @@ labels:
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
-      value: "Red Hat A-MQ 7.2"
+      value: "Red Hat AMQ 7.2"
     - name: "io.openshift.tags"
       value: "messaging,amq,java,jboss,xpaas"
     - name: "io.openshift.s2i.scripts-url"
