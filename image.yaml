@@ -115,7 +115,7 @@ modules:
           - name: cct_module
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
-                  ref: master
+                  ref: sprint-22
           - path: modules
       install:
           - name: dynamic-resources
