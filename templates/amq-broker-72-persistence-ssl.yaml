@@ -334,12 +334,12 @@ parameters:
   name: AMQ_TRUSTSTORE_PASSWORD
   required: true
 - description: SSL key store filename
-  displayName: A-MQ Keystore Filename
+  displayName: AMQ Keystore Filename
   name: AMQ_KEYSTORE
   required: true
   value: broker.ks
 - description: Password for accessing SSL keystore
-  displayName: A-MQ Keystore Password
+  displayName: AMQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
   required: true
 - description: The directory to use for data storage
