@@ -1,7 +1,7 @@
 schema_version: 1
 
 name: "amq-broker-7/amq-broker-72-openshift"
-description: "Red Hat AMQ 7.2 OpenShift container image"
+description: "Red Hat AMQ Broker 7.2 OpenShift container image"
 version: "1.1"
 from: "amq-broker-7/amq-broker-72:latest"
 labels:
@@ -10,7 +10,9 @@ labels:
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
-      value: "Red Hat AMQ 7.2"
+      value: "Red Hat AMQ Broker 7.2"
+    - name: "maintainer"
+      value: "rkieley@redhat.com"
     - name: "io.openshift.tags"
       value: "messaging,amq,java,jboss,xpaas"
     - name: "io.openshift.s2i.scripts-url"
