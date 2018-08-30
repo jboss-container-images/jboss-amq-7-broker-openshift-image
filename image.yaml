@@ -54,12 +54,6 @@ envs:
     - name: AMQ_CLUSTERED
       description: Enable Clustering
       example: "true"
-    - name: AMQ_REPLICATED
-      description: Enable broker replication
-      example: "true"
-    - name: AMQ_SLAVE
-      description: Valid for shared store or replication.  Is this a slave?
-      example: "true"
     - name: AMQ_RESET_CONFIG
       description: Overwrite configuration at destination directory
       example: "true"
