@@ -54,13 +54,6 @@ function configureNetworking() {
   if [ "$AMQ_CLUSTERED" = "true" ]; then
     echo "Broker will be clustered"
     AMQ_ARGS="$AMQ_ARGS --clustered --cluster-user=$AMQ_CLUSTER_USER --cluster-password=$AMQ_CLUSTER_PASSWORD --host $BROKER_IP"
-    if [ "$AMQ_REPLICATED" = "true" ]; then
-      echo "Broker will be clustered $AMQ_REPLICATED"
-      AMQ_ARGS="$AMQ_ARGS --replicated"
-    fi
-    if [ "$AMQ_SLAVE" = "true" ]; then
-      AMQ_ARGS="$AMQ_ARGS --slave"
-    fi
     ACCEPTOR_IP=$BROKER_IP
   else
     AMQ_ARGS="$AMQ_ARGS --host 0.0.0.0"

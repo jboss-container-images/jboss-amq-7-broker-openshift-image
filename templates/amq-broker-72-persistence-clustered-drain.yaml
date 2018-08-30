@@ -168,10 +168,6 @@ objects:
                     "value": "${AMQ_CLUSTERED}"
                   },
                   {
-                    "name": "AMQ_REPLICATED",
-                    "value": "${AMQ_REPLICATED}"
-                  },
-                  {
                     "name": "AMQ_REPLICAS",
                     "value": "${AMQ_REPLICAS}"
                   },
@@ -251,8 +247,6 @@ objects:
             value: ${AMQ_DATA_DIR}
           - name: AMQ_CLUSTERED
             value: ${AMQ_CLUSTERED}
-          - name: AMQ_REPLICATED
-            value: ${AMQ_REPLICATED} 
           - name: AMQ_REPLICAS
             value: ${AMQ_REPLICAS}                                   
           - name: AMQ_CLUSTER_USER
@@ -377,10 +371,6 @@ parameters:
   displayName: Number of Replicas
   name: AMQ_REPLICAS
   value: '2'  
-- description: Replicated
-  displayName: replicated
-  name: AMQ_REPLICATED
-  value: 'false'  
 - description: Clustered user
   displayName: cluster user
   from: user[a-zA-Z0-9]{3}
