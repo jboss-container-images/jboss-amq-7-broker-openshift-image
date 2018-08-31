@@ -94,7 +94,7 @@ envs:
       description: The maximum metaspace size.
       example: "100"
 ports:
-    - value: 5672
+    - value: 5671
     - value: 5672
     - value: 1883
     - value: 8161
