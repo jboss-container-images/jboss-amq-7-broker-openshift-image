@@ -133,10 +133,29 @@ objects:
     name: ${AMQ_NAME}-amq-tcp
   spec:
     ports:
-    - port: 61616
+    - port: 61606
       targetPort: 61616
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's OpenWire port; headless, non load balanced
+    labels:
+      application: ${APPLICATION_NAME}
+      app: ${APPLICATION_NAME}
+    name: ${AMQ_NAME}-amq-tcp-headless
+  spec:
+    clusterIP: None
+    publishNotReadyAddresses: true
+    ports:
+    - port: 61616
+      protocol: TCP
+      targetPort: 61616
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    type: ClusterIP
 - apiVersion: v1
   kind: Service
   metadata:
@@ -263,6 +282,7 @@ objects:
           }
         }
   spec:
+    podManagementPolicy: OrderedReady
     replicas: ${AMQ_REPLICAS}
     selector:
       matchLabels:
@@ -271,6 +291,7 @@ objects:
       rollingParams:
         maxSurge: 0
       type: Rolling
+    serviceName: ${AMQ_NAME}-amq-tcp-headless
     template:
       metadata:
         labels:
