@@ -61,6 +61,12 @@ function configureNetworking() {
   fi
 }
 
+function configureRedistributionDelay() {
+  instanceDir=$1
+  echo "Setting redistribution-delay to zero."
+  sed -i "s/<address-setting match=\"#\">/&\n            <redistribution-delay>0<\/redistribution-delay>/g" ${instanceDir}/etc/broker.xml
+}
+
 function configureSSL() {
   sslDir=$(find_env "AMQ_KEYSTORE_TRUSTSTORE_DIR" "")
   keyStoreFile=$(find_env "AMQ_KEYSTORE" "")
@@ -139,7 +145,7 @@ function modifyDiscovery() {
   clusterconnections="${clusterconnections}          <connector-ref>artemis</connector-ref>"
   clusterconnections="${clusterconnections}          <retry-interval>500</retry-interval>"
   clusterconnections="${clusterconnections}          <use-duplicate-detection>true</use-duplicate-detection>"
-  clusterconnections="${clusterconnections}          <message-load-balancing>STRICT</message-load-balancing>"
+  clusterconnections="${clusterconnections}          <message-load-balancing>ON_DEMAND</message-load-balancing>"
   clusterconnections="${clusterconnections}          <max-hops>1</max-hops>"
   clusterconnections="${clusterconnections}          <discovery-group-ref discovery-group-name=\"my-discovery-group\"/>"
   clusterconnections="${clusterconnections}       </cluster-connection>	"
@@ -194,6 +200,7 @@ function configure() {
 
     if [ "$AMQ_CLUSTERED" = "true" ]; then
       modifyDiscovery
+      configureRedistributionDelay ${instanceDir}
     fi
     $AMQ_HOME/bin/configure_jolokia_access.sh ${instanceDir}/etc/jolokia-access.xml
     if [ "$AMQ_KEYSTORE_TRUSTSTORE_DIR" ]; then
