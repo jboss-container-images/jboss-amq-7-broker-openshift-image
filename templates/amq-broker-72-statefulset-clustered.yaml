@@ -276,6 +276,10 @@ objects:
             value: ${AMQ_CLUSTER_PASSWORD}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
+          - name: AMQ_ANYCAST_PREFIX
+            value: ${AMQ_ANYCAST_PREFIX}
+          - name: AMQ_MULTICAST_PREFIX
+            value: ${AMQ_MULTICAST_PREFIX}
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:
@@ -396,6 +400,14 @@ parameters:
   value: /opt/amq/data
 - description: Extra arguments for broker creation
   name: AMQ_EXTRA_ARGS
+  required: false
+- description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Anycast Prefix
+  name: AMQ_ANYCAST_PREFIX
+  required: false
+- description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Multicast Prefix
+  name: AMQ_MULTICAST_PREFIX
   required: false
 - description: Broker Image
   displayName: Image

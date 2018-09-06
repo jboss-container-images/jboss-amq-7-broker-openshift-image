@@ -128,6 +128,10 @@ objects:
             value: ${AMQ_DATA_DIR}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
+          - name: AMQ_ANYCAST_PREFIX
+            value: ${AMQ_ANYCAST_PREFIX}
+          - name: AMQ_MULTICAST_PREFIX
+            value: ${AMQ_MULTICAST_PREFIX}
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:
@@ -283,6 +287,14 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access, or require login."
   displayName: AMQ Require Login
   name: AMQ_REQUIRE_LOGIN
+- description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Anycast Prefix
+  name: AMQ_ANYCAST_PREFIX
+  required: false
+- description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Multicast Prefix
+  name: AMQ_MULTICAST_PREFIX
+  required: false
 - description: Broker Image
   displayName: Image
   name: IMAGE
