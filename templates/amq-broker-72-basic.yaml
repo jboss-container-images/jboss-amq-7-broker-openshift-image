@@ -132,7 +132,13 @@ objects:
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_REQUIRE_LOGIN
             value: ${AMQ_REQUIRE_LOGIN}
-          image: amq-broker-72-openshift
+          - name: AMQ_EXTRA_ARGS
+            value: ${AMQ_EXTRA_ARGS}
+          - name: AMQ_ANYCAST_PREFIX
+            value: ${AMQ_ANYCAST_PREFIX}
+          - name: AMQ_MULTICAST_PREFIX
+            value: ${AMQ_MULTICAST_PREFIX}
+          image: ${IMAGE}
           imagePullPolicy: Always
           readinessProbe:
             exec:
@@ -165,7 +171,7 @@ objects:
         - ${APPLICATION_NAME}-amq
         from:
           kind: ImageStreamTag
-          name: amq-broker-72-openshift:1.1
+          name: ${IMAGE}
           namespace: ${IMAGE_STREAM_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
@@ -220,8 +226,24 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access, or require login"
   displayName: AMQ Require Login
   name: AMQ_REQUIRE_LOGIN
+- description: Extra arguments for broker creation
+  name: AMQ_EXTRA_ARGS
+  required: false
+- description: Anycast prefix applied to the multiplexed protocol port 61616
+  displayName: AMQ Anycast Prefix
+  name: AMQ_ANYCAST_PREFIX
+  required: false
+- description: Multicast prefix applied to the multiplexed protocol port 61616
+  displayName: AMQ Multicast Prefix
+  name: AMQ_MULTICAST_PREFIX
+  required: false
 - description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
   required: true
   value: openshift 
+- description: Broker Image
+  displayName: Image
+  name: IMAGE
+  required: true
+  value: amq-broker-72-openshift:1.1
