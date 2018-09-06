@@ -22,154 +22,51 @@ objects:
   kind: Service
   metadata:
     annotations:
-      description: The broker's console and Jolokia port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-jolokia
-  spec:
-    ports:
-    - port: 8161
-      targetPort: 8161
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's AMQP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-amqp
-  spec:
-    ports:
-    - port: 5672
-      targetPort: 5672
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's AMQP SSL port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-amqp-ssl
-  spec:
-    ports:
-      - port: 5671
-        targetPort: 5671
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq      
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's MQTT port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-mqtt
-  spec:
-    ports:
-    - port: 1883
-      targetPort: 1883
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's MQTT SSL port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-mqtt-ssl
-  spec:
-    ports:
-      - port: 8883
-        targetPort: 8883
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's STOMP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-stomp
-  spec:
-    ports:
-    - port: 61613
-      targetPort: 61613
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's STOMP SSL port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-stomp-ssl
-  spec:
-    ports:
-      - port: 61612
-        targetPort: 61612
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq      
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire port.
-      service.alpha.openshift.io/dependencies: '[{"name": "${AMQ_NAME}-amq-amqp",
-        "kind": "Service"},{"name": "${AMQ_NAME}-amq-mqtt", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-stomp", "kind": "Service"}]'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp
-  spec:
-    ports:
-    - port: 61606
-      targetPort: 61616
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire (SSL) port.
-      service.alpha.openshift.io/dependencies: '[{"name": "${AMQ_NAME}-amq-tcp", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-amqp", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-mqtt", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-stomp", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-amqp-ssl", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-mqtt-ssl", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-stomp-ssl", "kind": "Service"}]'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp-ssl
-  spec:
-    ports:
-      - port: 61617
-        targetPort: 61617
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire port; headless, non load balanced
+      description: The broker's headless, non load balanced service
     labels:
       application: ${APPLICATION_NAME}
       app: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp-headless
+    name: ${AMQ_NAME}-amq-headless
   spec:
     clusterIP: None
     publishNotReadyAddresses: true
     ports:
     - port: 61616
+      name: openwire-multi
       protocol: TCP
       targetPort: 61616
+    - port: 8161
+      name: console-jolokia
+      protocol: TCP
+      targetPort: 8161
+    - port: 5672
+      name: amqp
+      protocol: TCP
+      targetPort: 5672
+    - port: 1883
+      name: mqtt
+      protocol: TCP
+      targetPort: 1883
+    - port: 61613
+      name: stomp
+      protocol: TCP
+      targetPort: 61613
+    - port: 61617
+      name: ow-multi-ssl
+      protocol: TCP
+      targetPort: 61617
+    - port: 5671
+      name: amqp-ssl
+      protocol: TCP
+      targetPort: 5671
+    - port: 8883
+      name: mqtt-ssl
+      protocol: TCP
+      targetPort: 8883
+    - port: 61612
+      name: stomp-ssl
+      protocol: TCP
+      targetPort: 61612
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
     type: ClusterIP
@@ -188,7 +85,7 @@ objects:
       rollingParams:
         maxSurge: 0
       type: Rolling
-    serviceName: ${AMQ_NAME}-amq-tcp-headless
+    serviceName: ${AMQ_NAME}-amq-headless
     template:
       metadata:
         labels:
@@ -229,6 +126,12 @@ objects:
             value: ${AMQ_REQUIRE_LOGIN}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
+          - name: AMQ_EXTRA_ARGS
+            value: ${AMQ_EXTRA_ARGS}
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           image: ${IMAGE}
           readinessProbe:
             exec:
@@ -260,10 +163,10 @@ objects:
             name: stomp-ssl
             protocol: TCP
           - containerPort: 61616
-            name: artemis
+            name: openwire-multi
             protocol: TCP
           - containerPort: 61617
-            name: tcp-ssl
+            name: ow-multi-ssl
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
@@ -294,13 +197,16 @@ objects:
   metadata:
     labels:
       application: ${APPLICATION_NAME}
-    name: console
+      app: ${APPLICATION_NAME}
+    name: console-jolokia
   spec:
+    port:
+      targetPort: console-jolokia
     tls:
       termination: passthrough
     to:
       kind: Service
-      name: ${AMQ_NAME}-amq-jolokia
+      name: ${AMQ_NAME}-amq-headless
 parameters:
 - description: The name for the application.
   displayName: Application Name
@@ -367,6 +273,9 @@ parameters:
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
   value: /opt/amq/data
+- description: Extra arguments for broker creation
+  name: AMQ_EXTRA_ARGS
+  required: false
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
