@@ -22,91 +22,35 @@ objects:
   kind: Service
   metadata:
     annotations:
-      description: The broker's console and Jolokia port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-jolokia
-  spec:
-    ports:
-    - port: 8161
-      targetPort: 8161
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's AMQP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-amqp
-  spec:
-    ports:
-    - port: 5672
-      targetPort: 5672
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's MQTT port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-mqtt
-  spec:
-    ports:
-    - port: 1883
-      targetPort: 1883
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's STOMP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-stomp
-  spec:
-    ports:
-    - port: 61613
-      targetPort: 61613
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire port.
-      service.alpha.openshift.io/dependencies: '[{"name": "${AMQ_NAME}-amq-amqp",
-        "kind": "Service"},{"name": "${AMQ_NAME}-amq-mqtt", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-stomp", "kind": "Service"}]'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp
-  spec:
-    ports:
-    - port: 61606
-      targetPort: 61616
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire port; headless, non load balanced
+      description: The broker's headless, non load balanced service
     labels:
       application: ${APPLICATION_NAME}
       app: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp-headless
+    name: ${AMQ_NAME}-amq-headless
   spec:
     clusterIP: None
     publishNotReadyAddresses: true
     ports:
     - port: 61616
+      name: openwire-multi
       protocol: TCP
       targetPort: 61616
+    - port: 8161
+      name: console-jolokia
+      protocol: TCP
+      targetPort: 8161
+    - port: 5672
+      name: amqp
+      protocol: TCP
+      targetPort: 5672
+    - port: 1883
+      name: mqtt
+      protocol: TCP
+      targetPort: 1883
+    - port: 61613
+      name: stomp
+      protocol: TCP
+      targetPort: 61613
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
     type: ClusterIP
@@ -125,7 +69,7 @@ objects:
       rollingParams:
         maxSurge: 0
       type: Rolling
-    serviceName: ${AMQ_NAME}-amq-tcp-headless
+    serviceName: ${AMQ_NAME}-amq-headless
     template:
       metadata:
         labels:
@@ -156,6 +100,8 @@ objects:
             value: ${AMQ_REQUIRE_LOGIN}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
+          - name: AMQ_EXTRA_ARGS
+            value: ${AMQ_EXTRA_ARGS}
           image: ${IMAGE}
           readinessProbe:
             exec:
@@ -178,7 +124,7 @@ objects:
             name: stomp
             protocol: TCP
           - containerPort: 61616
-            name: artemis
+            name: openwire-multi
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
@@ -202,11 +148,14 @@ objects:
   metadata:
     labels:
       application: ${APPLICATION_NAME}
-    name: console
+      app: ${APPLICATION_NAME}
+    name: console-jolokia
   spec:
+    port:
+      targetPort: console-jolokia
     to:
       kind: Service
-      name: ${AMQ_NAME}-amq-jolokia    
+      name: ${AMQ_NAME}-amq-headless
 parameters:
 - description: The name for the application.
   displayName: Application Name
@@ -257,6 +206,9 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access, or require login."
   displayName: AMQ Require Login
   name: AMQ_REQUIRE_LOGIN
+- description: Extra arguments for broker creation
+  name: AMQ_EXTRA_ARGS
+  required: false
 - description: Broker Image
   displayName: Image
   name: IMAGE
