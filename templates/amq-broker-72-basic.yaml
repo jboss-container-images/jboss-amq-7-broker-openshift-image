@@ -246,4 +246,4 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: amq-broker-72-openshift:1.1
+  value: amq-broker-72-openshift:1.0
