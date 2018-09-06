@@ -89,9 +89,10 @@ function configureSSL() {
   fi
 }
 
-function updateAcceptors() {
+function updateAcceptorsForSSL() {
+  instanceDir=$1	
+
   if sslEnabled ; then
-    instanceDir=$1	
     
     echo "keystorepassword $keyStorePassword"
     echo "keystore filepath: $keyStorePath"
@@ -121,6 +122,23 @@ esac
     safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')	    	
     sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml    
   fi
+}
+
+function updateAcceptorsForPrefixing() {
+  instanceDir=$1	
+
+  if [ -n "$AMQ_MULTICAST_PREFIX" ]; then
+    echo "Setting multicastPrefix to ${AMQ_MULTICAST_PREFIX}"
+    sed -i "s/:61616?/&multicastPrefix=${AMQ_MULTICAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
+    sed -i "s/:61617?/&multicastPrefix=${AMQ_MULTICAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
+  fi
+
+  if [ -n "$AMQ_ANYCAST_PREFIX" ]; then
+    echo "Setting anycastPrefix to ${AMQ_ANYCAST_PREFIX}"
+    sed -i "s/:61616?/&anycastPrefix=${AMQ_ANYCAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
+    sed -i "s/:61617?/&anycastPrefix=${AMQ_ANYCAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
+  fi
+
 }
 
 function modifyDiscovery() {
@@ -205,8 +223,9 @@ function configure() {
     $AMQ_HOME/bin/configure_jolokia_access.sh ${instanceDir}/etc/jolokia-access.xml
     if [ "$AMQ_KEYSTORE_TRUSTSTORE_DIR" ]; then
       echo "Updating acceptors for SSL"
-      updateAcceptors ${instanceDir}
+      updateAcceptorsForSSL ${instanceDir}
     fi
+    updateAcceptorsForPrefixing ${instanceDir}
 
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
