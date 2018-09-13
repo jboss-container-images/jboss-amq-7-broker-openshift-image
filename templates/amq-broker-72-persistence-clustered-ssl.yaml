@@ -1,0 +1,491 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: amq-broker-72-persistence-clustered-ssl
+  xpaas: 1.4.12
+message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
+metadata:
+  annotations:
+    description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh with SSL support.
+    iconClass: icon-amq
+    openshift.io/display-name: Red Hat AMQ Broker 7.2 (Persistence, clustered, with SSL)
+    openshift.io/provider-display-name: Red Hat, Inc.
+    tags: messaging,amq,jboss
+    template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
+    template.openshift.io/long-description: >-
+      This template defines resources needed to develop Red Hat AMQ Broker 7.2 based application, including a deployment configuration, using persistent storage. These can be deployed as standalone or in a mesh.
+    template.openshift.io/support-url: 'https://access.redhat.com'    
+    version: 1.4.12
+  name: amq-broker-72-persistence-clustered-ssl
+objects:
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    name: ${APPLICATION_NAME}-service-account
+    labels:
+      app: ${APPLICATION_NAME}
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: Role
+  metadata:
+    name: ${APPLICATION_NAME}-role
+    labels:
+      app: ${APPLICATION_NAME}
+  rules:
+  - apiGroups:
+    - ""
+    resources:
+    - endpoints
+    verbs:
+    - create
+    - delete
+    - deletecollection
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - ""
+    resources:
+    - namespaces
+    verbs:
+    - get
+    - list
+- apiVersion: rbac.authorization.k8s.io/v1beta1
+  kind: RoleBinding
+  metadata:
+    name: ${APPLICATION_NAME}-role-binding
+    labels:
+      app: ${APPLICATION_NAME}
+  subjects:
+    - kind: ServiceAccount
+      name: ${APPLICATION_NAME}-service-account
+  roleRef:
+    kind: Role
+    name: ${APPLICATION_NAME}-role
+    apiGroup: rbac.authorization.k8s.io
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The broker's headless, non load balanced service
+    labels:
+      application: ${APPLICATION_NAME}
+      app: ${APPLICATION_NAME}
+    name: ${AMQ_NAME}-amq-headless
+  spec:
+    clusterIP: None
+    publishNotReadyAddresses: true
+    ports:
+    - port: 61616
+      name: openwire-multi
+      protocol: TCP
+      targetPort: 61616
+    - port: 8161
+      name: console-jolokia
+      protocol: TCP
+      targetPort: 8161
+    - port: 5672
+      name: amqp
+      protocol: TCP
+      targetPort: 5672
+    - port: 1883
+      name: mqtt
+      protocol: TCP
+      targetPort: 1883
+    - port: 61613
+      name: stomp
+      protocol: TCP
+      targetPort: 61613
+    - port: 61617
+      name: ow-multi-ssl
+      protocol: TCP
+      targetPort: 61617
+    - port: 5671
+      name: amqp-ssl
+      protocol: TCP
+      targetPort: 5671
+    - port: 8883
+      name: mqtt-ssl
+      protocol: TCP
+      targetPort: 8883
+    - port: 61612
+      name: stomp-ssl
+      protocol: TCP
+      targetPort: 61612
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      description: The JGroups ping port for clustering.
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ping
+  spec:
+    clusterIP: None  
+    ports:
+      - targetPort: 8888
+        port: 8888
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq      
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-amq
+    annotations:
+      alpha.image.policy.openshift.io/resolve-names: '*'
+      statefulsets.kubernetes.io/drainer-pod-template: |
+        {
+          "metadata": {
+            "labels": {
+              "app": "${APPLICATION_NAME}-amq-drainer"
+            }
+          },
+          "spec": {
+            "serviceAccount": "${APPLICATION_NAME}-service-account",
+            "serviceAccountName": "${APPLICATION_NAME}-service-account",
+            "terminationGracePeriodSeconds": 5,
+            "containers": [
+              {
+                "env": [
+                  {
+                    "name": "AMQ_EXTRA_ARGS",
+                    "value": "--no-autotune"
+                  },
+                  {
+                    "name": "AMQ_USER",
+                    "value": "${AMQ_USER}"
+                  },
+                  {
+                    "name": "AMQ_PASSWORD",
+                    "value": "${AMQ_PASSWORD}"
+                  },
+                  {
+                    "name": "AMQ_ROLE",
+                    "value": "${AMQ_ROLE}"
+                  },
+                  {
+                    "name": "AMQ_NAME",
+                    "value": "${AMQ_NAME}"
+                  },
+                  {
+                    "name": "AMQ_TRANSPORTS",
+                    "value": "${AMQ_PROTOCOL}"
+                  },
+                  {
+                    "name": "AMQ_QUEUES",
+                    "value": "${AMQ_QUEUES}"
+                  },
+                  {
+                    "name": "AMQ_ADDRESSES",
+                    "value": "${AMQ_ADDRESSES}"
+                  },
+                  {
+                    "name": "AMQ_GLOBAL_MAX_SIZE",
+                    "value": "${AMQ_GLOBAL_MAX_SIZE}"
+                  },
+                  {
+                    "name": "AMQ_ALLOW_ANONYMOUS",
+                    "value": "${AMQ_ALLOW_ANONYMOUS}"
+                  },
+                  {
+                    "name": "AMQ_DATA_DIR",
+                    "value": "${AMQ_DATA_DIR}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTERED",
+                    "value": "${AMQ_CLUSTERED}"
+                  },
+                  {
+                    "name": "AMQ_REPLICAS",
+                    "value": "${AMQ_REPLICAS}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTER_USER",
+                    "value": "${AMQ_CLUSTER_USER}"
+                  },
+                  {
+                    "name": "AMQ_CLUSTER_PASSWORD",
+                    "value": "${AMQ_CLUSTER_PASSWORD}"
+                  },
+                  {
+                    "name": "POD_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  },
+                  {
+                    "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
+                    "value": "8888"
+                  }
+                ],
+                "image": "${IMAGE}",
+                "name": "${APPLICATION_NAME}-amq",
+
+                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed!\""],
+                "volumeMounts": [
+                  {
+                    "name": "${APPLICATION_NAME}-amq-pvol",
+                    "mountPath": "${AMQ_DATA_DIR}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+  spec:
+    podManagementPolicy: OrderedReady
+    replicas: ${AMQ_REPLICAS}
+    selector:
+      matchLabels:
+        app: ${APPLICATION_NAME}-amq
+    strategy:
+      rollingParams:
+        maxSurge: 0
+      type: Rolling
+    serviceName: ${AMQ_NAME}-amq-headless
+    template:
+      metadata:
+        labels:
+          application: ${APPLICATION_NAME}
+          deploymentConfig: ${APPLICATION_NAME}-amq
+          app: ${APPLICATION_NAME}-amq
+        name: ${APPLICATION_NAME}-amq
+      spec:
+        containers:
+        - env:
+          - name: AMQ_USER
+            value: ${AMQ_USER}
+          - name: AMQ_PASSWORD
+            value: ${AMQ_PASSWORD}
+          - name: AMQ_ROLE
+            value: ${AMQ_ROLE}
+          - name: AMQ_NAME
+            value: ${AMQ_NAME}
+          - name: AMQ_TRANSPORTS
+            value: ${AMQ_PROTOCOL}
+          - name: AMQ_QUEUES
+            value: ${AMQ_QUEUES}
+          - name: AMQ_ADDRESSES
+            value: ${AMQ_ADDRESSES}
+          - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
+            value: /etc/amq-secret-volume
+          - name: AMQ_TRUSTSTORE
+            value: ${AMQ_TRUSTSTORE}
+          - name: AMQ_TRUSTSTORE_PASSWORD
+            value: ${AMQ_TRUSTSTORE_PASSWORD}
+          - name: AMQ_KEYSTORE
+            value: ${AMQ_KEYSTORE}
+          - name: AMQ_KEYSTORE_PASSWORD
+            value: ${AMQ_KEYSTORE_PASSWORD}
+          - name: AMQ_GLOBAL_MAX_SIZE
+            value: ${AMQ_GLOBAL_MAX_SIZE}
+          - name: AMQ_REQUIRE_LOGIN
+            value: ${AMQ_REQUIRE_LOGIN}
+          - name: AMQ_DATA_DIR
+            value: ${AMQ_DATA_DIR}
+          - name: AMQ_CLUSTERED
+            value: ${AMQ_CLUSTERED}
+          - name: AMQ_REPLICAS
+            value: ${AMQ_REPLICAS}
+          - name: AMQ_CLUSTER_USER
+            value: ${AMQ_CLUSTER_USER}
+          - name: AMQ_CLUSTER_PASSWORD
+            value: ${AMQ_CLUSTER_PASSWORD}
+          - name: AMQ_EXTRA_ARGS
+            value: ${AMQ_EXTRA_ARGS}
+          - name: AMQ_ANYCAST_PREFIX
+            value: ${AMQ_ANYCAST_PREFIX}
+          - name: AMQ_MULTICAST_PREFIX
+            value: ${AMQ_MULTICAST_PREFIX}
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          readinessProbe:
+            exec:
+              command:
+              - "/bin/bash"
+              - "-c"
+              - "/opt/amq/bin/readinessProbe.sh"
+          image: ${IMAGE}              
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                - /opt/amq/bin/shutdownHook.sh              
+          name: ${APPLICATION_NAME}-amq
+          ports:
+          - containerPort: 8161
+            name: console-jolokia
+            protocol: TCP
+          - containerPort: 5672
+            name: amqp
+            protocol: TCP
+          - containerPort: 5671
+            name: amqp-ssl
+            protocol: TCP
+          - containerPort: 1883
+            name: mqtt
+            protocol: TCP
+          - containerPort: 8883
+            name: mqtt-ssl
+            protocol: TCP
+          - containerPort: 61613
+            name: stomp
+            protocol: TCP
+          - containerPort: 61612
+            name: stomp-ssl
+            protocol: TCP
+          - containerPort: 61616
+            name: openwire-multi
+            protocol: TCP
+          - containerPort: 61617
+            name: ow-multi-ssl
+            protocol: TCP
+          volumeMounts:
+          - name: ${APPLICATION_NAME}-amq-pvol
+            mountPath: ${AMQ_DATA_DIR}
+          - mountPath: /etc/amq-secret-volume
+            name: broker-secret-volume
+            readOnly: true
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - name: broker-secret-volume
+          secret:
+            secretName: ${AMQ_SECRET}
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ${APPLICATION_NAME}-amq-pvol
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: ${VOLUME_CAPACITY}
+    triggers:
+    - type: ConfigChange
+parameters:
+- description: The name for the application.
+  displayName: Application Name
+  name: APPLICATION_NAME
+  required: true
+  value: broker
+- description: 'Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`.'
+  displayName: AMQ Protocols
+  name: AMQ_PROTOCOL
+  value: openwire,amqp,stomp,mqtt,hornetq
+- description: Queue names, separated by commas. These queues will be automatically created when the broker starts. If left empty, queues will be still created dynamically.
+  displayName: Queues
+  name: AMQ_QUEUES
+- description: Address names, separated by commas. These addresses will be automatically created when the broker starts. If left empty, addresses will be still created dynamically.
+  displayName: Addresses
+  name: AMQ_ADDRESSES
+- description: Size of the volume used by AMQ for persisting messages.
+  displayName: AMQ Volume Size
+  name: VOLUME_CAPACITY
+  value: 1Gi
+  required: true
+- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+  displayName: AMQ Username
+  from: user[a-zA-Z0-9]{3}
+  generate: expression
+  name: AMQ_USER
+- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+  displayName: AMQ Password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: AMQ_PASSWORD
+- description: User role for standard broker user.
+  displayName: AMQ Role
+  name: AMQ_ROLE
+  value: admin
+- description: The name of the broker
+  displayName: AMQ Name
+  name: AMQ_NAME
+  value: broker
+- description: Clustered
+  displayName: clustered
+  name: AMQ_CLUSTERED
+  value: 'true'
+- description: Number of broker replicas for a cluster
+  displayName: Number of Replicas
+  name: AMQ_REPLICAS
+  value: '0'
+- description: Clustered user
+  displayName: cluster user
+  from: user[a-zA-Z0-9]{3}
+  generate: expression  
+  name: AMQ_CLUSTER_USER
+- description: Clustered password
+  displayName: cluster password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression  
+  name: AMQ_CLUSTER_PASSWORD
+- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
+  displayName: AMQ Global Max Size
+  name: AMQ_GLOBAL_MAX_SIZE
+  value: 100 gb
+- description: "Determines whether or not the broker will allow anonymous access, or require login"
+  displayName: AMQ Require Login
+  name: AMQ_REQUIRE_LOGIN
+- description: Name of a secret containing SSL related files
+  displayName: Secret Name
+  name: AMQ_SECRET
+  required: true
+  value: amq-app-secret
+- description: SSL trust store filename
+  displayName: Trust Store Filename
+  name: AMQ_TRUSTSTORE
+  required: true
+  value: broker.ts
+- description: SSL trust store password
+  displayName: Trust Store Password
+  name: AMQ_TRUSTSTORE_PASSWORD
+  required: true
+- description: SSL key store filename
+  displayName: AMQ Keystore Filename
+  name: AMQ_KEYSTORE
+  required: true
+  value: broker.ks
+- description: Password for accessing SSL keystore
+  displayName: AMQ Keystore Password
+  name: AMQ_KEYSTORE_PASSWORD
+  required: true
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data
+- description: Extra arguments for broker creation
+  name: AMQ_EXTRA_ARGS
+  required: false
+- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
+  displayName: AMQ Global Max Size
+  name: AMQ_GLOBAL_MAX_SIZE
+  value: 100 gb
+- description: "Determines whether or not the broker will allow anonymous access, or require login."
+  displayName: AMQ Require Login
+  name: AMQ_REQUIRE_LOGIN
+- description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Anycast Prefix
+  name: AMQ_ANYCAST_PREFIX
+  required: false
+- description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
+  displayName: AMQ Multicast Prefix
+  name: AMQ_MULTICAST_PREFIX
+  required: false
+- description: Broker Image
+  displayName: Image
+  name: IMAGE
+  required: true
+  value: amq-broker-72-openshift:1.0
