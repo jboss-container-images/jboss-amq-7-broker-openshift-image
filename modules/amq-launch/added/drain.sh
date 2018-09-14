@@ -1,10 +1,10 @@
 #!/bin/sh
 
-export BROKER_IP=`hostname -I | cut -f 1 -d ' '`
+export BROKER_IP=`hostname -f`
 
 instanceDir="${HOME}/${AMQ_NAME}"
 
-ENDPOINT_NAME="${AMQ_NAME}-amq-tcp"
+ENDPOINT_NAME="${AMQ_NAME}-amq-headless"
 
 endpointsUrl="https://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/api/v1/namespaces/${POD_NAMESPACE}/"
 endpointsAuth="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"

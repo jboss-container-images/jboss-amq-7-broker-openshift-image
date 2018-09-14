@@ -8,7 +8,7 @@ if [ "${SCRIPT_DEBUG}" = "true" ] ; then
 fi
 
 
-export BROKER_IP=`hostname -I | cut -f 1 -d ' '`
+export BROKER_IP=`hostname -f`
 CONFIG_TEMPLATES=/config_templates
 #Set the memory options
 JAVA_OPTS="$(adjust_java_options ${JAVA_OPTS})"
