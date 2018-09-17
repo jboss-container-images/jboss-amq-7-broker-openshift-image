@@ -6,14 +6,14 @@ labels:
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
-    description: Application template for Red Hat AMQ brokers. These can be deployed as standalone or in a mesh. This template doesn't feature SSL support.
+    description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
     openshift.io/display-name: Red Hat AMQ Broker 7.2 (no SSL, clustered)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop Red Hat AMQ Broker 7.2 based application, including a deployment configuration, using persistent storage. These can be deployed as standalone or in a mesh.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.2 based application, including a statefulset configuration, using persistent storage.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.12
   name: amq-broker-72-persistence-clustered
