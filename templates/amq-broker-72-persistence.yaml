@@ -10,7 +10,7 @@ metadata:
     iconClass: icon-amq
     openshift.io/display-name: Red Hat AMQ Broker 7.2 (Persistence, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
-    tags: messaging,amq,jboss
+    tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
       This template defines resources needed to develop Red Hat AMQ Broker 7.2 based application, including a deployment configuration, using persistent storage. These can be deployed as standalone or in a mesh.
