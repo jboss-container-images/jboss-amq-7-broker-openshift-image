@@ -1,6 +1,6 @@
-# Red Hat AMQ 7.2 OpenShift container image
+# Red Hat AMQ 7.2.1 OpenShift container image
 
-NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-image[Red Hat AMQ 7.2 container image]
+NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-image[Red Hat AMQ 7.2.1 container image]
 
 # License
 
