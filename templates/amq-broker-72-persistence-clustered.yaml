@@ -291,11 +291,6 @@ objects:
               - "-c"
               - "/opt/amq/bin/readinessProbe.sh"
           image: ${IMAGE}              
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                - /opt/amq/bin/shutdownHook.sh              
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
