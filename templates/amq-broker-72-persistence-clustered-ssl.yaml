@@ -464,13 +464,6 @@ parameters:
 - description: Extra arguments for broker creation
   name: AMQ_EXTRA_ARGS
   required: false
-- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
-  displayName: AMQ Global Max Size
-  name: AMQ_GLOBAL_MAX_SIZE
-  value: 100 gb
-- description: "Determines whether or not the broker will allow anonymous access, or require login."
-  displayName: AMQ Require Login
-  name: AMQ_REQUIRE_LOGIN
 - description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Anycast Prefix
   name: AMQ_ANYCAST_PREFIX
