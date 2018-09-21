@@ -19,8 +19,9 @@ spec:
       - name: main
         image: ${REGISTRY}/${PROJECT_NAMESPACE}/statefulset-drain-controller:latest
         args:
-        - --localOnly
-        - --v 5
+        - '--localOnly'
+        - '--v'
+        - '3'
 ---
 apiVersion: v1
 kind: ServiceAccount
