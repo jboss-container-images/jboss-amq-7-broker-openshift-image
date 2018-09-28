@@ -102,7 +102,6 @@ function updateAcceptorsForSSL() {
 
   if sslEnabled ; then
     
-    echo "keystorepassword $keyStorePassword"
     echo "keystore filepath: $keyStorePath"
 
     IFS=',' read -a protocols <<< $(find_env "AMQ_TRANSPORTS" "openwire,amqp,stomp,mqtt,hornetq")
