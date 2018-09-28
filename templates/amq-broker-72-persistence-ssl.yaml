@@ -32,7 +32,7 @@ objects:
     publishNotReadyAddresses: true
     ports:
     - port: 61616
-      name: openwire-multi
+      name: all
       protocol: TCP
       targetPort: 61616
     - port: 8161
@@ -52,7 +52,7 @@ objects:
       protocol: TCP
       targetPort: 61613
     - port: 61617
-      name: ow-multi-ssl
+      name: all-ssl
       protocol: TCP
       targetPort: 61617
     - port: 5671
@@ -169,10 +169,10 @@ objects:
             name: stomp-ssl
             protocol: TCP
           - containerPort: 61616
-            name: openwire-multi
+            name: all
             protocol: TCP
           - containerPort: 61617
-            name: ow-multi-ssl
+            name: all-ssl
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
