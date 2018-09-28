@@ -43,10 +43,18 @@ function configureUserAuthentication() {
     echo "Required variable missing: both AMQ_USER and AMQ_PASSWORD are required."
     exit 1
   fi
-if [ "$AMQ_REQUIRE_LOGIN" = "true" ]; then
+  if [ "$AMQ_REQUIRE_LOGIN" = "true" ]; then
     AMQ_ARGS="$AMQ_ARGS --require-login"
   else
     AMQ_ARGS="$AMQ_ARGS --allow-anonymous"
+  fi
+}
+
+function configureLogging() {
+  instanceDir=$1
+  if [ "$AMQ_DATA_DIR_LOGGING" = "true" ]; then
+    echo "Configuring logging directory to be ${AMQ_DATA_DIR}/log"
+    sed -i 's@${artemis.instance}@'"$AMQ_DATA_DIR"'@' ${instanceDir}/etc/logging.properties
   fi
 }
 
@@ -226,6 +234,7 @@ function configure() {
       updateAcceptorsForSSL ${instanceDir}
     fi
     updateAcceptorsForPrefixing ${instanceDir}
+    configureLogging ${instanceDir}
 
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}

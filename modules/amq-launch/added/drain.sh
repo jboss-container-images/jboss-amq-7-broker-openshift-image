@@ -60,6 +60,12 @@ sed -i -ne "/<acceptors>/ {p; i $acceptor" -e ":a; n; /<\/acceptors>/ {p; b}; ba
 
 #start the broker and issue the scaledown command to drain the messages.
 ${instanceDir}/bin/artemis-service start
-tail -n 100 -f ${AMQ_NAME}/log/artemis.log &
+
+if [ "$AMQ_DATA_DIR_LOGGING" = "true" ]; then
+  tail -n 100 -f ${AMQ_DATA_DIR}/log/artemis.log &
+else
+  tail -n 100 -f ${AMQ_NAME}/log/artemis.log &
+fi
+
 waitForJolokia
 curl -s -o /dev/null -G -k http://${AMQ_USER}:${AMQ_PASSWORD}@${BROKER_IP}:8161/console/jolokia/exec/org.apache.activemq.artemis:broker=%22${AMQ_NAME}%22/scaleDown/scaledownconnector
