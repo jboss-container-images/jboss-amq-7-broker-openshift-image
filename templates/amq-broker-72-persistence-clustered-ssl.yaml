@@ -234,7 +234,7 @@ objects:
                 "image": "${IMAGE}",
                 "name": "${APPLICATION_NAME}-amq",
 
-                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed!\""],
+                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed! Exit code $?\""],
                 "volumeMounts": [
                   {
                     "name": "${APPLICATION_NAME}-amq-pvol",
