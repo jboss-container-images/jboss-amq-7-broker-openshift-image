@@ -126,6 +126,8 @@ objects:
             value: ${AMQ_REQUIRE_LOGIN}
           - name: AMQ_DATA_DIR
             value: ${AMQ_DATA_DIR}
+          - name: AMQ_DATA_DIR_LOGGING
+            value: ${AMQ_DATA_DIR_LOGGING}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
           - name: AMQ_ANYCAST_PREFIX
@@ -277,6 +279,10 @@ parameters:
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
   value: /opt/amq/data
+- description: Use the AMQ Data Directory for logging
+  displayName: AMQ Data Directory for logging
+  name: AMQ_DATA_DIR_LOGGING
+  value: 'true'
 - description: Extra arguments for broker creation
   name: AMQ_EXTRA_ARGS
   required: false
