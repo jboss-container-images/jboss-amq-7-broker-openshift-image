@@ -17,7 +17,7 @@ spec:
       serviceAccountName: amq-broker-72-scaledown-controller-openshift-sa
       containers:
       - name: main
-        image: ${REGISTRY}/${PROJECT_NAMESPACE}/amq-7-broker-72-scaledown-controller-openshift:latest
+        image: registry.access.redhat.com/amq-broker-7-tech-preview/amq-broker-72-scaledown-openshift:0.4
         args:
         - '--localOnly'
         - '--v'
@@ -34,7 +34,6 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: amq-broker-72-scaledown-controller-openshift-role
-  namespace: ${PROJECT_NAMESPACE}
   labels:
     app: amq-broker-72-scaledown-controller-openshift-app
 rules:
@@ -80,7 +79,6 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: amq-broker-72-scaledown-controller-openshift-rb
-  namespace: ${PROJECT_NAMESPACE}
   labels:
     app: amq-broker-72-scaledown-controller-openshift-app
 subjects:
@@ -90,4 +88,3 @@ roleRef:
   kind: Role
   name: amq-broker-72-scaledown-controller-openshift-role
   apiGroup: rbac.authorization.k8s.io
-
