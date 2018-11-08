@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-72-openshift"
 description: "Red Hat AMQ Broker 7.2.1 OpenShift container image"
 version: "1.0"
-from: "amq-broker-7/amq-broker-72:1.0-5"
+from: "amq-broker-7/amq-broker-72:latest"
 labels:
     - name: "com.redhat.component"
       value: "amq-7-broker-72-openshift-container"
@@ -111,7 +111,7 @@ modules:
           - name: cct_module
             git:
                   url: https://github.com/jboss-openshift/cct_module.git
-                  ref: sprint-22
+                  ref: sprint-26
           - path: modules
       install:
           - name: dynamic-resources
