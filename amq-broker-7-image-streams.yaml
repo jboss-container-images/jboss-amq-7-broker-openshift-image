@@ -17,13 +17,13 @@ items:
     lookupPolicy:
       local: true  
     tags:
-    - name: '1.0'
+    - name: '1.1'
       annotations:
         description: Red Hat AMQ Broker 7.2 image.
         iconClass: icon-jboss
         tags: messaging,amq,jboss,xpaas
-        supports: amq:7.2,messaging:1.0
-        version: '1.0'
+        supports: amq:7.2,messaging:1.1
+        version: '1.1'
       from:
         kind: DockerImage
-        name: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.0
+        name: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.1
