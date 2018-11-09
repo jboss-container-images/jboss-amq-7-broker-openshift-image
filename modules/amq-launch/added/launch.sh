@@ -10,10 +10,12 @@ fi
 
 export BROKER_IP=`hostname -f`
 CONFIG_TEMPLATES=/config_templates
-#Set the memory options
+#Set the memory options via adjust_java_options from dynamic_resources
+#see https://developers.redhat.com/blog/2017/04/04/openjdk-and-containers/
 JAVA_OPTS="$(adjust_java_options ${JAVA_OPTS})"
 
 #GC Option conflicts with the one already configured.
+echo "Removing provided -XX:+UseParallelOldGC in favour of artemis.profile provided option"
 JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
@@ -177,6 +179,12 @@ function modifyDiscovery() {
   sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml							
 }
 
+function configureJAVA_ARGSMemory() {
+  instanceDir=$1
+  echo "Removing hardcoded -Xms -Xmx from artemis.profile in favour of JAVA_OPTS in log above"
+  sed -i "s/\-Xms[0-9]*[mMgG] \-Xmx[0-9]*[mMgG]//g" ${instanceDir}/etc/artemis.profile
+}
+
 
 function configure() {
   instanceDir=$1
@@ -234,6 +242,7 @@ function configure() {
     fi
     updateAcceptorsForPrefixing ${instanceDir}
     configureLogging ${instanceDir}
+    configureJAVA_ARGSMemory ${instanceDir}
 
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
