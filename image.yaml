@@ -115,7 +115,6 @@ modules:
           - path: modules
       install:
           - name: dynamic-resources
-          - name: s2i-common
           - name: os-amq-s2i          
           - name: os-java-run
           - name: openshift-passwd
