@@ -186,7 +186,7 @@ function modifyDiscovery() {
 function configureJAVA_ARGSMemory() {
   instanceDir=$1
   echo "Removing hardcoded -Xms -Xmx from artemis.profile in favour of JAVA_OPTS in log above"
-  sed -i "s/\-Xms[0-9]*[mMgG] \-Xmx[0-9]*[mMgG]//g" ${instanceDir}/etc/artemis.profile
+  sed -i "s/\-Xms[0-9]*[mMgG] \-Xmx[0-9]*[mMgG] \-Dhawtio/\ -Dhawtio/g" ${instanceDir}/etc/artemis.profile
 }
 
 
