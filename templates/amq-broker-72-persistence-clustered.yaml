@@ -8,7 +8,7 @@ metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.2 (no SSL, clustered)
+    openshift.io/display-name: Red Hat AMQ Broker 7.2 (Persistence, clustered, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
