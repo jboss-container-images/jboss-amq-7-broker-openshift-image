@@ -305,4 +305,4 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.1
+  value: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.2
