@@ -11,7 +11,7 @@ function swapVars() {
   sed -i "s/\${AMQ_NAME}/$AMQ_NAME/g" $1
   sed -i "s/\${AMQ_ROLE}/$AMQ_ROLE/g" $1
   sed -i "s/\${AMQ_STORAGE_USAGE_LIMIT}/$AMQ_STORAGE_USAGE_LIMIT/g" $1
-  sed -i "s/\${AMQ_CLUSTER_USER/$AMQ_CLUSTER_USER/g" $1
+  sed -i "s/\${AMQ_CLUSTER_USER}/$AMQ_CLUSTER_USER/g" $1
   sed -i "s/\${AMQ_CLUSTER_PASSWORD}/$AMQ_CLUSTER_PASSWORD/g" $1
 }
 
