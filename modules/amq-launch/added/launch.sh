@@ -264,7 +264,7 @@ function runServer() {
 
   configure $instanceDir
 
-  if [ "$1" = "start" ]; then
+  if [ "$1" != "nostart" ]; then
     echo "Running Broker"
     exec ${instanceDir}/bin/artemis run
   fi

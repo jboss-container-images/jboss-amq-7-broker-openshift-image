@@ -45,7 +45,7 @@ while [ 1 ]; do
   count=$(( count + 1 ))
 done
 
-source /opt/amq/bin/launch.sh
+source /opt/amq/bin/launch.sh nostart
 
 SCALE_TO_BROKER_IP=$ip
 
