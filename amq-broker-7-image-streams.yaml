@@ -19,7 +19,7 @@ items:
     tags:
     - name: '1.1'
       annotations:
-        description: Red Hat AMQ Broker 7.2.2 image.
+        description: Red Hat AMQ Broker 7.2.2-HF1 image.
         iconClass: icon-jboss
         tags: messaging,amq,jboss,xpaas
         supports: amq:7.2,messaging:1.1
