@@ -19,6 +19,16 @@ items:
     tags:
     - name: '1.2'
       annotations:
+        description: Red Hat AMQ Broker 7.2.4 image.
+        iconClass: icon-jboss
+        tags: messaging,amq,jboss,xpaas
+        supports: amq:7.2,messaging:1.3
+        version: '1.3'
+      from:
+        kind: DockerImage
+        name: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.3
+    - name: '1.2'
+      annotations:
         description: Red Hat AMQ Broker 7.2.3 image.
         iconClass: icon-jboss
         tags: messaging,amq,jboss,xpaas
