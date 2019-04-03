@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-72-persistence-clustered-ssl
+  template: amq-broker-73-persistence-clustered-ssl
   xpaas: 1.4.16
 message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template supports SSL and requires usage of OpenShift secrets.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.2 (Persistence, clustered, with SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.3 (Persistence, clustered, with SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.2 based application, including a statefulset configuration, using persistent storage and secure communication using SSL.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.3 based application, including a statefulset configuration, using persistent storage and secure communication using SSL.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.16
-  name: amq-broker-72-persistence-clustered-ssl
+  name: amq-broker-73-persistence-clustered-ssl
 objects:
 - apiVersion: v1
   kind: ServiceAccount
@@ -85,10 +85,10 @@ objects:
       name: console-jolokia
       protocol: TCP
       targetPort: 8161
-    - port: 5672
+    - port: 5673
       name: amqp
       protocol: TCP
-      targetPort: 5672
+      targetPort: 5673
     - port: 1883
       name: mqtt
       protocol: TCP
@@ -328,7 +328,7 @@ objects:
           - containerPort: 8161
             name: console-jolokia
             protocol: TCP
-          - containerPort: 5672
+          - containerPort: 5673
             name: amqp
             protocol: TCP
           - containerPort: 5671
@@ -486,4 +486,4 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.access.redhat.com/amq-broker-7/amq-broker-72-openshift:1.3
+  value: registry.access.redhat.com/amq-broker-7/amq-broker-73-openshift:7.3
