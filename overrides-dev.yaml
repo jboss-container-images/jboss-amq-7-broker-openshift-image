@@ -1,4 +1,4 @@
 osbs:
       repository:
             name: containers/amq-7-broker
-            branch: rh-amq-broker-7.2-openshift-dev-rhel-7
+            branch: rh-amq-broker-7.3-openshift-dev-rhel-7
