@@ -11,7 +11,7 @@ items:
   metadata:
     name: amq-broker-73-openshift
     annotations:
-      openshift.io/display-name: Red Hat AMQ Broker 7.2
+      openshift.io/display-name: Red Hat AMQ Broker 7.3
       openshift.io/provider-display-name: Red Hat, Inc.
   spec:
     lookupPolicy:
