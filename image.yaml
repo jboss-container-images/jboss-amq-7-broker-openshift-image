@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-73-openshift"
 description: "Red Hat AMQ Broker 7.3.0 OpenShift container image"
 version: "7.3"
-from: "amq-broker-7/amq-broker-73:7.3-2"
+from: "amq-broker-7/amq-broker-73:7.3-3"
 labels:
     - name: "com.redhat.component"
       value: "amq-7-broker-73-openshift-container"
@@ -95,7 +95,7 @@ envs:
       example: "100"
 ports:
     - value: 5671
-    - value: 5673
+    - value: 5672
     - value: 1883
     - value: 8161
     - value: 9876
@@ -129,7 +129,6 @@ packages:
       repositories:
           - jboss-os
           - jboss-ocp
-          - jboss-rhscl
       install:
           - PyYAML
 
