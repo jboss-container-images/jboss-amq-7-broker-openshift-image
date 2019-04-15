@@ -85,10 +85,10 @@ objects:
       name: console-jolokia
       protocol: TCP
       targetPort: 8161
-    - port: 5673
+    - port: 5672
       name: amqp
       protocol: TCP
-      targetPort: 5673
+      targetPort: 5672
     - port: 1883
       name: mqtt
       protocol: TCP
@@ -302,7 +302,7 @@ objects:
           - containerPort: 8161
             name: console-jolokia
             protocol: TCP
-          - containerPort: 5673
+          - containerPort: 5672
             name: amqp
             protocol: TCP
           - containerPort: 1883

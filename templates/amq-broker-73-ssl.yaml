@@ -42,8 +42,8 @@ objects:
     name: ${AMQ_NAME}-amq-amqp
   spec:
     ports:
-    - port: 5673
-      targetPort: 5673
+    - port: 5672
+      targetPort: 5672
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
@@ -224,10 +224,10 @@ objects:
             - containerPort: 8161
               name: console-jolokia
               protocol: TCP
-            - containerPort: 5673
+            - containerPort: 5672
               name: amqp
               protocol: TCP
-            - containerPort: 5673
+            - containerPort: 5672
               name: amqp-ssl
               protocol: TCP
             - containerPort: 1883
@@ -364,4 +364,4 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: amq-broker-73-openshift:7.3
+  value: registry.redhat.io/amq-broker-7/amq-broker-73-openshift:7.3

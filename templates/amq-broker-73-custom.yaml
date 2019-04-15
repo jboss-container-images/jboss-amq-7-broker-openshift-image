@@ -42,8 +42,8 @@ objects:
     name: ${AMQ_NAME}-amq-amqp
   spec:
     ports:
-    - port: 5673
-      targetPort: 5673
+    - port: 5672
+      targetPort: 5672
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
@@ -155,7 +155,7 @@ objects:
           - containerPort: 8161
             name: console-jolokia
             protocol: TCP
-          - containerPort: 5673
+          - containerPort: 5672
             name: amqp
             protocol: TCP
           - containerPort: 1883
@@ -250,7 +250,7 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: amq-broker-73-openshift:7.3
+  value: registry.redhat.io/amq-broker-7/amq-broker-73-openshift:7.3
 - description: The broker.xml configuration file.
   displayName: broker.xml
   name: BROKER_XML
@@ -391,7 +391,7 @@ parameters:
              <acceptor name="artemis">tcp://${BROKER_IP}:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300</acceptor>
 
              <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-             <acceptor name="amqp">tcp://${BROKER_IP}:5673?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
+             <acceptor name="amqp">tcp://${BROKER_IP}:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
 
              <!-- STOMP Acceptor. -->
              <acceptor name="stomp">tcp://${BROKER_IP}:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
