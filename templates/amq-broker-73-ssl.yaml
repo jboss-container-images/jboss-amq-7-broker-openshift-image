@@ -264,7 +264,7 @@ objects:
         - ${APPLICATION_NAME}-amq
         from:
           kind: ImageStreamTag
-          name: ${IMAGE}
+          name: amq-broker-73-openshift:latest
           namespace: ${IMAGE_STREAM_NAMESPACE}
       type: ImageChange
     - type: ConfigChange
