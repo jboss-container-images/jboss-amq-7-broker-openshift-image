@@ -126,9 +126,6 @@ modules:
           - name: amq.broker73.s2i
           - name: amq.custom.config   
 packages:
-      repositories:
-          - jboss-os
-          - jboss-ocp
       install:
           - PyYAML
 
