@@ -1,6 +1,6 @@
-# Red Hat AMQ 7.3.0 OpenShift container image
+# Red Hat AMQ Broker 7.4.0 OpenShift container image
 
-NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-broker-image[Red Hat AMQ 7.3.0 container image]
+NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-broker-image[Red Hat AMQ Broker 7.4.0 container image]
 
 # License
 
@@ -23,11 +23,11 @@ Deploy the project.
 ```
 $ oc new-project broker
 $ oc create -n broker -f amq-broker-7-image-streams.yaml
-$ oc process -n broker -f templates/amq-broker-73-basic.yaml -p APPLICATION_NAME=broker-app -p AMQ_USER=<username> -p AMQ_PASSWORD=<amqpassword>  | oc create -n broker -f -
+$ oc process -n broker -f templates/amq-broker-74-basic.yaml -p APPLICATION_NAME=broker-app -p AMQ_USER=<username> -p AMQ_PASSWORD=<amqpassword>  | oc create -n broker -f -
 ```
 Push the image.  You will need the ip address of the OpenShift container registry.  You can get this from the image stream in the OpenShift console
 ```
 $ docker login -u developer -p $(oc whoami -t) openshift-docker-ip:5000
-$ docker tag amq-broker-7/amq-broker-73-openshift:latest openshift-docker-ip:5000/broker/amq-broker-73-openshift:7.3
-$ docker push openshift-docker-ip:5000/broker/amq-broker-73-openshift:1.3
+$ docker tag amq-broker-7/amq-broker-74-openshift:latest openshift-docker-ip:5000/broker/amq-broker-74-openshift:7.4
+$ docker push openshift-docker-ip:5000/broker/amq-broker-74-openshift:7.4
 ```
