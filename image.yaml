@@ -6,7 +6,7 @@ version: "7.4"
 from: "amq-broker-7/amq-broker-74:7.4-1"
 labels:
     - name: "com.redhat.component"
-      value: "amq-7-broker-74-openshift-container"
+      value: "amq-broker-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
