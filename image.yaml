@@ -136,5 +136,5 @@ run:
           - "start"                
 osbs:
       repository:
-            name: containers/amq-7-broker
+            name: containers/amq-broker
             branch: rh-amq-broker-7.4-openshift-dev-rhel-7
