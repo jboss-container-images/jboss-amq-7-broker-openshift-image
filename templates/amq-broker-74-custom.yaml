@@ -142,7 +142,7 @@ objects:
             value: ${AMQ_ANYCAST_PREFIX}
           - name: AMQ_MULTICAST_PREFIX
             value: ${AMQ_MULTICAST_PREFIX}
-            image: ${IMAGE}
+          image: ${IMAGE}
           imagePullPolicy: Always
           readinessProbe:
             exec:
