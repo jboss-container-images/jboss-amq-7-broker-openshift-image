@@ -9,7 +9,7 @@ items:
 - kind: ImageStream
   apiVersion: v1
   metadata:
-    name: amq-broker-74-openshift
+    name: amq-broker
     annotations:
       openshift.io/display-name: Red Hat AMQ Broker 7.4
       openshift.io/provider-display-name: Red Hat, Inc.
@@ -26,4 +26,4 @@ items:
         version: '7.4'
       from:
         kind: DockerImage
-        name: registry.redhat.io/amq-broker-7/amq-broker-74-openshift:7.4
+        name: registry.redhat.io/amq7/amq-broker:7.4

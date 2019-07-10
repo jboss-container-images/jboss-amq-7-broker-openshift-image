@@ -241,7 +241,7 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.redhat.io/amq-broker-7/amq-broker-74-openshift:7.4
+  value: registry.redhat.io/amq7/amq-broker:7.4
 - description: The broker.xml configuration file.
   displayName: broker.xml
   name: BROKER_XML
