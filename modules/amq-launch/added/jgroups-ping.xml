@@ -32,7 +32,7 @@
          oob_thread_pool.queue_max_size="100"
          oob_thread_pool.rejection_policy="discard"/>
 
-<openshift.DNS_PING timeout="3000" serviceName="ping" />
+<openshift.DNS_PING timeout="3000" serviceName="${APPLICATION_NAME}-${PING_SVC_NAME}" />
                          
     <MERGE3  min_interval="10000"
              max_interval="30000"/>
