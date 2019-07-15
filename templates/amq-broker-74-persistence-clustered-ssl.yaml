@@ -124,7 +124,7 @@ objects:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
     labels:
       application: ${APPLICATION_NAME}
-    name: ping
+    name: ${APPLICATION_NAME}-${PING_SVC_NAME}
   spec:
     clusterIP: None  
     ports:
@@ -154,6 +154,14 @@ objects:
             "containers": [
               {
                 "env": [
+                  {
+                    "name": "APPLICATION_NAME",
+                    "value": "${APPLICATION_NAME}"
+                  },
+                  {
+                    "name": "PING_SVC_NAME",
+                    "value": "${PING_SVC_NAME}"
+                  },
                   {
                     "name": "AMQ_EXTRA_ARGS",
                     "value": "--no-autotune"
@@ -266,6 +274,10 @@ objects:
       spec:
         containers:
         - env:
+          - name: APPLICATION_NAME
+            value: ${APPLICATION_NAME}
+          - name: PING_SVC_NAME
+            value: ${PING_SVC_NAME}
           - name: AMQ_USER
             value: ${AMQ_USER}
           - name: AMQ_PASSWORD
@@ -382,6 +394,11 @@ parameters:
   name: APPLICATION_NAME
   required: true
   value: broker
+- description: The name for JGroups DNS_PING service.
+  displayName: DNS Ping Service Name
+  name: PING_SVC_NAME
+  required: true
+  value: ping
 - description: 'Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`.'
   displayName: AMQ Protocols
   name: AMQ_PROTOCOL
