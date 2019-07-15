@@ -159,6 +159,22 @@ function modifyDiscovery() {
   discoverygroup="${discoverygroup}       </discovery-group>	"
   sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
 
+  #generate jgroups-ping.xml
+  echo "Generating jgroups-ping.xml, current dir is: $PWD, AMQHOME: $AMQ_HOME"
+
+  if [ -z "${PING_SVC_NAME+x}" ]; then
+    echo "PING_SERVICE is not set"
+    PING_SVC_NAME=ping
+  fi
+
+  if [ -z "${APPLICATION_NAME+x}" ]; then
+    echo "APPLICATION_NAME is not set"
+    sed -i -e "s/\${APPLICATION_NAME}-\${PING_SVC_NAME}/${PING_SVC_NAME}/" $AMQ_HOME/conf/jgroups-ping.xml
+  else
+    echo "APPLICATION_NAME is set"
+    sed -i -e "s/\${APPLICATION_NAME}-\${PING_SVC_NAME}/${APPLICATION_NAME}-${PING_SVC_NAME}/" $AMQ_HOME/conf/jgroups-ping.xml
+  fi
+  
   broadcastgroup=""		
   broadcastgroup="${broadcastgroup}       <broadcast-group name=\"my-broadcast-group\">"
   broadcastgroup="${broadcastgroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
