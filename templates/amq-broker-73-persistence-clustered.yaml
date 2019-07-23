@@ -19,6 +19,18 @@ metadata:
   name: amq-broker-73-persistence-clustered
 objects:
 - apiVersion: v1
+  kind: Secret
+  metadata:
+    annotations:
+      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), clusteruser(AMQ_CLUSTER_USER), clusterpassword(AMQ_CLUSTER_PASSWORD).
+    name: amq-credential-secret
+  type: Opaque
+  data:
+    ${AMQ_USER}: YWRtaW4=
+    ${AMQ_PASSWORD}: YWRtaW4=
+    ${AMQ_CLUSTER_USER}: Y2x1c3RlcnVzZXI=
+    ${AMQ_CLUSTER_PASSWORD}: Y2x1c3RlcnBhc3N3b3Jk
+- apiVersion: v1
   kind: ServiceAccount
   metadata:
     name: ${APPLICATION_NAME}-service-account
@@ -152,11 +164,21 @@ objects:
                   },
                   {
                     "name": "AMQ_USER",
-                    "value": "${AMQ_USER}"
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_USER}"
+                      }
+                    }
                   },
                   {
                     "name": "AMQ_PASSWORD",
-                    "value": "${AMQ_PASSWORD}"
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_PASSWORD}"
+                      }
+                    }
                   },
                   {
                     "name": "AMQ_ROLE",
@@ -204,11 +226,21 @@ objects:
                   },
                   {
                     "name": "AMQ_CLUSTER_USER",
-                    "value": "${AMQ_CLUSTER_USER}"
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_CLUSTER_USER}"
+                      }
+                    }
                   },
                   {
                     "name": "AMQ_CLUSTER_PASSWORD",
-                    "value": "${AMQ_CLUSTER_PASSWORD}"
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_CLUSTER_PASSWORD}"
+                      }
+                    }
                   },
                   {
                     "name": "POD_NAMESPACE",
@@ -263,9 +295,15 @@ objects:
           - name: PING_SVC_NAME
             value: ${PING_SVC_NAME}
           - name: AMQ_USER
-            value: ${AMQ_USER}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_USER}
           - name: AMQ_PASSWORD
-            value: ${AMQ_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: ${}AMQ_CREDENTIAL_SECRET
+                key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
           - name: AMQ_NAME
@@ -289,9 +327,15 @@ objects:
           - name: AMQ_REPLICAS
             value: ${AMQ_REPLICAS}
           - name: AMQ_CLUSTER_USER
-            value: ${AMQ_CLUSTER_USER}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_CLUSTER_USER}
           - name: AMQ_CLUSTER_PASSWORD
-            value: ${AMQ_CLUSTER_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_CLUSTER_PASSWORD}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
           - name: AMQ_ANYCAST_PREFIX
@@ -369,12 +413,12 @@ parameters:
   name: VOLUME_CAPACITY
   value: 1Gi
   required: true
-- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
   generate: expression
   name: AMQ_USER
-- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: AMQ Password
   from: '[a-zA-Z0-9]{8}'
   generate: expression
@@ -395,12 +439,12 @@ parameters:
   displayName: Number of Replicas
   name: AMQ_REPLICAS
   value: '0'
-- description: Clustered user
+- description: Clustered user. It serves as a key by which the real cluster user name is retrieved from kubernetes secret object.
   displayName: cluster user
   from: user[a-zA-Z0-9]{3}
   generate: expression  
   name: AMQ_CLUSTER_USER
-- description: Clustered password
+- description: Clustered password. It serves as a key by which the real cluster password is retrieved from kubernetes secret object.
   displayName: cluster password
   from: '[a-zA-Z0-9]{8}'
   generate: expression  
@@ -436,3 +480,9 @@ parameters:
   name: IMAGE
   required: true
   value: registry.redhat.io/amq-broker-7/amq-broker-73-openshift:7.3
+- description: Name of a secret containing credential data such as usernames and passwords
+  displayName: Secret Name
+  name: AMQ_CREDENTIAL_SECRET
+  required: true
+  value: amq-credential-secret
+
