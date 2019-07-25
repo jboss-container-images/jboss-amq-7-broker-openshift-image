@@ -232,7 +232,15 @@ function configure() {
     configureNetworking
     configureSSL
 
-    echo "Creating Broker with args $AMQ_ARGS"
+    # mask sensitive values
+    PRINT_ARGS="${AMQ_ARGS/--password $AMQ_PASSWORD/--password XXXXX}"
+    PRINT_ARGS="${PRINT_ARGS/--user $AMQ_USER/--user XXXXX}"
+    PRINT_ARGS="${PRINT_ARGS/--cluster-user=$AMQ_CLUSTER_USER/--cluster-user=XXXXX}"
+    PRINT_ARGS="${PRINT_ARGS/--cluster-password=$AMQ_CLUSTER_PASSWORD/--cluster-password=XXXXX}"
+    PRINT_ARGS="${PRINT_ARGS/--ssl-key-password=$AMQ_KEYSTORE_PASSWORD/--ssl-key-password=XXXXX}"
+    PRINT_ARGS="${PRINT_ARGS/--ssl-trust-password=$AMQ_TRUSTSTORE_PASSWORD/--ssl-trust-password=XXXXX}"
+
+    echo "Creating Broker with args $PRINT_ARGS"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
 
     if [ "$AMQ_CLUSTERED" = "true" ]; then
