@@ -128,7 +128,7 @@ function updateAcceptorsForSSL() {
 esac
       done
     fi
-    safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')	    	
+    safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')
     sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml    
   fi
 }
@@ -147,8 +147,39 @@ function updateAcceptorsForPrefixing() {
     sed -i "s/:61616?/&anycastPrefix=${AMQ_ANYCAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
     sed -i "s/:61617?/&anycastPrefix=${AMQ_ANYCAST_PREFIX};/g" ${instanceDir}/etc/broker.xml
   fi
-
 }
+
+function appendAcceptorsFromEnv() {
+  instanceDir=$1
+
+  if [ -n "$AMQ_ACCEPTORS" ]; then
+      echo "Using acceptors from environment and removing existing entries"
+      sed -i "/acceptor name=/d" ${instanceDir}/etc/broker.xml
+      acceptorsFromEnv=$(find_env "AMQ_ACCEPTORS" "")
+      # As AMQ_ACCEPTORS was introduced from the operator, the operator makes a safe string for here
+      safeAcceptorsFromEnv=$(echo "${acceptorsFromEnv}")
+      sed -i "/<\/acceptors>/ s/.*/${safeAcceptorsFromEnv}\n&/g" ${instanceDir}/etc/broker.xml
+      sed -i "s/ACCEPTOR_IP/${ACCEPTOR_IP}/g" ${instanceDir}/etc/broker.xml
+  fi
+}
+
+function appendConnectorsFromEnv() {
+  instanceDir=$1
+
+  if [ -n "$AMQ_CONNECTORS" ]; then
+      echo "Appending connectors from environment"
+      connectorsFromEnv=$(find_env "AMQ_CONNECTORS" "")
+      # As AMQ_CONNECTORS was introduced from the operator, the operator makes a safe string for here
+      safeConnectorsFromEnv=$(echo "${connectorsFromEnv}")
+      endConnectorsCount=`grep -c '</connectors>' ${instanceDir}/etc/broker.xml`
+      if [ ${endConnectorsCount} -ne 0 ]; then
+          sed -i "/<\/connectors>/ s/.*/\t\t${safeConnectorsFromEnv}\n&/" ${instanceDir}/etc/broker.xml
+      else
+          sed -i "/<\/acceptors>/ s/.*/&\n\t<connectors>\n\t\t${safeConnectorsFromEnv}\n\t<\/connectors>\n/" ${instanceDir}/etc/broker.xml
+      fi
+  fi
+}
+
 
 function modifyDiscovery() {
   discoverygroup=""
@@ -222,18 +253,22 @@ function configure() {
     if [ -n "$AMQ_ADDRESSES" ]; then
       AMQ_ARGS="$AMQ_ARGS --addresses $(removeWhiteSpace $AMQ_ADDRESSES)"
     fi
-    if [ -n "$AMQ_TRANSPORTS" ]; then
-      if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"hornetq"* ]]; then
-        AMQ_ARGS="$AMQ_ARGS --no-hornetq-acceptor"
-      fi
-      if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"amqp"* ]]; then
-        AMQ_ARGS="$AMQ_ARGS --no-amqp-acceptor"
-      fi
-      if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"mqtt"* ]]; then
-        AMQ_ARGS="$AMQ_ARGS --no-mqtt-acceptor"
-      fi
-      if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"stomp"* ]]; then
-        AMQ_ARGS="$AMQ_ARGS --no-stomp-acceptor"
+    if [ -n "$AMQ_ACCEPTORS" ]; then
+      AMQ_ARGS="$AMQ_ARGS --no-amqp-acceptor --no-hornetq-acceptor --no-mqtt-acceptor --no-stomp-acceptor"
+    else
+      if [ -n "$AMQ_TRANSPORTS" ]; then
+        if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"hornetq"* ]]; then
+          AMQ_ARGS="$AMQ_ARGS --no-hornetq-acceptor"
+        fi
+        if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"amqp"* ]]; then
+          AMQ_ARGS="$AMQ_ARGS --no-amqp-acceptor"
+        fi
+        if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"mqtt"* ]]; then
+          AMQ_ARGS="$AMQ_ARGS --no-mqtt-acceptor"
+        fi
+        if [[ $(removeWhiteSpace ${AMQ_TRANSPORTS}) != *"stomp"* ]]; then
+          AMQ_ARGS="$AMQ_ARGS --no-stomp-acceptor"
+        fi
       fi
     fi
     if [ -n "$GLOBAL_MAX_SIZE" ]; then
@@ -269,6 +304,8 @@ function configure() {
       updateAcceptorsForSSL ${instanceDir}
     fi
     updateAcceptorsForPrefixing ${instanceDir}
+    appendAcceptorsFromEnv ${instanceDir}
+    appendConnectorsFromEnv ${instanceDir}
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
 
