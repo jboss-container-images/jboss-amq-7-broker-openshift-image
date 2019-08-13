@@ -19,7 +19,7 @@ items:
     tags:
     - name: '7.4'
       annotations:
-        description: Red Hat AMQ Broker 7.4.0 image.
+        description: Red Hat AMQ Broker 7.4.1 image.
         iconClass: icon-jboss
         tags: messaging,amq,jboss,xpaas
         supports: amq:7.4,messaging:7.4
