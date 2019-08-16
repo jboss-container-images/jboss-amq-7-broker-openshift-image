@@ -348,6 +348,8 @@ objects:
               secretKeyRef:
                 name: ${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_KEYSTORE_PASSWORD}
+          - name: AMQ_SSL_PROVIDER
+            value: ${AMQ_SSL_PROVIDER}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_REQUIRE_LOGIN
@@ -537,6 +539,10 @@ parameters:
   displayName: AMQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
   required: true
+- description: SSL provider (JDK or OPENSSL) used in netty ssl acceptor
+  displayName: AMQ SSL Provider
+  name: AMQ_SSL_PROVIDER
+  required: false
 - description: The directory to use for data storage
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR

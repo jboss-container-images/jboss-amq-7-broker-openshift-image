@@ -225,6 +225,8 @@ objects:
                 secretKeyRef:
                   name: ${AMQ_CREDENTIAL_SECRET}
                   key: ${AMQ_KEYSTORE_PASSWORD}
+            - name: AMQ_SSL_PROVIDER
+              value: ${AMQ_SSL_PROVIDER}
             - name: AMQ_GLOBAL_MAX_SIZE
               value: ${AMQ_GLOBAL_MAX_SIZE}
             - name: AMQ_REQUIRE_LOGIN
@@ -356,7 +358,11 @@ parameters:
 - description: Password for accessing SSL keystore. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: AMQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
-  required: true  
+  required: true
+- description: SSL provider (JDK or OPENSSL) used in netty ssl acceptor
+  displayName: AMQ SSL Provider
+  name: AMQ_SSL_PROVIDER
+  required: false
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
