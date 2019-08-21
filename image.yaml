@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-74-openshift"
 description: "Red Hat AMQ Broker 7.4.1 OpenShift container image"
 version: "7.4"
-from: "amq-broker-7/amq-broker-74:7.4-5"
+from: "amq-broker-7/amq-broker-74:7.4-6"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
@@ -139,4 +139,4 @@ run:
 osbs:
       repository:
             name: containers/amq-broker
-            branch: rh-amq-broker-7.4-openshift-dev-rhel-7
+            branch: rh-amq-broker-7.4-openshift-cp-rhel-7
