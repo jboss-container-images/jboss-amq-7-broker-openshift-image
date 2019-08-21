@@ -237,6 +237,8 @@ objects:
               value: ${AMQ_ANYCAST_PREFIX}
             - name: AMQ_MULTICAST_PREFIX
               value: ${AMQ_MULTICAST_PREFIX}
+            - name: AMQ_ENABLE_METRICS_PLUGIN
+              value: ${AMQ_ENABLE_METRICS_PLUGIN}
             image: ${IMAGE}
             imagePullPolicy: Always
             readinessProbe:
@@ -391,3 +393,7 @@ parameters:
   name: IMAGE
   required: true
   value: registry.redhat.io/amq7/amq-broker:7.5
+- description: Whether to enable artemis metrics plugin
+  displayName: Enable Metrics Plugin
+  name: AMQ_ENABLE_METRICS_PLUGIN
+  required: false
