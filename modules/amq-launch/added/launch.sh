@@ -205,6 +205,11 @@ function configureJAVA_ARGSMemory() {
   sed -i "s/\-Xms[0-9]*[mMgG] \-Xmx[0-9]*[mMgG] \-Dhawtio/\ -Dhawtio/g" ${instanceDir}/etc/artemis.profile
 }
 
+function injectMetricsPlugin() {
+  instanceDir=$1
+  echo "Adding artemis metrics plugin"
+  sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics-plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
+}
 
 function configure() {
   instanceDir=$1
@@ -271,6 +276,12 @@ function configure() {
     updateAcceptorsForPrefixing ${instanceDir}
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
+
+    if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
+      echo "Enable artemis metrics plugin"
+      injectMetricsPlugin ${instanceDir}
+      injectMetricsWar ${instanceDir}
+    fi
 
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
     $AMQ_HOME/bin/configure_custom_config.sh ${instanceDir}
