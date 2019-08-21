@@ -302,7 +302,7 @@ objects:
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${}AMQ_CREDENTIAL_SECRET
+                name: ${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
@@ -346,6 +346,8 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: AMQ_ENABLE_METRICS_PLUGIN
+            value: ${AMQ_ENABLE_METRICS_PLUGIN}
           readinessProbe:
             exec:
               command:
@@ -485,3 +487,7 @@ parameters:
   name: AMQ_CREDENTIAL_SECRET
   required: true
   value: amq-credential-secret
+- description: Whether to enable artemis metrics plugin
+  displayName: Enable Metrics Plugin
+  name: AMQ_ENABLE_METRICS_PLUGIN
+  required: false

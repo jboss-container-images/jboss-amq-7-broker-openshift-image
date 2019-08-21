@@ -382,13 +382,15 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: AMQ_ENABLE_METRICS_PLUGIN
+            value: ${AMQ_ENABLE_METRICS_PLUGIN}
           readinessProbe:
             exec:
               command:
               - "/bin/bash"
               - "-c"
               - "/opt/amq/bin/readinessProbe.sh"
-          image: ${IMAGE}              
+          image: ${IMAGE}
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -567,3 +569,7 @@ parameters:
   name: IMAGE
   required: true
   value: registry.redhat.io/amq7/amq-broker:7.5
+- description: Whether to enable artemis metrics plugin
+  displayName: Enable Metrics Plugin
+  name: AMQ_ENABLE_METRICS_PLUGIN
+  required: false
