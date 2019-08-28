@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-75-openshift"
 description: "Red Hat AMQ Broker 7.5.0 OpenShift container image"
 version: "7.5"
-from: "amq-broker-7/amq-broker-75:latest"
+from: "amq-broker-7/amq-broker-75:7.5-1"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
@@ -126,8 +126,6 @@ modules:
           - name: amq.broker75.s2i
           - name: amq.custom.config   
 packages:
-      repositories:
-      - jboss-os
       install:
           - PyYAML
 
