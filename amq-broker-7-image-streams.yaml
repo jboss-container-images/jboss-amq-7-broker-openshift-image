@@ -26,4 +26,4 @@ items:
         version: '7.4'
       from:
         kind: DockerImage
-        name: registry.redhat.io/amq7/amq-broker:7.4
+        name: registry.redhat.io/amq7/amq-broker-lts-rhel7:7.4
