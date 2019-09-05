@@ -188,6 +188,19 @@ function appendConnectorsFromEnv() {
   fi
 }
 
+function appendJournalType() {
+  instanceDir=$1
+
+  if [ -n "$AMQ_JOURNAL_TYPE" ]; then
+      echo "Setting journal type to ${AMQ_JOURNAL_TYPE}"
+      if [[ $(removeWhiteSpace ${AMQ_JOURNAL_TYPE}) != *"nio"* ]]; then
+        AMQ_ARGS="$AMQ_ARGS --aio"
+      fi
+      if [[ $(removeWhiteSpace ${AMQ_JOURNAL_TYPE}) != *"aio"* ]]; then
+        AMQ_ARGS="$AMQ_ARGS --nio"
+      fi
+  fi
+}
 
 function modifyDiscovery() {
   discoverygroup=""
@@ -277,8 +290,12 @@ function configure() {
     if [ "$AMQ_EXTRA_ARGS" ]; then
       AMQ_ARGS="$AMQ_ARGS $AMQ_EXTRA_ARGS"
     fi
+    if [ "$AMQ_CONSOLE_ARGS" ]; then
+      AMQ_ARGS="$AMQ_ARGS $AMQ_CONSOLE_ARGS"
+    fi
     configureNetworking
     configureSSL
+    appendJournalType ${instanceDir}
 
     # mask sensitive values
     PRINT_ARGS="${AMQ_ARGS/--password $AMQ_PASSWORD/--password XXXXX}"
