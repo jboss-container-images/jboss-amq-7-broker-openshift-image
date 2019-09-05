@@ -384,6 +384,8 @@ objects:
                 fieldPath: metadata.namespace
           - name: AMQ_ENABLE_METRICS_PLUGIN
             value: ${AMQ_ENABLE_METRICS_PLUGIN}
+          - name: AMQ_JOURNAL_TYPE
+            value: ${AMQ_JOURNAL_TYPE}
           readinessProbe:
             exec:
               command:
@@ -572,4 +574,9 @@ parameters:
 - description: Whether to enable artemis metrics plugin
   displayName: Enable Metrics Plugin
   name: AMQ_ENABLE_METRICS_PLUGIN
+  required: false
+- description: Journal type to use; aio or nio supported
+  displayName: AMQ Journal Type
+  name: AMQ_JOURNAL_TYPE
+  value: nio
   required: false
