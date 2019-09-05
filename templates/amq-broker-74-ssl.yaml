@@ -405,3 +405,8 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
+- description: Journal type to use; aio or nio supported
+  displayName: AMQ Journal Type
+  name: AMQ_JOURNAL_TYPE
+  value: nio
+  required: false
