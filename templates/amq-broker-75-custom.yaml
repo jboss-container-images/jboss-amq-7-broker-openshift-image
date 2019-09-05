@@ -158,6 +158,8 @@ objects:
             value: ${AMQ_ANYCAST_PREFIX}
           - name: AMQ_MULTICAST_PREFIX
             value: ${AMQ_MULTICAST_PREFIX}
+          - name: AMQ_JOURNAL_TYPE
+            value: ${AMQ_JOURNAL_TYPE}
           image: ${IMAGE}
           imagePullPolicy: Always
           readinessProbe:
@@ -263,6 +265,11 @@ parameters:
   name: AMQ_CREDENTIAL_SECRET
   required: true
   value: amq-credential-secret
+- description: Journal type to use; aio or nio supported
+  displayName: AMQ Journal Type
+  name: AMQ_JOURNAL_TYPE
+  value: nio
+  required: false
 - description: The broker.xml configuration file.
   displayName: broker.xml
   name: BROKER_XML
