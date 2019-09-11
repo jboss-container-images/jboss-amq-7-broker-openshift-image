@@ -290,9 +290,6 @@ function configure() {
     if [ "$AMQ_EXTRA_ARGS" ]; then
       AMQ_ARGS="$AMQ_ARGS $AMQ_EXTRA_ARGS"
     fi
-    if [ "$AMQ_CONSOLE_ARGS" ]; then
-      AMQ_ARGS="$AMQ_ARGS $AMQ_CONSOLE_ARGS"
-    fi
     configureNetworking
     configureSSL
     appendJournalType ${instanceDir}
@@ -304,6 +301,17 @@ function configure() {
     PRINT_ARGS="${PRINT_ARGS/--cluster-password $AMQ_CLUSTER_PASSWORD/--cluster-password XXXXX}"
     PRINT_ARGS="${PRINT_ARGS/--ssl-key-password $AMQ_KEYSTORE_PASSWORD/--ssl-key-password XXXXX}"
     PRINT_ARGS="${PRINT_ARGS/--ssl-trust-password $AMQ_TRUSTSTORE_PASSWORD/--ssl-trust-password XXXXX}"
+
+    if [ "$AMQ_CONSOLE_ARGS" ]; then
+      AMQ_ARGS="$AMQ_ARGS $AMQ_CONSOLE_ARGS"
+      keypat='(.*)(--ssl-key-password).([[:alnum:]]*)(.*)'
+      [[ "$AMQ_CONSOLE_ARGS"  =~ $keypat ]]
+      CONSOLE_ARGS_NO_KEYPASS="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} XXXXX ${BASH_REMATCH[4]}"
+      trustpat='(.*)(--ssl-trust-password).([[:alnum:]]*)(.*)'
+      [[ "$CONSOLE_ARGS_NO_KEYPASS"  =~ $trustpat ]]
+      CONSOLE_ARGS_NO_TRUSTPASS="${BASH_REMATCH[1]} ${BASH_REMATCH[2]} XXXXX ${BASH_REMATCH[4]}"
+      PRINT_ARGS="${PRINT_ARGS} ${CONSOLE_ARGS_NO_TRUSTPASS}"
+    fi
 
     echo "Creating Broker with args $PRINT_ARGS"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
