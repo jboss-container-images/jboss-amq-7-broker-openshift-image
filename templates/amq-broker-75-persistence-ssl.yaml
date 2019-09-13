@@ -348,6 +348,7 @@ parameters:
 - description: Whether to enable artemis metrics plugin
   displayName: Enable Metrics Plugin
   name: AMQ_ENABLE_METRICS_PLUGIN
+  value: false
   required: false
 - description: Journal type to use; aio or nio supported
   displayName: AMQ Journal Type
