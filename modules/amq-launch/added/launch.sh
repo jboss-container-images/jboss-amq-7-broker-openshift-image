@@ -351,7 +351,6 @@ function configure() {
     if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
       echo "Enable artemis metrics plugin"
       injectMetricsPlugin ${instanceDir}
-      injectMetricsWar ${instanceDir}
     fi
 
     $AMQ_HOME/bin/configure_s2i_files.sh ${instanceDir}
