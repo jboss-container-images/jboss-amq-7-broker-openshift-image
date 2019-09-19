@@ -56,10 +56,6 @@ SCALE_TO_BROKER_IP=$ip
 connector="<connector name=\"scaledownconnector\">tcp:\/\/${SCALE_TO_BROKER_IP}:61616<\/connector>"
 sed -i "/<\/connectors>/ s/.*/${connector}\n&/" ${instanceDir}/etc/broker.xml
 
-# Ensure we set the ha-policy to cleanup the sf queue. We will put it after the </connectors>
-hapolicy="<ha-policy><live-only><scale-down><connectors><connector-ref>scaledownconnector<\/connector-ref><\/connectors><cleanup-sf-queue>true<\/cleanup-sf-queue><\/scale-down><\/live-only><\/ha-policy>"
-sed -i "/<\/acceptors>/ s/.*/&\n${hapolicy}\n/" ${instanceDir}/etc/broker.xml
-
 # Remove the acceptors
 #sed -i -ne "/<acceptors>/ {p;   " -e ":a; n; /<\/acceptors>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
 acceptor="<acceptor name=\"artemis\">tcp:\/\/${BROKER_IP}:61616?protocols=CORE<\/acceptor>"
