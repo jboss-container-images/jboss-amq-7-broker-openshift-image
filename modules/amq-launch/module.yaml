@@ -6,7 +6,9 @@ execute:
     - script: install.sh    
     
 artifacts:
-- path: openshift-ping-common-1.2.1.Final-redhat-1.jar
+- name: openshift-ping-common-1.2.1.Final-redhat-1.jar
+  target: openshift-ping-common-1.2.1.Final-redhat-1.jar
   md5: 7a6db2d84d9c6326363522f97f2d0f05
-- path: openshift-ping-dns-1.2.1.Final-redhat-1.jar
+- name: openshift-ping-dns-1.2.1.Final-redhat-1.jar
+  target: openshift-ping-dns-1.2.1.Final-redhat-1.jar
   md5: fbd94724882e9ad41d1c4db52875b8d4
