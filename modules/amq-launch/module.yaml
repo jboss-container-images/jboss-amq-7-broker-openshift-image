@@ -12,7 +12,4 @@ artifacts:
 - name: openshift-ping-dns
   target: openshift-ping-dns-1.2.1.Final-redhat-1.jar
   md5: fbd94724882e9ad41d1c4db52875b8d4
-- name: netty-tcnative
-  target: netty-tcnative-2.0.25.Final-redhat-00001-linux-x86_64.jar
-  md5: cbb10a867c4c56d94c059fd466d2f960
 
