@@ -15,7 +15,6 @@ mkdir -p ${DEST}/conf/
 
 cp -p ${SOURCES_DIR}/openshift-ping-common-$VERSION.jar \
   ${SOURCES_DIR}/openshift-ping-dns-$VERSION.jar \
-  ${SOURCES_DIR}/netty-tcnative-2.0.25.Final-redhat-00001-linux-x86_64.jar \
   ${DEST}/lib
 
 cp -p $ADDED_DIR/jgroups-ping.xml \
