@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-75-openshift"
 description: "Red Hat AMQ Broker 7.5.0 OpenShift container image"
 version: "7.5"
-from: "amq-broker-7/amq-broker-75:7.5-4"
+from: "amq-broker-7/amq-broker-75:latest"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
@@ -110,12 +110,12 @@ modules:
       repositories:
           - name: cct_module
             git:
-                  url: https://github.com/jboss-openshift/cct_module.git
-                  ref: sprint-26
+                  url: https://github.com/artemiscloud/cct_module
+                  ref: ENTMQBR-3039
           - path: modules
       install:
           - name: dynamic-resources
-          - name: os-amq-s2i          
+          - name: os-amq-s2i
           - name: os-java-run
           - name: openshift-passwd
           - name: os-logging
@@ -125,9 +125,6 @@ modules:
           - name: amq.broker75.launch
           - name: amq.broker75.s2i
           - name: amq.custom.config   
-packages:
-      install:
-          - PyYAML
 
 run:
       user: 185
@@ -138,3 +135,4 @@ osbs:
       repository:
             name: containers/amq-broker
             branch: rh-amq-broker-7.5-openshift-dev-rhel-7
+
