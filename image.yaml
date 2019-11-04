@@ -110,9 +110,10 @@ modules:
       repositories:
           - name: cct_module
             git:
-                  url: https://github.com/artemiscloud/cct_module
-                  ref: ENTMQBR-3039
+                  url: https://github.com/jboss-openshift/cct_module
+                  ref: sprint-26
           - path: modules
+
       install:
           - name: dynamic-resources
           - name: os-amq-s2i

@@ -1,0 +1,50 @@
+schema_version: 1
+
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75:rhaos-3.11-rhel-7-candidate-47700-20191104130126"
+name: &name "amq-broker-7/amq-broker-75-openshift"
+version: &version "7.5"
+
+labels:
+- name: "com.redhat.component"
+  value: "amq-broker-openshift-container"
+
+envs:
+- name: "JBOSS_IMAGE_NAME"
+  value: *name
+- name: "JBOSS_IMAGE_VERSION"
+  value: *version
+
+modules:
+      repositories:
+          - path: modules
+          - name: cct_module
+            git:
+                 url: https://github.com/artemiscloud/cct_module.git
+                 ref: ENTMQBR-3039
+      install:
+          - name: dynamic-resources
+          - name: os-amq-s2i
+          - name: os-java-run
+          - name: openshift-passwd
+          - name: os-logging
+          - name: os-amq-permissions
+          - name: os-java-jolokia
+          - name: amq.broker75.jolokia.access
+          - name: amq.broker75.launch
+          - name: amq.broker75.s2i
+          - name: amq.custom.config   
+
+osbs:
+  #koji_target: jb-rhel-8-newarches-container-candidate #koji_target not available in cekit 2.2.7
+  configuration:
+    container:
+      platforms:
+        only:
+          - x86_64
+          - s390x
+##      compose:
+##        pulp_repos: true
+  repository:
+    name: containers/amq-broker
+    branch: private-rkieley-rh-amq-broker-7.5-openshift-rhel-8
+
