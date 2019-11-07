@@ -46,5 +46,5 @@ osbs:
 ##        pulp_repos: true
   repository:
     name: containers/amq-broker
-    branch: private-rkieley-rh-amq-broker-7.5-openshift-rhel-8
+    branch: rh-amq-broker-7.5-openshift-dev-rhel-8
 
