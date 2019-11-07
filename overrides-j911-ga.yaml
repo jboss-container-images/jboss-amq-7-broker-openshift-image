@@ -1,12 +1,12 @@
 schema_version: 1
 
-from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75:rhaos-3.11-rhel-7-candidate-47700-20191104130126"
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75:rh-amq-broker-7.5-rhel-8-containers-candidate-66081-20191107203831"
 name: &name "amq-broker-7/amq-broker-75-openshift"
 version: &version "7.5"
 
 labels:
 - name: "com.redhat.component"
-  value: "amq-broker-openshift-container"
+  value: "amq-broker-rhel8-openshift-container"
 
 envs:
 - name: "JBOSS_IMAGE_NAME"
