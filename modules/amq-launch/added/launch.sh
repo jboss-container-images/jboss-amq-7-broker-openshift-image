@@ -20,6 +20,9 @@ JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
 PLATFORM=`uname -m`
 echo "Platform is ${PLATFORM}"
 if [ "${PLATFORM}" = "s390x" ] ; then
+  #GC Option found to be a problem on s390x               
+  echo "Removing -XX:+UseG1GC as per recommendation to use default GC"        
+  JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseG1GC/ /")                                                           
   #JDK11 related warnings removal
   echo "Adding -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true as per ENTMQBR-1932"
   JAVA_OPTS="-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true ${JAVA_OPTS}"
