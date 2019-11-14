@@ -1,6 +1,6 @@
 schema_version: 1
 
-from: "amq-broker-7/amq-broker-75-rhel8:latest"
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75-rhel8:rh-amq-broker-7.5-rhel-8-containers-candidate-36824-20191114195859"
 name: &name "amq-broker-7/amq-broker-75-rhel8-openshift"
 version: &version "7.5"
 
