@@ -1,7 +1,7 @@
 schema_version: 1
 
-from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75:rh-amq-broker-7.5-rhel-8-containers-candidate-66081-20191107203831"
-name: &name "amq-broker-7/amq-broker-75-openshift"
+from: "amq-broker-7/amq-broker-75-rhel8:latest"
+name: &name "amq-broker-7/amq-broker-75-rhel8-openshift"
 version: &version "7.5"
 
 labels:
@@ -33,6 +33,11 @@ modules:
           - name: amq.broker75.launch
           - name: amq.broker75.s2i
           - name: amq.custom.config   
+
+packages:
+    install:
+        - openssl
+        - apr
 
 osbs:
   #koji_target: jb-rhel-8-newarches-container-candidate #koji_target not available in cekit 2.2.7
