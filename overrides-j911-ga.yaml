@@ -1,12 +1,12 @@
 schema_version: 1
 
-from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75-rhel8:rh-amq-broker-7.5-rhel-8-containers-candidate-36824-20191114195859"
-name: &name "amq-broker-7/amq-broker-75-rhel8-openshift"
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75-openj9-11-rhel8:amq-broker-7.5-openj9-11-rhel8-containers-candidate-23964-20191127212451"
+name: &name "amq-broker-7/amq-broker-75-openj9-11-rhel8-openshift"
 version: &version "7.5"
 
 labels:
 - name: "com.redhat.component"
-  value: "amq-broker-rhel8-openshift-container"
+  value: "amq-broker-openj9-11-rhel8-openshift-container"
 
 envs:
 - name: "JBOSS_IMAGE_NAME"
@@ -20,7 +20,7 @@ modules:
           - name: cct_module
             git:
                  url: https://github.com/artemiscloud/cct_module.git
-                 ref: ENTMQBR-3039
+                 ref: 0.38.0-amq
       install:
           - name: dynamic-resources
           - name: os-amq-s2i
@@ -45,11 +45,11 @@ osbs:
     container:
       platforms:
         only:
-          - x86_64
           - s390x
+          #- x86_64
 ##      compose:
 ##        pulp_repos: true
   repository:
     name: containers/amq-broker
-    branch: rh-amq-broker-7.5-openshift-dev-rhel-8
+    branch: amq-broker-7.5-openshift-openj9-11-rhel8
 
