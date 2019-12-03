@@ -1,12 +1,12 @@
 schema_version: 1
 
-from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75-openj9-11-rhel8:amq-broker-7.5-openj9-11-rhel8-containers-candidate-23964-20191127212451"
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-75-openj9-11-rhel8:7.5-1"
 name: &name "amq-broker-7/amq-broker-75-openshift-openj9-11-rhel8"
 version: &version "7.5"
 
 labels:
 - name: "com.redhat.component"
-  value: "amq-broker-7.5-openshift-openj9-11-rhel8-container"
+  value: "amq-broker-openshift-openj9-11-rhel8-container"
 
 envs:
 - name: "JBOSS_IMAGE_NAME"
@@ -40,15 +40,11 @@ packages:
         - apr
 
 osbs:
-  #koji_target: jb-rhel-8-newarches-container-candidate #koji_target not available in cekit 2.2.7
   configuration:
     container:
       platforms:
         only:
           - s390x
-          #- x86_64
-##      compose:
-##        pulp_repos: true
   repository:
     name: containers/amq-broker
     branch: amq-broker-7.5-openshift-openj9-11-rhel8
