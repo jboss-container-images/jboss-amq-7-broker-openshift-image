@@ -1,35 +1,33 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-75-persistence-ssl
+  template: amq-broker-76-persistence
   xpaas: 1.4.16
-message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
+message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
-    description: Application template for Red Hat AMQ brokers. This template supports SSL and requires usage of OpenShift secrets.
+    description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.5 (Persistence, with SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.6 (Persistence, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.5 based application, including a statefulset configuration, persistent storage and secure communication using SSL.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.6 based application, including a statefulset configuration, using persistent storage.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.16
-  name: amq-broker-75-persistence-ssl
+  name: amq-broker-76-persistence
 objects:
 - apiVersion: v1
   kind: Secret
   metadata:
     annotations:
-      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), password(AMQ_TRUSTSTORE_PASSWORD and AMQ_KEYSTORE_PASSWORD).
+      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD).
     name: amq-credential-secret
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
     ${AMQ_PASSWORD}: YWRtaW4=
-    ${AMQ_TRUSTSTORE_PASSWORD}: cGFzc3dvcmQ=
-    ${AMQ_KEYSTORE_PASSWORD}: cGFzc3dvcmQ=
 - apiVersion: v1
   kind: Service
   metadata:
@@ -63,22 +61,6 @@ objects:
       name: stomp
       protocol: TCP
       targetPort: 61613
-    - port: 61617
-      name: all-ssl
-      protocol: TCP
-      targetPort: 61617
-    - port: 5671
-      name: amqp-ssl
-      protocol: TCP
-      targetPort: 5671
-    - port: 8883
-      name: mqtt-ssl
-      protocol: TCP
-      targetPort: 8883
-    - port: 61612
-      name: stomp-ssl
-      protocol: TCP
-      targetPort: 61612
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
     type: ClusterIP
@@ -128,24 +110,6 @@ objects:
             value: ${AMQ_QUEUES}
           - name: AMQ_ADDRESSES
             value: ${AMQ_ADDRESSES}
-          - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
-            value: /etc/amq-secret-volume
-          - name: AMQ_TRUSTSTORE
-            value: ${AMQ_TRUSTSTORE}
-          - name: AMQ_TRUSTSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_TRUSTSTORE_PASSWORD}
-          - name: AMQ_KEYSTORE
-            value: ${AMQ_KEYSTORE}
-          - name: AMQ_KEYSTORE_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_KEYSTORE_PASSWORD}
-          - name: AMQ_SSL_PROVIDER
-            value: ${AMQ_SSL_PROVIDER}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_REQUIRE_LOGIN
@@ -160,10 +124,6 @@ objects:
             value: ${AMQ_ANYCAST_PREFIX}
           - name: AMQ_MULTICAST_PREFIX
             value: ${AMQ_MULTICAST_PREFIX}
-          - name: POD_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
           - name: AMQ_ENABLE_METRICS_PLUGIN
             value: ${AMQ_ENABLE_METRICS_PLUGIN}
           - name: AMQ_JOURNAL_TYPE
@@ -174,7 +134,7 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"
+              - "/opt/amq/bin/readinessProbe.sh"            
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -183,38 +143,19 @@ objects:
           - containerPort: 5672
             name: amqp
             protocol: TCP
-          - containerPort: 5671
-            name: amqp-ssl
-            protocol: TCP
           - containerPort: 1883
             name: mqtt
-            protocol: TCP
-          - containerPort: 8883
-            name: mqtt-ssl
             protocol: TCP
           - containerPort: 61613
             name: stomp
             protocol: TCP
-          - containerPort: 61612
-            name: stomp-ssl
-            protocol: TCP
           - containerPort: 61616
             name: all
-            protocol: TCP
-          - containerPort: 61617
-            name: all-ssl
             protocol: TCP
           volumeMounts:
           - name: ${APPLICATION_NAME}-amq-pvol
             mountPath: ${AMQ_DATA_DIR}
-          - mountPath: /etc/amq-secret-volume
-            name: broker-secret-volume
-            readOnly: true
         terminationGracePeriodSeconds: 60
-        volumes:
-        - name: broker-secret-volume
-          secret:
-            secretName: ${AMQ_SECRET}
     volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -225,7 +166,7 @@ objects:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: 1Gi            
+            storage: ${VOLUME_CAPACITY}
     triggers:
     - type: ConfigChange
 - apiVersion: v1
@@ -238,8 +179,6 @@ objects:
   spec:
     port:
       targetPort: console-jolokia
-    tls:
-      termination: passthrough
     to:
       kind: Service
       name: ${AMQ_NAME}-amq-headless
@@ -282,38 +221,6 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
-- description: Name of a secret containing SSL related files
-  displayName: Secret Name
-  name: AMQ_SECRET
-  required: true
-  value: amq-app-secret
-- description: Name of a secret containing credential data such as usernames and passwords
-  displayName: Secret Name
-  name: AMQ_CREDENTIAL_SECRET
-  required: true
-  value: amq-credential-secret
-- description: SSL trust store filename
-  displayName: Trust Store Filename
-  name: AMQ_TRUSTSTORE
-  required: true
-  value: broker.ts
-- description: SSL trust store password. It serves as a key by which the real password is retrieved from kubernetes secret object.
-  displayName: Trust Store Password
-  name: AMQ_TRUSTSTORE_PASSWORD
-  required: true
-- description: SSL key store filename
-  displayName: AMQ Keystore Filename
-  name: AMQ_KEYSTORE
-  required: true
-  value: broker.ks
-- description: Password for accessing SSL keystore. It serves as a key by which the real password is retrieved from kubernetes secret object.
-  displayName: AMQ Keystore Password
-  name: AMQ_KEYSTORE_PASSWORD
-  required: true
-- description: SSL provider (JDK or OPENSSL) used in netty ssl acceptor
-  displayName: AMQ SSL Provider
-  name: AMQ_SSL_PROVIDER
-  required: false
 - description: The directory to use for data storage
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
@@ -322,9 +229,6 @@ parameters:
   displayName: AMQ Data Directory for logging
   name: AMQ_DATA_DIR_LOGGING
   value: 'true'
-- description: Extra arguments for broker creation
-  name: AMQ_EXTRA_ARGS
-  required: false
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
@@ -332,19 +236,27 @@ parameters:
 - description: "Determines whether or not the broker will allow anonymous access, or require login."
   displayName: AMQ Require Login
   name: AMQ_REQUIRE_LOGIN
-- description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
+- description: Extra arguments for broker creation
+  name: AMQ_EXTRA_ARGS
+  required: false
+- description: Anycast prefix applied to the multiplexed protocol port 61616
   displayName: AMQ Anycast Prefix
   name: AMQ_ANYCAST_PREFIX
   required: false
-- description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
+- description: Multicast prefix applied to the multiplexed protocol port 61616
   displayName: AMQ Multicast Prefix
   name: AMQ_MULTICAST_PREFIX
   required: false
 - description: Broker Image
   displayName: Image
   name: IMAGE
+  required: true  
+  value: registry.redhat.io/amq7/amq-broker:7.6
+- description: Name of a secret containing credential data such as usernames and passwords
+  displayName: Secret Name
+  name: AMQ_CREDENTIAL_SECRET
   required: true
-  value: registry.redhat.io/amq7/amq-broker:7.5
+  value: amq-credential-secret
 - description: Whether to enable artemis metrics plugin
   displayName: Enable Metrics Plugin
   name: AMQ_ENABLE_METRICS_PLUGIN
