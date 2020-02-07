@@ -1,3 +1,5 @@
+packages:
+      content_sets_file: content_sets.yml
 osbs:
       repository:
             name: containers/amq-broker
