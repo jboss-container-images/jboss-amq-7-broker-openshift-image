@@ -1,4 +1,6 @@
+packages:
+      content_sets_file: content_sets.yml
 osbs:
       repository:
             name: containers/amq-broker
-            branch: amq-broker-7.6-openshift-dev-rhel-7
+            branch: amq-broker-7.6-openshift-rhel-7
