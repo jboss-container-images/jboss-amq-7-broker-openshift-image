@@ -3,10 +3,10 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-76-openshift"
 description: "Red Hat AMQ Broker 7.6.0 OpenShift container image"
 version: "7.6"
-from: "amq-broker-7/amq-broker-76:7.6-1"
+from: "amq-broker-7/amq-broker-76:latest"
 labels:
     - name: "com.redhat.component"
-      value: "amq-broker-openshift-container"
+      value: "amq-broker-rhel8-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
@@ -112,7 +112,7 @@ modules:
           - name: cct_module
             git:
                   url: https://github.com/artemiscloud/cct_module.git
-                  ref: ENTMQBR-3039
+                  ref: 0.38.0-amq
       install:
           - name: dynamic-resources
           - name: os-amq-s2i          
@@ -127,7 +127,6 @@ modules:
           - name: amq.custom.config   
 packages:
       install:
-          - PyYAML
           - openssl
           - apr
 

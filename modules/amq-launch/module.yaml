@@ -1,17 +1,17 @@
 schema_version: 1
 
 name: amq.broker76.launch
-version: '1.0'
+version: '1.1'
 execute:
     - script: install.sh    
     
 artifacts:
 - name: openshift-ping-common
-  target: openshift-ping-common-1.2.1.Final-redhat-1.jar
-  md5: 7a6db2d84d9c6326363522f97f2d0f05
+  target: openshift-ping-common-1.2.6.Final-redhat-1.jar
+  md5: 94f0bd57b1990b556890d99290bdd847
 - name: openshift-ping-dns
-  target: openshift-ping-dns-1.2.1.Final-redhat-1.jar
-  md5: fbd94724882e9ad41d1c4db52875b8d4
+  target: openshift-ping-dns-1.2.6.Final-redhat-1.jar
+  md5: 59925c951d904b7734c2d10dc41a6515
 - name: netty-tcnative
   target: netty-tcnative-2.0.25.Final-redhat-00001-linux-x86_64.jar
   md5: cbb10a867c4c56d94c059fd466d2f960

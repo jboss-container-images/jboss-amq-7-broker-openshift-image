@@ -6,7 +6,7 @@ ADDED_DIR=${SCRIPT_DIR}/added
 SOURCES_DIR="/tmp/artifacts"
 
 # Add OpenShift PING implementation
-VERSION="1.2.1.Final-redhat-1"
+VERSION="1.2.6.Final-redhat-1"
 
 DEST=$AMQ_HOME
 
