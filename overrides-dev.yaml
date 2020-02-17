@@ -10,4 +10,4 @@ osbs:
         pulp_repos: true
   repository:
     name: containers/amq-broker
-    branch: amq-broker-7.6-openshift-rhel-8
+    branch: amq-broker-7.6-openshift-rhel-7
