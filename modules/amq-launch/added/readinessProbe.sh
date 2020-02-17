@@ -92,7 +92,7 @@ while : ; do
     PROBE_MESSAGE="No configuration file located: ${CONFIG_FILE}"
 
     if [ -f "${CONFIG_FILE}" ] ; then
-        python2 -c "$EVALUATE_SCRIPT" >"${OUTPUT}" 2>"${ERROR}"
+        python -c "$EVALUATE_SCRIPT" >"${OUTPUT}" 2>"${ERROR}"
 
         CONNECT_RESULT=$?
         if [ true = "${DEBUG_SCRIPT}" ] ; then
