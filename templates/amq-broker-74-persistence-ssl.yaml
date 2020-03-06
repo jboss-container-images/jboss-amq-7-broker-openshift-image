@@ -19,6 +19,18 @@ metadata:
   name: amq-broker-74-persistence-ssl
 objects:
 - apiVersion: v1
+  kind: Secret
+  metadata:
+    annotations:
+      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), password(AMQ_TRUSTSTORE_PASSWORD and AMQ_KEYSTORE_PASSWORD).
+    name: amq-credential-secret
+  type: Opaque
+  data:
+    ${AMQ_USER}: YWRtaW4=
+    ${AMQ_PASSWORD}: YWRtaW4=
+    ${AMQ_TRUSTSTORE_PASSWORD}: cGFzc3dvcmQ=
+    ${AMQ_KEYSTORE_PASSWORD}: cGFzc3dvcmQ=
+- apiVersion: v1
   kind: Service
   metadata:
     annotations:
@@ -97,9 +109,15 @@ objects:
         containers:
         - env:
           - name: AMQ_USER
-            value: ${AMQ_USER}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_USER}
           - name: AMQ_PASSWORD
-            value: ${AMQ_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
           - name: AMQ_NAME
@@ -115,11 +133,19 @@ objects:
           - name: AMQ_TRUSTSTORE
             value: ${AMQ_TRUSTSTORE}
           - name: AMQ_TRUSTSTORE_PASSWORD
-            value: ${AMQ_TRUSTSTORE_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_TRUSTSTORE_PASSWORD}
           - name: AMQ_KEYSTORE
             value: ${AMQ_KEYSTORE}
           - name: AMQ_KEYSTORE_PASSWORD
-            value: ${AMQ_KEYSTORE_PASSWORD}
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_KEYSTORE_PASSWORD}
+          - name: AMQ_SSL_PROVIDER
+            value: ${AMQ_SSL_PROVIDER}
           - name: AMQ_GLOBAL_MAX_SIZE
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_REQUIRE_LOGIN
@@ -138,6 +164,10 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+          - name: AMQ_ENABLE_METRICS_PLUGIN
+            value: ${AMQ_ENABLE_METRICS_PLUGIN}
+          - name: AMQ_JOURNAL_TYPE
+            value: ${AMQ_JOURNAL_TYPE}
           image: ${IMAGE}
           readinessProbe:
             exec:
@@ -234,12 +264,12 @@ parameters:
   name: VOLUME_CAPACITY
   value: 1Gi
   required: true
-- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
   generate: expression
   name: AMQ_USER
-- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.
+- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: AMQ Password
   from: '[a-zA-Z0-9]{8}'
   generate: expression
@@ -257,12 +287,17 @@ parameters:
   name: AMQ_SECRET
   required: true
   value: amq-app-secret
+- description: Name of a secret containing credential data such as usernames and passwords
+  displayName: Secret Name
+  name: AMQ_CREDENTIAL_SECRET
+  required: true
+  value: amq-credential-secret
 - description: SSL trust store filename
   displayName: Trust Store Filename
   name: AMQ_TRUSTSTORE
   required: true
   value: broker.ts
-- description: SSL trust store password
+- description: SSL trust store password. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: Trust Store Password
   name: AMQ_TRUSTSTORE_PASSWORD
   required: true
@@ -271,10 +306,14 @@ parameters:
   name: AMQ_KEYSTORE
   required: true
   value: broker.ks
-- description: Password for accessing SSL keystore
+- description: Password for accessing SSL keystore. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: AMQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
   required: true
+- description: SSL provider (JDK or OPENSSL) used in netty ssl acceptor
+  displayName: AMQ SSL Provider
+  name: AMQ_SSL_PROVIDER
+  required: false
 - description: The directory to use for data storage
   displayName: AMQ Data Directory
   name: AMQ_DATA_DIR
@@ -306,3 +345,13 @@ parameters:
   name: IMAGE
   required: true
   value: registry.redhat.io/amq7/amq-broker-lts-rhel7:7.4
+- description: Whether to enable artemis metrics plugin
+  displayName: Enable Metrics Plugin
+  name: AMQ_ENABLE_METRICS_PLUGIN
+  value: false
+  required: false
+- description: Journal type to use; aio or nio supported
+  displayName: AMQ Journal Type
+  name: AMQ_JOURNAL_TYPE
+  value: nio
+  required: false
