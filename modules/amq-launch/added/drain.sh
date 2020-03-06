@@ -5,6 +5,9 @@ export BROKER_IP=`hostname -f`
 instanceDir="${HOME}/${AMQ_NAME}"
 
 ENDPOINT_NAME="${AMQ_NAME}-amq-headless"
+if [ "$HEADLESS_SVC_NAME" ]; then
+  ENDPOINT_NAME=$HEADLESS_SVC_NAME
+fi
 
 endpointsUrl="https://${KUBERNETES_SERVICE_HOST:-kubernetes.default.svc}:${KUBERNETES_SERVICE_PORT:-443}/api/v1/namespaces/${POD_NAMESPACE}/"
 endpointsAuth="Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
