@@ -15,6 +15,14 @@ function swapVars() {
   sed -i "s/\${AMQ_CLUSTER_PASSWORD}/$AMQ_CLUSTER_PASSWORD/g" $1
 }
 
+if [ -z "$APPLICATION_NAME" ]; then
+   echo "APPLICATION_NAME is absent or empty, service name will be ${PING_SVC_NAME}"
+   sed -i -e "s/\${APPLICATION_NAME}-//" -e "s/\${PING_SVC_NAME}/${PING_SVC_NAME}/" $INSTANCE_DIR/etc/jgroups-ping.xml
+else
+   sed -i -e "s/\${APPLICATION_NAME}/${APPLICATION_NAME}/" -e "s/\${PING_SVC_NAME}/${PING_SVC_NAME}/" $INSTANCE_DIR/etc/jgroups-ping.xml
+fi
+
+
 for config_file in ${CONFIG_FILES[@]};
 do
   
