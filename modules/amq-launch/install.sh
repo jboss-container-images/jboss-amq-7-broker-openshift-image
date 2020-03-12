@@ -7,6 +7,7 @@ SOURCES_DIR="/tmp/artifacts"
 
 # Add OpenShift PING implementation
 VERSION="1.2.1.Final-redhat-1"
+TCVERSION="2.0.28.Final-redhat-00001"
 
 DEST=$AMQ_HOME
 
@@ -15,6 +16,8 @@ mkdir -p ${DEST}/conf/
 
 cp -p ${SOURCES_DIR}/openshift-ping-common-$VERSION.jar \
   ${SOURCES_DIR}/openshift-ping-dns-$VERSION.jar \
+  ${SOURCES_DIR}/netty-tcnative-$TCVERSION.jar \
+  ${SOURCES_DIR}/netty-tcnative-$TCVERSION-linux-x86_64-fedora.jar \
   ${DEST}/lib
 
 cp -p $ADDED_DIR/jgroups-ping.xml \
