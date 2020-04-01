@@ -1,12 +1,12 @@
 schema_version: 1
 
-name: "amq-broker-7/amq-broker-74-openshift"
+name: "amq-broker-7/amq-broker-lts-openshift"
 description: "Red Hat AMQ Broker 7.4.3 OpenShift container image"
 version: "7.4"
 from: "amq-broker-7/amq-broker-74:7.4-17"
 labels:
     - name: "com.redhat.component"
-      value: "amq-broker-openshift-container"
+      value: "amq-broker-lts-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
@@ -139,4 +139,4 @@ run:
 osbs:
       repository:
             name: containers/amq-broker
-            branch: rh-amq-broker-7.4-openshift-cp-rhel-7
+            branch: amq-broker-lts-openshift-rhel-7
