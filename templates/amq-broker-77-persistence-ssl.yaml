@@ -1,83 +1,35 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-76-persistence-clustered-ssl
+  template: amq-broker-77-persistence-ssl
   xpaas: 1.4.16
 message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template supports SSL and requires usage of OpenShift secrets.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.6 (Persistence, clustered, with SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.7 (Persistence, with SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.6 based application, including a statefulset configuration, using persistent storage and secure communication using SSL.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.7 based application, including a statefulset configuration, persistent storage and secure communication using SSL.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.16
-  name: amq-broker-76-persistence-clustered-ssl
+  name: amq-broker-77-persistence-ssl
 objects:
 - apiVersion: v1
   kind: Secret
   metadata:
     annotations:
-      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), clusteruser(AMQ_CLUSTER_USER), clusterpassword(AMQ_CLUSTER_PASSWORD), password(AMQ_TRUSTORE_PASSWORD and AMQ_KEYSTORE_PASSWORD)
+      description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), password(AMQ_TRUSTSTORE_PASSWORD and AMQ_KEYSTORE_PASSWORD).
     name: amq-credential-secret
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
     ${AMQ_PASSWORD}: YWRtaW4=
-    ${AMQ_CLUSTER_USER}: Y2x1c3RlcnVzZXI=
-    ${AMQ_CLUSTER_PASSWORD}: Y2x1c3RlcnBhc3N3b3Jk
     ${AMQ_TRUSTSTORE_PASSWORD}: cGFzc3dvcmQ=
     ${AMQ_KEYSTORE_PASSWORD}: cGFzc3dvcmQ=
-- apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    name: ${APPLICATION_NAME}-service-account
-    labels:
-      app: ${APPLICATION_NAME}
-- apiVersion: rbac.authorization.k8s.io/v1beta1
-  kind: Role
-  metadata:
-    name: ${APPLICATION_NAME}-role
-    labels:
-      app: ${APPLICATION_NAME}
-  rules:
-  - apiGroups:
-    - ""
-    resources:
-    - endpoints
-    verbs:
-    - create
-    - delete
-    - deletecollection
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - ""
-    resources:
-    - namespaces
-    verbs:
-    - get
-    - list
-- apiVersion: rbac.authorization.k8s.io/v1beta1
-  kind: RoleBinding
-  metadata:
-    name: ${APPLICATION_NAME}-role-binding
-    labels:
-      app: ${APPLICATION_NAME}
-  subjects:
-    - kind: ServiceAccount
-      name: ${APPLICATION_NAME}-service-account
-  roleRef:
-    kind: Role
-    name: ${APPLICATION_NAME}-role
-    apiGroup: rbac.authorization.k8s.io
 - apiVersion: v1
   kind: Service
   metadata:
@@ -130,166 +82,14 @@ objects:
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
     type: ClusterIP
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The JGroups ping port for clustering.
-      service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-${PING_SVC_NAME}
-  spec:
-    clusterIP: None  
-    ports:
-      - targetPort: 8888
-        port: 8888
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq      
 - apiVersion: apps/v1beta1
   kind: StatefulSet
   metadata:
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
-    annotations:
-      alpha.image.policy.openshift.io/resolve-names: '*'
-      statefulsets.kubernetes.io/drainer-pod-template: |
-        {
-          "metadata": {
-            "labels": {
-              "app": "${APPLICATION_NAME}-amq-drainer"
-            }
-          },
-          "spec": {
-            "serviceAccount": "${APPLICATION_NAME}-service-account",
-            "serviceAccountName": "${APPLICATION_NAME}-service-account",
-            "terminationGracePeriodSeconds": 5,
-            "containers": [
-              {
-                "env": [
-                  {
-                    "name": "APPLICATION_NAME",
-                    "value": "${APPLICATION_NAME}"
-                  },
-                  {
-                    "name": "PING_SVC_NAME",
-                    "value": "${PING_SVC_NAME}"
-                  },
-                  {
-                    "name": "AMQ_EXTRA_ARGS",
-                    "value": "--no-autotune"
-                  },
-                  {
-                    "name": "AMQ_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_USER}"
-                      }
-                    }
-                  },
-                  {
-                    "name": "AMQ_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_PASSWORD}"
-                      }
-                    }
-                  },
-                  {
-                    "name": "AMQ_ROLE",
-                    "value": "${AMQ_ROLE}"
-                  },
-                  {
-                    "name": "AMQ_NAME",
-                    "value": "${AMQ_NAME}"
-                  },
-                  {
-                    "name": "AMQ_TRANSPORTS",
-                    "value": "${AMQ_PROTOCOL}"
-                  },
-                  {
-                    "name": "AMQ_QUEUES",
-                    "value": "${AMQ_QUEUES}"
-                  },
-                  {
-                    "name": "AMQ_ADDRESSES",
-                    "value": "${AMQ_ADDRESSES}"
-                  },
-                  {
-                    "name": "AMQ_GLOBAL_MAX_SIZE",
-                    "value": "${AMQ_GLOBAL_MAX_SIZE}"
-                  },
-                  {
-                    "name": "AMQ_ALLOW_ANONYMOUS",
-                    "value": "${AMQ_ALLOW_ANONYMOUS}"
-                  },
-                  {
-                    "name": "AMQ_DATA_DIR",
-                    "value": "${AMQ_DATA_DIR}"
-                  },
-                  {
-                    "name": "AMQ_DATA_DIR_LOGGING",
-                    "value": "true"
-                  },
-                  {
-                    "name": "AMQ_CLUSTERED",
-                    "value": "${AMQ_CLUSTERED}"
-                  },
-                  {
-                    "name": "AMQ_REPLICAS",
-                    "value": "${AMQ_REPLICAS}"
-                  },
-                  {
-                    "name": "AMQ_CLUSTER_USER",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_CLUSTER_USER}"
-                      }
-                    }
-                  },
-                  {
-                    "name": "AMQ_CLUSTER_PASSWORD",
-                    "valueFrom": {
-                      "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_CLUSTER_PASSWORD}"
-                      }
-                    }
-                  },
-                  {
-                    "name": "POD_NAMESPACE",
-                    "valueFrom": {
-                      "fieldRef": {
-                        "fieldPath": "metadata.namespace"
-                      }
-                    }
-                  },
-                  {
-                    "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
-                    "value": "8888"
-                  }
-                ],
-                "image": "${IMAGE}",
-                "name": "${APPLICATION_NAME}-amq",
-
-                "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed! Exit code $?\""],
-                "volumeMounts": [
-                  {
-                    "name": "${APPLICATION_NAME}-amq-pvol",
-                    "mountPath": "${AMQ_DATA_DIR}"
-                  }
-                ]
-              }
-            ]
-          }
-        }
   spec:
     podManagementPolicy: OrderedReady
-    replicas: ${AMQ_REPLICAS}
     selector:
       matchLabels:
         app: ${APPLICATION_NAME}-amq
@@ -308,10 +108,6 @@ objects:
       spec:
         containers:
         - env:
-          - name: APPLICATION_NAME
-            value: ${APPLICATION_NAME}
-          - name: PING_SVC_NAME
-            value: ${PING_SVC_NAME}
           - name: AMQ_USER
             valueFrom:
               secretKeyRef:
@@ -358,20 +154,6 @@ objects:
             value: ${AMQ_DATA_DIR}
           - name: AMQ_DATA_DIR_LOGGING
             value: ${AMQ_DATA_DIR_LOGGING}
-          - name: AMQ_CLUSTERED
-            value: ${AMQ_CLUSTERED}
-          - name: AMQ_REPLICAS
-            value: ${AMQ_REPLICAS}
-          - name: AMQ_CLUSTER_USER
-            valueFrom:
-              secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_CLUSTER_USER}
-          - name: AMQ_CLUSTER_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_CLUSTER_PASSWORD}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
           - name: AMQ_ANYCAST_PREFIX
@@ -386,13 +168,13 @@ objects:
             value: ${AMQ_ENABLE_METRICS_PLUGIN}
           - name: AMQ_JOURNAL_TYPE
             value: ${AMQ_JOURNAL_TYPE}
+          image: ${IMAGE}
           readinessProbe:
             exec:
               command:
               - "/bin/bash"
               - "-c"
               - "/opt/amq/bin/readinessProbe.sh"
-          image: ${IMAGE}
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -443,20 +225,30 @@ objects:
           - "ReadWriteOnce"
         resources:
           requests:
-            storage: ${VOLUME_CAPACITY}
+            storage: 1Gi            
     triggers:
     - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+      app: ${APPLICATION_NAME}
+    name: console-jolokia
+  spec:
+    port:
+      targetPort: console-jolokia
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: ${AMQ_NAME}-amq-headless
 parameters:
 - description: The name for the application.
   displayName: Application Name
   name: APPLICATION_NAME
   required: true
   value: broker
-- description: The name for JGroups DNS_PING service.
-  displayName: DNS Ping Service Name
-  name: PING_SVC_NAME
-  required: true
-  value: ping
 - description: 'Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`.'
   displayName: AMQ Protocols
   name: AMQ_PROTOCOL
@@ -472,7 +264,7 @@ parameters:
   name: VOLUME_CAPACITY
   value: 1Gi
   required: true
-- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated.  It serves as a key by which the real user name is retrieved from kubernetes secret object.
+- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
   generate: expression
@@ -490,31 +282,6 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
-- description: Clustered
-  displayName: clustered
-  name: AMQ_CLUSTERED
-  value: 'true'
-- description: Number of broker replicas for a cluster
-  displayName: Number of Replicas
-  name: AMQ_REPLICAS
-  value: '0'
-- description: Clustered user It serves as a key by which the real cluster user name is retrieved from kubernetes secret object.
-  displayName: cluster user
-  from: user[a-zA-Z0-9]{3}
-  generate: expression  
-  name: AMQ_CLUSTER_USER
-- description: Clustered password. It serves as a key by which the real cluster password is retrieved from kubernetes secret object.
-  displayName: cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression  
-  name: AMQ_CLUSTER_PASSWORD
-- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
-  displayName: AMQ Global Max Size
-  name: AMQ_GLOBAL_MAX_SIZE
-  value: 100 gb
-- description: "Determines whether or not the broker will allow anonymous access, or require login"
-  displayName: AMQ Require Login
-  name: AMQ_REQUIRE_LOGIN
 - description: Name of a secret containing SSL related files
   displayName: Secret Name
   name: AMQ_SECRET
@@ -530,7 +297,7 @@ parameters:
   name: AMQ_TRUSTSTORE
   required: true
   value: broker.ts
-- description: SSL trust store password
+- description: SSL trust store password. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: Trust Store Password
   name: AMQ_TRUSTSTORE_PASSWORD
   required: true
@@ -539,7 +306,7 @@ parameters:
   name: AMQ_KEYSTORE
   required: true
   value: broker.ks
-- description: Password for accessing SSL keystore
+- description: Password for accessing SSL keystore. It serves as a key by which the real password is retrieved from kubernetes secret object.
   displayName: AMQ Keystore Password
   name: AMQ_KEYSTORE_PASSWORD
   required: true
@@ -558,6 +325,13 @@ parameters:
 - description: Extra arguments for broker creation
   name: AMQ_EXTRA_ARGS
   required: false
+- description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
+  displayName: AMQ Global Max Size
+  name: AMQ_GLOBAL_MAX_SIZE
+  value: 100 gb
+- description: "Determines whether or not the broker will allow anonymous access, or require login."
+  displayName: AMQ Require Login
+  name: AMQ_REQUIRE_LOGIN
 - description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Anycast Prefix
   name: AMQ_ANYCAST_PREFIX
@@ -570,7 +344,7 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.redhat.io/amq7/amq-broker:7.6
+  value: registry.redhat.io/amq7/amq-broker:7.7
 - description: Whether to enable artemis metrics plugin
   displayName: Enable Metrics Plugin
   name: AMQ_ENABLE_METRICS_PLUGIN
