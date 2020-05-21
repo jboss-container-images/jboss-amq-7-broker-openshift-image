@@ -125,11 +125,6 @@ modules:
           - name: amq.broker77.launch
           - name: amq.broker77.s2i
           - name: amq.custom.config   
-packages:
-      install:
-          - PyYAML
-          - openssl
-          - apr
 
 run:
       user: 185
