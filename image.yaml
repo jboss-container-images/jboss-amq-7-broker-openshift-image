@@ -105,7 +105,11 @@ ports:
     - value: 61617
     - value: 7800
     - value: 8888
-    
+
+packages:
+    install:
+        - apr
+
 modules:
       repositories:
           - path: modules
