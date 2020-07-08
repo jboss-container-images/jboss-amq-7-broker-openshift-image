@@ -8,10 +8,10 @@ execute:
 artifacts:
 - name: openshift-ping-common
   target: openshift-ping-common-1.2.1.Final-redhat-1.jar
-  md5: 7a6db2d84d9c6326363522f97f2d0f05
+  md5: a8df0117373da0bcbe8e6e204645fe31
 - name: openshift-ping-dns
   target: openshift-ping-dns-1.2.1.Final-redhat-1.jar
-  md5: fbd94724882e9ad41d1c4db52875b8d4
+  md5: b716245b44d6133768ec2e91d770ef45
 - name: netty-tcnative-x86_64
   target: netty-tcnative-2.0.25.Final-redhat-00001-linux-x86_64.jar
   md5: cbb10a867c4c56d94c059fd466d2f960
