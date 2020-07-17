@@ -1,7 +1,7 @@
 schema_version: 1
 
 name: amq.broker77.launch
-version: '1.0'
+version: '1.1'
 execute:
     - script: install.sh    
     
