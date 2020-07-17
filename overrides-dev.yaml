@@ -2,12 +2,7 @@ packages:
       content_sets_file: content_sets.yml
 osbs:
   configuration:
-    container:
-      platforms:
-        only:
-          - x86_64
-      compose:
-        pulp_repos: true
+    container_file: container.yaml
   repository:
     name: containers/amq-broker
     branch: amq-broker-7.7-openshift-rhel-7
