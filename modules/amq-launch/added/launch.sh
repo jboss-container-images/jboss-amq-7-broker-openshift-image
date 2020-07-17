@@ -260,7 +260,7 @@ function configureJAVA_ARGSMemory() {
 function injectMetricsPlugin() {
   instanceDir=$1
   echo "Adding artemis metrics plugin"
-  sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics-plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
+  sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics> <plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/> <\\/metrics>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
 }
 
 function configure() {
