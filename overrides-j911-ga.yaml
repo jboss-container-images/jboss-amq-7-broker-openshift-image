@@ -45,6 +45,7 @@ osbs:
       platforms:
         only:
           - s390x
+          - ppc64le
   repository:
     name: containers/amq-broker
     branch: amq-broker-7.5-openshift-openj9-11-rhel8
