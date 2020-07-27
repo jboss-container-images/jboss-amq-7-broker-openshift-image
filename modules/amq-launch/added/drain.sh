@@ -34,7 +34,7 @@ ENDPOINTS=$(curl -s -X GET -G -k -H "${endpointsAuth}" ${endpointsUrl}"endpoints
 echo $ENDPOINTS
 count=0
 while [ 1 ]; do
-  ip=$(echo $ENDPOINTS | python -c "import sys, json; print json.load(sys.stdin)['subsets'][0]['addresses'][${count}]['ip']")
+  ip=$(echo $ENDPOINTS | python2 -c "import sys, json; print json.load(sys.stdin)['subsets'][0]['addresses'][${count}]['ip']")
   if [ $? -ne 0 ]; then
     echo "Can't find ip to scale down to tried ${count} ips"
     exit
