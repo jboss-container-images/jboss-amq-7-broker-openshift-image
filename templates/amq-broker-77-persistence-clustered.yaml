@@ -271,7 +271,7 @@ objects:
         }
   spec:
     podManagementPolicy: OrderedReady
-    replicas: ${AMQ_REPLICAS}
+    replicas: ${{AMQ_REPLICAS}}
     selector:
       matchLabels:
         app: ${APPLICATION_NAME}-amq
