@@ -3,7 +3,7 @@ kind: Template
 labels:
   template: amq-broker-77-persistence-clustered
   xpaas: 1.4.16
-message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
+message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is AMQ_USER/AMQ_PASSWORD.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
@@ -26,10 +26,10 @@ objects:
     name: amq-credential-secret
   type: Opaque
   data:
-    ${AMQ_USER}: YWRtaW4=
-    ${AMQ_PASSWORD}: YWRtaW4=
-    ${AMQ_CLUSTER_USER}: Y2x1c3RlcnVzZXI=
-    ${AMQ_CLUSTER_PASSWORD}: Y2x1c3RlcnBhc3N3b3Jk
+    AMQ_USER: YWRtaW4=
+    AMQ_PASSWORD: YWRtaW4=
+    AMQ_CLUSTER_USER: Y2x1c3RlcnVzZXI=
+    AMQ_CLUSTER_PASSWORD: Y2x1c3RlcnBhc3N3b3Jk
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
@@ -167,7 +167,7 @@ objects:
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_USER}"
+                        "key": "AMQ_USER"
                       }
                     }
                   },
@@ -176,7 +176,7 @@ objects:
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_PASSWORD}"
+                        "key": "AMQ_PASSWORD"
                       }
                     }
                   },
@@ -229,7 +229,7 @@ objects:
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_CLUSTER_USER}"
+                        "key": "AMQ_CLUSTER_USER"
                       }
                     }
                   },
@@ -238,7 +238,7 @@ objects:
                     "valueFrom": {
                       "secretKeyRef": {
                         "name": "${AMQ_CREDENTIAL_SECRET}",
-                        "key": "${AMQ_CLUSTER_PASSWORD}"
+                        "key": "AMQ_CLUSTER_PASSWORD"
                       }
                     }
                   },
@@ -298,12 +298,12 @@ objects:
             valueFrom:
               secretKeyRef:
                 name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_USER}
+                key: AMQ_USER
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_PASSWORD}
+                key: AMQ_PASSWORD
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
           - name: AMQ_NAME
@@ -330,12 +330,12 @@ objects:
             valueFrom:
               secretKeyRef:
                 name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_CLUSTER_USER}
+                key: AMQ_CLUSTER_USER
           - name: AMQ_CLUSTER_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: ${AMQ_CREDENTIAL_SECRET}
-                key: ${AMQ_CLUSTER_PASSWORD}
+                key: AMQ_CLUSTER_PASSWORD
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
           - name: AMQ_ANYCAST_PREFIX
@@ -417,16 +417,16 @@ parameters:
   name: VOLUME_CAPACITY
   value: 1Gi
   required: true
-- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
-  displayName: AMQ Username
-  from: user[a-zA-Z0-9]{3}
-  generate: expression
-  name: AMQ_USER
-- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real password is retrieved from kubernetes secret object.
-  displayName: AMQ Password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression
-  name: AMQ_PASSWORD
+#- description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
+#  displayName: AMQ Username
+#  from: user[a-zA-Z0-9]{3}
+#  generate: expression
+#  name: AMQ_USER
+#- description: Password for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real password is retrieved from kubernetes secret object.
+#  displayName: AMQ Password
+#  from: '[a-zA-Z0-9]{8}'
+#  generate: expression
+#  name: AMQ_PASSWORD
 - description: User role for standard broker user.
   displayName: AMQ Role
   name: AMQ_ROLE
@@ -443,16 +443,16 @@ parameters:
   displayName: Number of Replicas
   name: AMQ_REPLICAS
   value: '0'
-- description: Clustered user. It serves as a key by which the real cluster user name is retrieved from kubernetes secret object.
-  displayName: cluster user
-  from: user[a-zA-Z0-9]{3}
-  generate: expression  
-  name: AMQ_CLUSTER_USER
-- description: Clustered password. It serves as a key by which the real cluster password is retrieved from kubernetes secret object.
-  displayName: cluster password
-  from: '[a-zA-Z0-9]{8}'
-  generate: expression  
-  name: AMQ_CLUSTER_PASSWORD
+#- description: Clustered user. It serves as a key by which the real cluster user name is retrieved from kubernetes secret object.
+#  displayName: cluster user
+#  from: user[a-zA-Z0-9]{3}
+#  generate: expression  
+#  name: AMQ_CLUSTER_USER
+#- description: Clustered password. It serves as a key by which the real cluster password is retrieved from kubernetes secret object.
+#  displayName: cluster password
+#  from: '[a-zA-Z0-9]{8}'
+#  generate: expression  
+#  name: AMQ_CLUSTER_PASSWORD
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
