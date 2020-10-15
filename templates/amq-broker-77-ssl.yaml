@@ -48,6 +48,20 @@ objects:
   kind: Service
   metadata:
     annotations:
+      description: The broker's Jolokia JVM Agent port.
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${AMQ_NAME}-amq-jolokia-jvm-agent
+  spec:
+    ports:
+    - port: 8778
+      targetPort: 8778
+    selector:
+      deploymentConfig: ${APPLICATION_NAME}-amq
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
       description: The broker's AMQP port.
     labels:
       application: ${APPLICATION_NAME}
@@ -253,6 +267,9 @@ objects:
             ports:
             - containerPort: 8161
               name: console-jolokia
+              protocol: TCP
+            - containerPort: 8778
+              name: jolokia-jvm-agent
               protocol: TCP
             - containerPort: 5672
               name: amqp
