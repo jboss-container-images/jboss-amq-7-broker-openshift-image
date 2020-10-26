@@ -269,7 +269,7 @@ objects:
               name: console-jolokia
               protocol: TCP
             - containerPort: 8778
-              name: jolokia-jvm-agent
+              name: jolokia
               protocol: TCP
             - containerPort: 5672
               name: amqp
