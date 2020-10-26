@@ -50,7 +50,7 @@ objects:
       protocol: TCP
       targetPort: 8161
     - port: 8778
-      name: jolokia-jvm-agent
+      name: jolokia
       protocol: TCP
       targetPort: 8778
     - port: 5672
@@ -145,7 +145,7 @@ objects:
             name: console-jolokia
             protocol: TCP
           - containerPort: 8778
-            name: jolokia-jvm-agent
+            name: jolokia
             protocol: TCP
           - containerPort: 5672
             name: amqp
