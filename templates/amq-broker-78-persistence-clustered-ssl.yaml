@@ -32,6 +32,8 @@ objects:
     ${AMQ_CLUSTER_PASSWORD}: Y2x1c3RlcnBhc3N3b3Jk
     ${AMQ_TRUSTSTORE_PASSWORD}: cGFzc3dvcmQ=
     ${AMQ_KEYSTORE_PASSWORD}: cGFzc3dvcmQ=
+    ${AMQ_JOLOKIA_USER}: am9sb2tpYXVzZXI=
+    ${AMQ_JOLOKIA_PASSWORD}: am9sb2tpYXBhc3N3b3Jk
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
@@ -265,6 +267,28 @@ objects:
                     }
                   },
                   {
+                    "name": "AMQ_ENABLE_HAWTIO_ONLINE",
+                    "value": "${AMQ_ENABLE_HAWTIO_ONLINE}"
+                  },
+                  {
+                    "name": "AMQ_JOLOKIA_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_JOLOKIA_USER}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AMQ_JOLOKIA_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_JOLOKIA_PASSWORD}"
+                      }
+                    }
+                  },
+                  {
                     "name": "POD_NAMESPACE",
                     "valueFrom": {
                       "fieldRef": {
@@ -390,6 +414,18 @@ objects:
             value: ${AMQ_ENABLE_METRICS_PLUGIN}
           - name: AMQ_JOURNAL_TYPE
             value: ${AMQ_JOURNAL_TYPE}
+          - name: AMQ_ENABLE_HAWTIO_ONLINE
+            value: ${AMQ_ENABLE_HAWTIO_ONLINE}
+          - name: AMQ_JOLOKIA_USER
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_JOLOKIA_USER}
+          - name: AMQ_JOLOKIA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_JOLOKIA_PASSWORD}
           readinessProbe:
             exec:
               command:
@@ -587,4 +623,21 @@ parameters:
   displayName: AMQ Journal Type
   name: AMQ_JOURNAL_TYPE
   value: nio
+  required: false
+- description: Enable the Jolokia JVM Agent and disable the management RBAC for Hawtio Online
+  displayName: Enable Hawtio Online
+  name: AMQ_ENABLE_HAWTIO_ONLINE
+  value: 'false'
+  required: false
+- description: Jolokia user to be used for authentication (along with a AMQ_JOLOKIA_PASSWORD)
+  displayName: AMQ Jolokia Username
+  from: user[a-zA-Z0-9]{3}
+  generate: expression
+  name: AMQ_JOLOKIA_USER
+  required: false
+- description: Jolokia password used for authentication (AMQ_JOLOKIA_USER is then required, too)
+  displayName: AMQ Jolokia Password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: AMQ_JOLOKIA_PASSWORD
   required: false

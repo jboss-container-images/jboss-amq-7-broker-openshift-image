@@ -19,16 +19,16 @@ echo "Removing provided -XX:+UseParallelOldGC in favour of artemis.profile provi
 JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
-echo "Enable jolokia jvm agent"
-export AB_JOLOKIA_USER=$AMQ_USER
-export AB_JOLOKIA_PASSWORD_RANDOM=false
-export AB_JOLOKIA_PASSWORD=$AMQ_PASSWORD
-export AB_JOLOKIA_OPTS="realm=activemq
-  clientPrincipal.1=cn=system:master-proxy
-  clientPrincipal.2=cn=hawtio-online.hawtio.svc
-  clientPrincipal.3=cn=fuse-console.fuse.svc"
-JOLOKIA_OPTS="$(/opt/jolokia/jolokia-opts)"
-JAVA_OPTS="${JAVA_OPTS} ${JOLOKIA_OPTS}"
+if [ "$AMQ_ENABLE_HAWTIO_ONLINE" = "true" ]; then
+  echo "Enable jolokia jvm agent"
+  export AB_JOLOKIA_USER=$AMQ_JOLOKIA_USER
+  export AB_JOLOKIA_PASSWORD_RANDOM=false
+  export AB_JOLOKIA_PASSWORD=$AMQ_JOLOKIA_PASSWORD
+  export AB_JOLOKIA_OPTS="realm=activemq,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc"
+  JOLOKIA_OPTS="$(/opt/jolokia/jolokia-opts)"
+  JAVA_OPTS="${JAVA_OPTS} ${JOLOKIA_OPTS}"
+fi
+
 
 function sslPartial() {
   [ -n "$AMQ_KEYSTORE_TRUSTSTORE_DIR" -o -n "$AMQ_KEYSTORE" -o -n "$AMQ_TRUSTSTORE" -o -n "$AMQ_KEYSTORE_PASSWORD" -o -n "$AMQ_TRUSTSTORE_PASSWORD" ]
@@ -617,7 +617,10 @@ function configure() {
     appendConnectorsFromEnv ${instanceDir}
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
-    disableManagementRBAC ${instanceDir}
+
+    if [ "$AMQ_ENABLE_HAWTIO_ONLINE" = "true" ]; then
+      disableManagementRBAC ${instanceDir}
+    fi
 
     if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
       echo "Enable artemis metrics plugin"
