@@ -23,7 +23,7 @@ objects:
   metadata:
     annotations:
       description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD).
-    name: amq-credential-secret
+    name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
@@ -143,12 +143,12 @@ objects:
           - name: AMQ_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_USER}
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
@@ -181,12 +181,12 @@ objects:
           - name: AMQ_JOLOKIA_AGENT_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_USER}
           - name: AMQ_JOLOKIA_AGENT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_PASSWORD}
           - name: AMQ_ENABLE_MANAGEMENT_RBAC
             value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
@@ -197,7 +197,7 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"       
+              - "/opt/amq/bin/readinessProbe.sh"
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -226,7 +226,7 @@ objects:
   metadata:
     labels:
       application: ${APPLICATION_NAME}
-    name: console
+    name: ${APPLICATION_NAME}-console
   spec:
     to:
       kind: Service
@@ -303,7 +303,7 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
-- description: Enable the Jolokia JVM Agent 
+- description: Enable the Jolokia JVM Agent
   displayName: Enable Jolokia Agent
   name: AMQ_ENABLE_JOLOKIA_AGENT
   value: 'true'
@@ -329,7 +329,7 @@ parameters:
   displayName: broker.xml
   name: BROKER_XML
   value: |-
-    <!-- Remove this tag to enable custom configuration --> 
+    <!-- Remove this tag to enable custom configuration -->
     <?xml version='1.0'?>
     <!--
     Licensed to the Apache Software Foundation (ASF) under one
@@ -383,7 +383,7 @@ parameters:
           <journal-pool-files>10</journal-pool-files>
 
           <journal-file-size>10M</journal-file-size>
-          
+
           <!--
            This value was determined through a calculation.
            Your system could perform 0.26 writes per millisecond
@@ -546,7 +546,7 @@ parameters:
   displayName: logging.properties
   name: LOGGING_PROPERTIES
   value: |-
-    <!-- Remove this tag to enable custom configuration --> 
+    <!-- Remove this tag to enable custom configuration -->
     #
     # Licensed to the Apache Software Foundation (ASF) under one or more
     # contributor license agreements. See the NOTICE file distributed with

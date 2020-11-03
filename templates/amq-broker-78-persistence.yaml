@@ -23,7 +23,7 @@ objects:
   metadata:
     annotations:
       description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD).
-    name: amq-credential-secret
+    name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
@@ -99,12 +99,12 @@ objects:
           - name: AMQ_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_USER}
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
@@ -139,12 +139,12 @@ objects:
           - name: AMQ_JOLOKIA_AGENT_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_USER}
           - name: AMQ_JOLOKIA_AGENT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_PASSWORD}
           - name: AMQ_ENABLE_MANAGEMENT_RBAC
             value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
@@ -154,7 +154,7 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"            
+              - "/opt/amq/bin/readinessProbe.sh"
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -198,7 +198,7 @@ objects:
     labels:
       application: ${APPLICATION_NAME}
       app: ${APPLICATION_NAME}
-    name: console-jolokia
+    name: ${APPLICATION_NAME}-console-jolokia
   spec:
     port:
       targetPort: console-jolokia
@@ -273,8 +273,18 @@ parameters:
 - description: Broker Image
   displayName: Image
   name: IMAGE
+<<<<<<< HEAD:templates/amq-broker-78-persistence.yaml
   required: true  
   value: registry.redhat.io/amq7/amq-broker:7.8
+=======
+<<<<<<< HEAD
+  required: true
+  value: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:0.2.2
+=======
+  required: true
+  value: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:0.2.0
+>>>>>>> 92ee05c (Prefix AMQ_CREDENTIAL_SECRET with application name so it allows multiple)
+>>>>>>> f7c4296 (Prefix AMQ_CREDENTIAL_SECRET with application name so it allows multiple):templates/activemq-artemis-persistence.yaml
 - description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
   name: AMQ_CREDENTIAL_SECRET
@@ -290,7 +300,7 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
-- description: Enable the Jolokia JVM Agent 
+- description: Enable the Jolokia JVM Agent
   displayName: Enable Jolokia Agent
   name: AMQ_ENABLE_JOLOKIA_AGENT
   value: 'true'
