@@ -23,7 +23,7 @@ objects:
   metadata:
     annotations:
       description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD), clusteruser(AMQ_CLUSTER_USER), clusterpassword(AMQ_CLUSTER_PASSWORD), password(AMQ_TRUSTORE_PASSWORD and AMQ_KEYSTORE_PASSWORD)
-    name: amq-credential-secret
+    name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
@@ -146,12 +146,12 @@ objects:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-${PING_SVC_NAME}
   spec:
-    clusterIP: None  
+    clusterIP: None
     ports:
       - targetPort: 8888
         port: 8888
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq      
+      deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: apps/v1beta1
   kind: StatefulSet
   metadata:
@@ -190,7 +190,7 @@ objects:
                     "name": "AMQ_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_USER}"
                       }
                     }
@@ -199,7 +199,7 @@ objects:
                     "name": "AMQ_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_PASSWORD}"
                       }
                     }
@@ -252,7 +252,7 @@ objects:
                     "name": "AMQ_CLUSTER_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_CLUSTER_USER}"
                       }
                     }
@@ -261,7 +261,7 @@ objects:
                     "name": "AMQ_CLUSTER_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_CLUSTER_PASSWORD}"
                       }
                     }
@@ -274,7 +274,7 @@ objects:
                     "name": "AMQ_JOLOKIA_AGENT_USER",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_JOLOKIA_AGENT_USER}"
                       }
                     }
@@ -283,7 +283,7 @@ objects:
                     "name": "AMQ_JOLOKIA_AGENT_PASSWORD",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "name": "${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}",
                         "key": "${AMQ_JOLOKIA_AGENT_PASSWORD}"
                       }
                     }
@@ -347,12 +347,12 @@ objects:
           - name: AMQ_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_USER}
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
@@ -371,14 +371,14 @@ objects:
           - name: AMQ_TRUSTSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_TRUSTSTORE_PASSWORD}
           - name: AMQ_KEYSTORE
             value: ${AMQ_KEYSTORE}
           - name: AMQ_KEYSTORE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_KEYSTORE_PASSWORD}
           - name: AMQ_SSL_PROVIDER
             value: ${AMQ_SSL_PROVIDER}
@@ -397,12 +397,12 @@ objects:
           - name: AMQ_CLUSTER_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_CLUSTER_USER}
           - name: AMQ_CLUSTER_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_CLUSTER_PASSWORD}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
@@ -423,12 +423,12 @@ objects:
           - name: AMQ_JOLOKIA_AGENT_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_USER}
           - name: AMQ_JOLOKIA_AGENT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_PASSWORD}
           - name: AMQ_ENABLE_MANAGEMENT_RBAC
             value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
@@ -550,12 +550,12 @@ parameters:
 - description: Clustered user It serves as a key by which the real cluster user name is retrieved from kubernetes secret object.
   displayName: cluster user
   from: user[a-zA-Z0-9]{3}
-  generate: expression  
+  generate: expression
   name: AMQ_CLUSTER_USER
 - description: Clustered password. It serves as a key by which the real cluster password is retrieved from kubernetes secret object.
   displayName: cluster password
   from: '[a-zA-Z0-9]{8}'
-  generate: expression  
+  generate: expression
   name: AMQ_CLUSTER_PASSWORD
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
@@ -630,7 +630,7 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
-- description: Enable the Jolokia JVM Agent 
+- description: Enable the Jolokia JVM Agent
   displayName: Enable Jolokia Agent
   name: AMQ_ENABLE_JOLOKIA_AGENT
   value: 'true'
