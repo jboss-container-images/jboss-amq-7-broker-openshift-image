@@ -19,11 +19,11 @@ echo "Removing provided -XX:+UseParallelOldGC in favour of artemis.profile provi
 JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
-if [ "$AMQ_ENABLE_HAWTIO_ONLINE" = "true" ]; then
+if [ "$AMQ_ENABLE_JOLOKIA_AGENT" = "true" ]; then
   echo "Enable jolokia jvm agent"
-  export AB_JOLOKIA_USER=$AMQ_JOLOKIA_USER
+  export AB_JOLOKIA_USER=$AMQ_JOLOKIA_AGENT_USER
   export AB_JOLOKIA_PASSWORD_RANDOM=false
-  export AB_JOLOKIA_PASSWORD=$AMQ_JOLOKIA_PASSWORD
+  export AB_JOLOKIA_PASSWORD=$AMQ_JOLOKIA_AGENT_PASSWORD
   export AB_JOLOKIA_OPTS="realm=activemq,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc"
   JOLOKIA_OPTS="$(/opt/jolokia/jolokia-opts)"
   JAVA_OPTS="${JAVA_OPTS} ${JOLOKIA_OPTS}"
@@ -618,7 +618,7 @@ function configure() {
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
 
-    if [ "$AMQ_ENABLE_HAWTIO_ONLINE" = "true" ]; then
+    if [ "$AMQ_ENABLE_MANAGEMENT_RBAC" = "false" ]; then
       disableManagementRBAC ${instanceDir}
     fi
 
