@@ -1,16 +1,16 @@
 schema_version: 1
 
-name: "amq-broker-7/amq-broker-77-openshift"
-description: "Red Hat AMQ Broker 7.7.0 OpenShift container image"
-version: "7.7"
-from: "amq-broker-7/amq-broker-77:7.7-9"
+name: "amq-broker-7/amq-broker-78-openshift"
+description: "Red Hat AMQ Broker 7.8.0 OpenShift container image"
+version: "7.8"
+from: "amq-broker-7/amq-broker-78:7.8-2"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
-      value: "Red Hat AMQ Broker 7.7.0"
+      value: "Red Hat AMQ Broker 7.8.0"
     - name: "maintainer"
       value: "rkieley@redhat.com"
     - name: "io.openshift.tags"
@@ -125,9 +125,9 @@ modules:
           - name: os-logging
           - name: os-amq-permissions
           - name: os-java-jolokia
-          - name: amq.broker77.jolokia.access
-          - name: amq.broker77.launch
-          - name: amq.broker77.s2i
+          - name: amq.broker78.jolokia.access
+          - name: amq.broker78.launch
+          - name: amq.broker78.s2i
           - name: amq.custom.config   
 
 run:
