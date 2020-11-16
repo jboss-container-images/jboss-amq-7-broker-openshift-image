@@ -6,11 +6,15 @@ execute:
     - script: install.sh    
     
 artifacts:
-- path: openshift-ping-common-1.2.1.Final-redhat-1.jar
+- name: openshift-ping-common
+  target: openshift-ping-common-1.2.1.Final-redhat-1.jar
   md5: 7a6db2d84d9c6326363522f97f2d0f05
-- path: openshift-ping-dns-1.2.1.Final-redhat-1.jar
+- name: openshift-ping-dns
+  target: openshift-ping-dns-1.2.1.Final-redhat-1.jar
   md5: fbd94724882e9ad41d1c4db52875b8d4
-- path: netty-tcnative-2.0.28.Final-redhat-00001.jar
+- name: netty-tcnative
+  target: netty-tcnative-2.0.28.Final-redhat-00001.jar
   md5: 3c8f4170fd31ca1458d0b7bab4192329
-- path: netty-tcnative-2.0.28.Final-redhat-00001-linux-x86_64-fedora.jar
+- name: netty-tcnatvie-linux-x86_64-fedora
+  target: netty-tcnative-2.0.28.Final-redhat-00001-linux-x86_64-fedora.jar
   md5: 6b1d65ea3919ef6df03ca79a4bbea1a7
