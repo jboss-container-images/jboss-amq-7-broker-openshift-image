@@ -125,9 +125,6 @@ modules:
           - name: amq.broker74.launch
           - name: amq.broker74.s2i
           - name: amq.custom.config   
-packages:
-      install:
-          - PyYAML
 
 run:
       user: 185
