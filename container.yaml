@@ -13,4 +13,4 @@ platforms:
     - x86_64   # can be a list (as here) or a string (as below)
 image_build_method: imagebuilder
 tags:
-- "7.8.0.CR2"
+- "7.8.0.CR3"
