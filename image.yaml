@@ -1,16 +1,16 @@
 schema_version: 1
 
-name: "amq-broker-7/amq-broker-77-openshift"
-description: "Red Hat AMQ Broker 7.7.0 OpenShift container image"
-version: "7.7"
-from: "amq-broker-7/amq-broker-77:7.7-4"
+name: "amq-broker-7/amq-broker-78-openshift"
+description: "Red Hat AMQ Broker 7.8.0 OpenShift container image"
+version: "7.8"
+from: "amq-broker-7/amq-broker-78:7.8-8"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
     - name: "io.k8s.description"
       value: "A reliable messaging platform that supports standard messaging paradigms for a real-time enterprise."
     - name: "io.k8s.display-name"
-      value: "Red Hat AMQ Broker 7.7.0"
+      value: "Red Hat AMQ Broker 7.8.0"
     - name: "maintainer"
       value: "rkieley@redhat.com"
     - name: "io.openshift.tags"
@@ -63,6 +63,18 @@ envs:
     - name: AMQ_CLUSTER_PASSWORD
       description: The cluster password to use for clustering
       example: "clusterpassword"
+    - name: AMQ_ENABLE_JOLOKIA_AGENT
+      description: Enable Jolokia Agent
+      example: "true"
+    - name: AMQ_JOLOKIA_AGENT_USER
+      description: The jolokia agent user to be used for authentication (along with a AMQ_JOLOKIA_AGENT_PASSWORD)
+      example: "jolokiauser"
+    - name: AMQ_JOLOKIA_AGENT_PASSWORD
+      description: The jolokia agent password used for authentication (AMQ_JOLOKIA_AGENT_USER is then required, too)
+      example: "jolokiapassword"
+    - name: AMQ_ENABLE_MANAGEMENT_RBAC
+      description: Enable Management RBAC
+      example: "true"
     - name: JAVA_MAX_MEM_RATIO
       description: This is used to calculate a default maximal heap memory based on a containers restriction. If used in a container without any memory constraints for the container then this option has no effect. If there is a memory constraint then `-Xmx` is set to a ratio of the container available memory as set here. The default is `50` which means 50% of the available memory is used as an upper boundary. You can skip this mechanism by setting this value to `0` in which case no `-Xmx` option is added.
       example: "50"
@@ -125,9 +137,9 @@ modules:
           - name: os-logging
           - name: os-amq-permissions
           - name: os-java-jolokia
-          - name: amq.broker77.jolokia.access
-          - name: amq.broker77.launch
-          - name: amq.broker77.s2i
+          - name: amq.broker78.jolokia.access
+          - name: amq.broker78.launch
+          - name: amq.broker78.s2i
           - name: amq.custom.config   
 
 run:

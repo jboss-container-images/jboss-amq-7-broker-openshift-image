@@ -1,2 +1,15 @@
+# See https://osbs.readthedocs.io/en/latest/users.html?highlight=container.yaml#image-configuration
+# for more information on maintaining this file and the format and examples
+
+---
 compose:
+  signing_intent: release
   pulp_repos: true
+platforms:
+  # all these keys are optional
+  only:
+    - s390x
+    - ppc64le
+image_build_method: imagebuilder
+tags:
+- "7.8.0.CR4"

@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-77-persistence-clustered
+  template: amq-broker-78-persistence-clustered
   xpaas: 1.4.16
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.7 (Persistence, clustered, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.8 (Persistence, clustered, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.7 based application, including a statefulset configuration, using persistent storage.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.8 based application, including a statefulset configuration, using persistent storage.
     template.openshift.io/support-url: 'https://access.redhat.com'    
     version: 1.4.16
-  name: amq-broker-77-persistence-clustered
+  name: amq-broker-78-persistence-clustered
 objects:
 - apiVersion: v1
   kind: Secret
@@ -30,6 +30,8 @@ objects:
     ${AMQ_PASSWORD}: YWRtaW4=
     ${AMQ_CLUSTER_USER}: Y2x1c3RlcnVzZXI=
     ${AMQ_CLUSTER_PASSWORD}: Y2x1c3RlcnBhc3N3b3Jk
+    ${AMQ_JOLOKIA_AGENT_USER}: am9sb2tpYXVzZXI=
+    ${AMQ_JOLOKIA_AGENT_PASSWORD}: am9sb2tpYXBhc3N3b3Jk
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
@@ -97,6 +99,10 @@ objects:
       name: console-jolokia
       protocol: TCP
       targetPort: 8161
+    - port: 8778
+      name: jolokia
+      protocol: TCP
+      targetPort: 8778
     - port: 5672
       name: amqp
       protocol: TCP
@@ -243,6 +249,32 @@ objects:
                     }
                   },
                   {
+                    "name": "AMQ_ENABLE_JOLOKIA_AGENT",
+                    "value": "${AMQ_ENABLE_JOLOKIA_AGENT}"
+                  },
+                  {
+                    "name": "AMQ_JOLOKIA_AGENT_USER",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_JOLOKIA_AGENT_USER}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AMQ_JOLOKIA_AGENT_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "${AMQ_CREDENTIAL_SECRET}",
+                        "key": "${AMQ_JOLOKIA_AGENT_PASSWORD}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AMQ_ENABLE_MANAGEMENT_RBAC",
+                    "value": "${AMQ_ENABLE_MANAGEMENT_RBAC}"
+                  },
+                  {
                     "name": "POD_NAMESPACE",
                     "valueFrom": {
                       "fieldRef": {
@@ -350,6 +382,20 @@ objects:
             value: ${AMQ_ENABLE_METRICS_PLUGIN}
           - name: AMQ_JOURNAL_TYPE
             value: ${AMQ_JOURNAL_TYPE}
+          - name: AMQ_ENABLE_JOLOKIA_AGENT
+            value: ${AMQ_ENABLE_JOLOKIA_AGENT}
+          - name: AMQ_JOLOKIA_AGENT_USER
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_JOLOKIA_AGENT_USER}
+          - name: AMQ_JOLOKIA_AGENT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: ${AMQ_CREDENTIAL_SECRET}
+                key: ${AMQ_JOLOKIA_AGENT_PASSWORD}
+          - name: AMQ_ENABLE_MANAGEMENT_RBAC
+            value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
           readinessProbe:
             exec:
               command:
@@ -361,6 +407,9 @@ objects:
           ports:
           - containerPort: 8161
             name: console-jolokia
+            protocol: TCP
+          - containerPort: 8778
+            name: jolokia
             protocol: TCP
           - containerPort: 5672
             name: amqp
@@ -483,7 +532,7 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.redhat.io/amq7/amq-broker:7.7
+  value: registry.redhat.io/amq7/amq-broker:7.8
 - description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
   name: AMQ_CREDENTIAL_SECRET
@@ -498,4 +547,26 @@ parameters:
   displayName: AMQ Journal Type
   name: AMQ_JOURNAL_TYPE
   value: nio
+  required: false
+- description: Enable the Jolokia JVM Agent 
+  displayName: Enable Jolokia Agent
+  name: AMQ_ENABLE_JOLOKIA_AGENT
+  value: 'true'
+  required: false
+- description: Jolokia Agent user to be used for authentication (along with a AMQ_JOLOKIA_AGENT_PASSWORD)
+  displayName: AMQ Jolokia Username
+  from: user[a-zA-Z0-9]{3}
+  generate: expression
+  name: AMQ_JOLOKIA_AGENT_USER
+  required: false
+- description: Jolokia password used for authentication (AMQ_JOLOKIA_AGENT_USER is then required, too)
+  displayName: AMQ Jolokia Password
+  from: '[a-zA-Z0-9]{8}'
+  generate: expression
+  name: AMQ_JOLOKIA_AGENT_PASSWORD
+  required: false
+- description: Enable the management role based access control
+  displayName: Enable management RBAC
+  name: AMQ_ENABLE_MANAGEMENT_RBAC
+  value: 'true'
   required: false

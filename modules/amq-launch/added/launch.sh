@@ -29,6 +29,17 @@ if [ "${PLATFORM}" = "s390x" ] ; then
 fi
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
 
+if [ "$AMQ_ENABLE_JOLOKIA_AGENT" = "true" ]; then
+  echo "Enable jolokia jvm agent"
+  export AB_JOLOKIA_USER=$AMQ_JOLOKIA_AGENT_USER
+  export AB_JOLOKIA_PASSWORD_RANDOM=false
+  export AB_JOLOKIA_PASSWORD=$AMQ_JOLOKIA_AGENT_PASSWORD
+  export AB_JOLOKIA_OPTS="realm=activemq,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc"
+  JOLOKIA_OPTS="$(/opt/jolokia/jolokia-opts)"
+  JAVA_OPTS="${JAVA_OPTS} ${JOLOKIA_OPTS}"
+fi
+
+
 function sslPartial() {
   [ -n "$AMQ_KEYSTORE_TRUSTSTORE_DIR" -o -n "$AMQ_KEYSTORE" -o -n "$AMQ_TRUSTSTORE" -o -n "$AMQ_KEYSTORE_PASSWORD" -o -n "$AMQ_TRUSTSTORE_PASSWORD" ]
 }
@@ -110,10 +121,10 @@ function configureSSL() {
 }
 
 function updateAcceptorsForSSL() {
-  instanceDir=$1	
+  instanceDir=$1
 
   if sslEnabled ; then
-    
+
     echo "keystore filepath: $keyStorePath"
 
     IFS=',' read -a protocols <<< $(find_env "AMQ_TRANSPORTS" "openwire,amqp,stomp,mqtt,hornetq")
@@ -147,12 +158,12 @@ esac
       done
     fi
     safeAcceptors=$(echo "${acceptors}" | sed 's/\//\\\//g')
-    sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml    
+    sed -i "/<\/acceptors>/ s/.*/${safeAcceptors}\n&/" ${instanceDir}/etc/broker.xml
   fi
 }
 
 function updateAcceptorsForPrefixing() {
-  instanceDir=$1	
+  instanceDir=$1
 
   if [ -n "$AMQ_MULTICAST_PREFIX" ]; then
     echo "Setting multicastPrefix to ${AMQ_MULTICAST_PREFIX}"
@@ -219,7 +230,7 @@ function modifyDiscovery() {
   discoverygroup="${discoverygroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
   discoverygroup="${discoverygroup}          <refresh-timeout>10000</refresh-timeout>"
   discoverygroup="${discoverygroup}       </discovery-group>	"
-  sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
+  sed -i -ne "/<discovery-groups>/ {p; i $discoverygroup" -e ":a; n; /<\/discovery-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
 
   #generate jgroups-ping.xml
   echo "Generating jgroups-ping.xml, current dir is: $PWD, AMQHOME: $AMQ_HOME"
@@ -236,14 +247,14 @@ function modifyDiscovery() {
     echo "APPLICATION_NAME is set"
     sed -i -e "s/\${APPLICATION_NAME}-\${PING_SVC_NAME}/${APPLICATION_NAME}-${PING_SVC_NAME}/" $AMQ_HOME/conf/jgroups-ping.xml
   fi
-  
-  broadcastgroup=""		
+
+  broadcastgroup=""
   broadcastgroup="${broadcastgroup}       <broadcast-group name=\"my-broadcast-group\">"
   broadcastgroup="${broadcastgroup}          <jgroups-file>jgroups-ping.xml</jgroups-file>"
   broadcastgroup="${broadcastgroup}          <jgroups-channel>activemq_broadcast_channel</jgroups-channel>"
   broadcastgroup="${broadcastgroup}          <connector-ref>artemis</connector-ref>"
   broadcastgroup="${broadcastgroup}       </broadcast-group>	"
-  sed -i -ne "/<broadcast-groups>/ {p; i $broadcastgroup" -e ":a; n; /<\/broadcast-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml	
+  sed -i -ne "/<broadcast-groups>/ {p; i $broadcastgroup" -e ":a; n; /<\/broadcast-groups>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
 
   clusterconnections=""
   clusterconnections="${clusterconnections}       <cluster-connection name=\"my-cluster\">"
@@ -270,7 +281,259 @@ function configureJAVA_ARGSMemory() {
 function injectMetricsPlugin() {
   instanceDir=$1
   echo "Adding artemis metrics plugin"
-  sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics-plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
+  sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics> <plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/> <\\/metrics>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
+}
+
+function selectDelim {
+  content="$1"
+  DELIM=""
+  if [[ ${content} != *"+"* ]]; then
+    DELIM="+"
+  elif [[ ${content} != *","* ]]; then
+    DELIM=","
+  elif [[ ${content} != *"_"* ]]; then
+    DELIM="_"
+  fi
+}
+
+function performReplaceAll {
+  _sourceBrokerFile="$1"
+  _targetBrokerFile="$2"
+
+  _sourceBrokerXml=`cat ${_sourceBrokerFile}`
+  _targetBrokerXml=`cat ${_targetBrokerFile}`
+
+  if [[ ${_sourceBrokerXml} =~ "<address-settings>"(.*)"</address-settings>" ]]; then
+      echo Match found
+      sourceAddressSettingsBlock=${BASH_REMATCH[1]}
+      totalLines="";
+      while IFS= read -r line; do
+        totalLines=${totalLines}"\\n"$line
+      done <<< "${sourceAddressSettingsBlock}"
+      #replace broker2.xml with the result
+      sed -i ':a;N;$!ba; s|<address-settings>.*<\/address-settings>|<address-settings>'"${totalLines}"'<\/address-settings>|' ${_targetBrokerFile}
+  fi
+}
+
+function performMergeReplace {
+  _sourceBrokerFile="$1"
+  _targetBrokerFile="$2"
+
+  _sourceBrokerXml=`cat ${_sourceBrokerFile}`
+  _targetBrokerXml=`cat ${_targetBrokerFile}`
+
+  if [[ ${_sourceBrokerXml} =~ "<address-settings>"(.*)"</address-settings>" ]]; then
+      sourceAddressSettingsBlock=${BASH_REMATCH[1]}
+      #split into array of <address-setting>s
+      while IFS= read -r line; do
+        totalLines=${totalLines}"\\n"$line
+      done <<< "${sourceAddressSettingsBlock}"
+      #now add a delimiter
+      selectDelim "${totalLines}"
+      ttl=`echo "${totalLines}" | sed -e 's/<\/address-setting>/<\/address-setting>'${DELIM}'/g'`
+      IFS="${DELIM}" read -r -a sourceAddressSettingsArray <<< "${ttl}"
+
+      #now target
+      if [[ ${_targetBrokerXml} =~ "<address-settings>"(.*)"</address-settings>" ]]; then
+          targetAddressSettingsBlock=${BASH_REMATCH[1]}
+          #split into array of <address-setting>s
+          while IFS= read -r line; do
+            totalTargetLines=${totalTargetLines}"\\n"$line
+          done <<< "${targetAddressSettingsBlock}"
+          #now add a delimiter
+          selectDelim "${totalTargetLines}"
+          ttl=`echo "${totalTargetLines}" | sed -e 's/<\/address-setting>/<\/address-setting>'${DELIM}'/g'`
+          #convert to array
+          IFS="${DELIM}" read -r -a targetAddressSettingsArray <<< "${ttl}"
+          for targetElement in "${targetAddressSettingsArray[@]}"
+          do
+            isDupKey=false
+            if [[ ${targetElement} =~ "match=".*(\".*\") ]]; then
+              targetKey="${BASH_REMATCH[1]}"
+              for sourceElement in "${sourceAddressSettingsArray[@]}"
+              do
+                if [[ ${sourceElement} =~ "match=".*(\".*\") ]]; then
+                  matchKey="${BASH_REMATCH[1]}"
+                  if [[ "${matchKey}" == "${targetKey}" ]]; then
+                    isDupKey=true
+                    break
+                  fi
+                fi
+              done
+              if [[ "${isDupKey}" == false ]]; then
+                sourceAddressSettingsArray+=("${targetElement}")
+              fi
+            fi
+          done
+      fi
+
+      for mergeElement in "${sourceAddressSettingsArray[@]}"
+      do
+        toMerge="${toMerge}$mergeElement"
+      done
+      #make sure last element followed by at least a newline and some indentation
+      toMerge="${toMerge}"'\n    '
+      sed -i ':a;N;$!ba; s|<address-settings>.*<\/address-settings>|<address-settings>'"${toMerge}"'<\/address-settings>|' ${_targetBrokerFile}
+  fi
+}
+
+function performMergeAll {
+  _sourceBrokerFile="$1"
+  _targetBrokerFile="$2"
+
+  _sourceBrokerXml=`cat ${_sourceBrokerFile}`
+  _targetBrokerXml=`cat ${_targetBrokerFile}`
+
+  if [[ ${_sourceBrokerXml} =~ "<address-settings>"(.*)"</address-settings>" ]]; then
+      sourceAddressSettingsBlock=${BASH_REMATCH[1]}
+      while IFS= read -r line; do
+        totalLines=${totalLines}"\\n"$line
+      done <<< "${sourceAddressSettingsBlock}"
+      #now add a delimiter
+      selectDelim "${totalLines}"
+      ttl=`echo "${totalLines}" | sed -e 's/<\/address-setting>/<\/address-setting>'${DELIM}'/g'`
+      IFS="${DELIM}" read -r -a sourceAddressSettingsArray <<< "${ttl}"
+
+      #now target
+      if [[ ${_targetBrokerXml} =~ "<address-settings>"(.*)"</address-settings>" ]]; then
+          targetAddressSettingsBlock=${BASH_REMATCH[1]}
+          #split into array of <address-setting>s
+          while IFS= read -r line; do
+            totalTargetLines=${totalTargetLines}"\\n"$line
+          done <<< "${targetAddressSettingsBlock}"
+          #now add a delimiter
+          selectDelim "${totalTargetLines}"
+          ttl=`echo "${totalTargetLines}" | sed -e 's/<\/address-setting>/<\/address-setting>'${DELIM}'/g'`
+          #convert to array
+          IFS="${DELIM}" read -r -a targetAddressSettingsArray <<< "${ttl}"
+          #using a separate array for merge
+          mergeArray=()
+          #first find unique address-setting elems in target
+          for targetElement in "${targetAddressSettingsArray[@]}"
+          do
+            if [[ ${targetElement} =~ "match=".*(\".*\") ]]; then
+              targetKey="${BASH_REMATCH[1]}"
+              isTargetUnique=true
+              for sourceElement in "${sourceAddressSettingsArray[@]}"
+              do
+                if [[ ${sourceElement} =~ "match=".*(\".*\") ]]; then
+                  matchKey="${BASH_REMATCH[1]}"
+                  if [[ "${matchKey}" == "${targetKey}" ]]; then
+                    isTargetUnique=false
+                    break
+                  fi
+                fi
+              done
+              if [[ "${isTargetUnique}" == true ]]; then
+                mergeArray+=("${targetElement}")
+              fi
+            fi
+          done
+          #second find unique address-setting elems in source
+          for sourceElement in "${sourceAddressSettingsArray[@]}"
+          do
+            if [[ ${sourceElement} =~ "match=".*(\".*\") ]]; then
+              sourceKey="${BASH_REMATCH[1]}"
+              isSourceUnique=true
+              for targetElement in "${targetAddressSettingsArray[@]}"
+              do
+                if [[ $targetElement =~ "match=".*(\".*\") ]]; then
+                  matchKey="${BASH_REMATCH[1]}"
+                  if [[ "${matchKey}" == "${sourceKey}" ]]; then
+                    isSourceUnique=false
+                    #merge!
+                    if [[ ${sourceElement} =~ "<address-setting".*"\">"(.*)"</address-setting>" ]]; then
+                      sourceSingleSetting="${BASH_REMATCH[1]}"
+                      sourceSingleSettingWithDelimiter=`echo "${sourceSingleSetting}" | sed -r -e 's/(<\/[^>]+>)/\1'${DELIM}'/g'`
+                      IFS="${DELIM}" read -r -a sourceAddressSettingPropArray <<< "${sourceSingleSettingWithDelimiter}"
+                      #alternative to <<< way. IFS=',' sourceAddressSettingPropArray=($sourceSingleSettingWithDelimiter)
+                    fi
+                    if [[ ${targetElement} =~ "<address-setting".*"\">"(.*)"</address-setting>" ]]; then
+                      targetSingleSetting="${BASH_REMATCH[1]}"
+                      targetSingleSettingWithDelimiter=`echo "${targetSingleSetting}" | sed -r -e 's/(<\/[^>]+>)/\1'${DELIM}'/g'`
+                      IFS="${DELIM}" read -r -a targetAddressSettingPropArray <<< "${targetSingleSettingWithDelimiter}"
+
+                      #alternative to <<< way. IFS=',' targetAddressSettingPropArray=($targetSingleSettingWithDelimiter)
+                      for targetAddressSettingProperty in "${targetAddressSettingPropArray[@]}"
+                      do
+                        #get key
+                        if [[ "${targetAddressSettingProperty}" =~ ("</".+">") ]]; then
+                          targetPropKey="${BASH_REMATCH[1]}"
+                          isDupProp=false
+                          for sourceAddressSettingProperty in "${sourceAddressSettingPropArray[@]}"
+                          do
+                            if [[ "${sourceAddressSettingProperty}" =~ ("</".+">") ]]; then
+                              sourcePropKey="${BASH_REMATCH[1]}"
+                              if [[ "${targetPropKey}" == "${sourcePropKey}" ]]; then
+                                isDupProp=true
+                                break
+                              fi
+                            fi
+                          done
+                        fi
+                        if [[ "${isDupProp}" == false ]]; then
+                          sourceAddressSettingPropArray+=("${targetAddressSettingProperty}")
+                        fi
+                      done
+                    fi
+                    #now sourceAddressSettingPropArray is merged
+                    #make a new sourceElement and added to mergeArray
+                    toPropMerge=""
+                    for propMergeElement in "${sourceAddressSettingPropArray[@]}"
+                    do
+                      toPropMerge="${toPropMerge}$propMergeElement"
+                    done
+                    #make sure last element followed by at least a newline and some indentation
+                    toPropMerge="${toPropMerge}"'\n    '
+                    newSourceElement=`echo "${sourceElement}" | sed -r -e 's|(<address-setting.*\">)(.*)</address-setting>|\1'"${toPropMerge}"'</address-setting>|g'`
+                    mergeArray+=("${newSourceElement}")
+                  fi
+                fi
+              done
+              if [[ "${isSourceUnique}" == true ]]; then
+                mergeArray+=("${sourceElement}")
+              fi
+            fi
+          done
+      fi
+
+      for melem in "${mergeArray[@]}"
+      do
+        toMergeAll="${toMergeAll}${melem}"
+      done
+      toMergeAll="${toMergeAll//[$'\n']/\\n}"
+
+      sed -i ':a;N;$!ba; s|<address-settings>.*<\/address-settings>|<address-settings>'"${toMergeAll}"'\n    <\/address-settings>|' ${_targetBrokerFile}
+  fi
+}
+
+function updateAddressSettings() {
+  sourceBrokerFile="$1"
+  targetBrokerFile="$2"
+
+  echo "Updating address settings from operator with apply rule ${APPLY_RULE}"
+
+  if [[ ${APPLY_RULE} == "replace_all" ]]; then
+    echo "Doing replace all..."
+    performReplaceAll "${sourceBrokerFile}" "${targetBrokerFile}"
+  elif [[ ${APPLY_RULE} == "merge_replace" ]]; then
+    echo "Doing merge_replace..."
+    performMergeReplace "${sourceBrokerFile}" "${targetBrokerFile}"
+  elif [[ ${APPLY_RULE} == "merge_all" ]]; then
+    echo "Doing merge_all..."
+    performMergeAll "${sourceBrokerFile}" "${targetBrokerFile}"
+  else
+    echo "ERROR: Invalid APPLY_RULE: ${APPLY_RULE}."
+  fi
+  echo Done.
+}
+
+function disableManagementRBAC() {
+  instanceDir=$1
+  # For hawtio-online, RBAC is checked at the hawtio nginx reverse proxy
+  # and must not be checked at broker.
+  # See: https://github.com/hawtio/hawtio-online#rbac
+  sed -i "s/<\/whitelist>/<entry domain=\"org.apache.activemq.artemis\"\/><\/whitelist>/" ${instanceDir}/etc/management.xml
 }
 
 function configure() {
@@ -343,6 +606,13 @@ function configure() {
     echo "Creating Broker with args $PRINT_ARGS"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
 
+    echo "Checking yacfg file under dir: $TUNE_PATH"
+
+    if [ -f "${TUNE_PATH}/broker.xml" ]; then
+        echo "yacfg broker.xml exists."
+        updateAddressSettings "${TUNE_PATH}/broker.xml" "${instanceDir}/etc/broker.xml"
+    fi
+
     if [ "$AMQ_CLUSTERED" = "true" ]; then
       modifyDiscovery
       configureRedistributionDelay ${instanceDir}
@@ -357,6 +627,10 @@ function configure() {
     appendConnectorsFromEnv ${instanceDir}
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
+
+    if [ "$AMQ_ENABLE_MANAGEMENT_RBAC" = "false" ]; then
+      disableManagementRBAC ${instanceDir}
+    fi
 
     if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
       echo "Enable artemis metrics plugin"
