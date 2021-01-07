@@ -8,7 +8,6 @@ compose:
 platforms:
   # all these keys are optional
   only:
-<<<<<<< HEAD
     - s390x
     - ppc64le
 image_build_method: imagebuilder
