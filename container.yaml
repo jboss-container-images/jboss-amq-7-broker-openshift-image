@@ -3,14 +3,13 @@
 
 ---
 compose:
-  packages:
-    - apr
   signing_intent: release
   pulp_repos: true
 platforms:
   # all these keys are optional
   only:
-    - x86_64   # can be a list (as here) or a string (as below)
+    - s390x
+    - ppc64le
 image_build_method: imagebuilder
 tags:
 - "7.8.0.CR4"

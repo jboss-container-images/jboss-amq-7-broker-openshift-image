@@ -1,0 +1,48 @@
+schema_version: 1
+
+from: "registry-proxy.engineering.redhat.com/rh-osbs/amq-broker-7-amq-broker-78-openj9-11-rhel8:7.8-2"
+name: &name "amq-broker-7/amq-broker-78-openshift-openj9-11-rhel8"
+version: &version "7.8"
+
+labels:
+- name: "com.redhat.component"
+  value: "amq-broker-openshift-openj9-11-rhel8-container"
+
+envs:
+- name: "JBOSS_IMAGE_NAME"
+  value: *name
+- name: "JBOSS_IMAGE_VERSION"
+  value: *version
+
+modules:
+      repositories:
+          - path: modules
+          - name: cct_module
+            git:
+                 url: https://github.com/artemiscloud/cct_module.git
+                 ref: 0.38.0-amq
+      install:
+          - name: dynamic-resources
+          - name: os-amq-s2i
+          - name: os-java-run
+          - name: openshift-passwd
+          - name: os-logging
+          - name: os-amq-permissions
+          - name: os-java-jolokia
+          - name: amq.broker78.jolokia.access
+          - name: amq.broker78.launch
+          - name: amq.broker78.s2i
+          - name: amq.custom.config   
+
+packages:
+    content_sets_file: content_sets_ubi8.yml
+    install:
+        - openssl
+        - apr
+
+osbs:
+  configuration:
+    container_file: container.yaml
+  repository:
+    name: containers/amq-broker
+    branch: amq-broker-7.8-openshift-openj9-11-rhel8
