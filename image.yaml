@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-78-openshift"
 description: "Red Hat AMQ Broker 7.8.1 OpenShift container image"
 version: "7.8"
-from: "amq-broker-7/amq-broker-78:7.8-10"
+from: "amq-broker-7/amq-broker-78:7.8-11"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-openshift-container"
@@ -50,7 +50,7 @@ envs:
       example: "true"
     - name: AMQ_DATA_DIR
       description: Allows you to set the data directory to be on persistent storage.
-      example: /opt/amq/data      
+      example: /opt/amq/data
     - name: AMQ_CLUSTERED
       description: Enable Clustering
       example: "true"
@@ -131,7 +131,7 @@ modules:
                   ref: 0.38.0-amq
       install:
           - name: dynamic-resources
-          - name: os-amq-s2i          
+          - name: os-amq-s2i
           - name: os-java-run
           - name: openshift-passwd
           - name: os-logging
@@ -140,11 +140,10 @@ modules:
           - name: amq.broker78.jolokia.access
           - name: amq.broker78.launch
           - name: amq.broker78.s2i
-          - name: amq.custom.config   
+          - name: amq.custom.config
 
 run:
       user: 185
       cmd:
           - "/opt/amq/bin/launch.sh"
-          - "start"                
-
+          - "start"

@@ -259,7 +259,7 @@ function modifyDiscovery() {
   clusterconnections="${clusterconnections}          <max-hops>1</max-hops>"
   clusterconnections="${clusterconnections}          <discovery-group-ref discovery-group-name=\"my-discovery-group\"/>"
   clusterconnections="${clusterconnections}       </cluster-connection>	"
-  sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml							
+  sed -i -ne "/<cluster-connections>/ {p; i $clusterconnections" -e ":a; n; /<\/cluster-connections>/ {p; b}; ba}; p" ${instanceDir}/etc/broker.xml
 }
 
 function configureJAVA_ARGSMemory() {
@@ -593,12 +593,12 @@ function configure() {
     fi
 
 
-    echo "Creating Broker with args $PRINT_ARGS"
+    echo "Creating Broker with args $PRINT_ARGS at ${instanceDir}"
     $AMQ_HOME/bin/artemis create ${instanceDir} $AMQ_ARGS --java-options "$JAVA_OPTS"
 
     echo "Checking yacfg file under dir: $TUNE_PATH"
 
-    if [ -f "${TUNE_PATH}/broker.xml" ]; then
+    if [[ -f "${TUNE_PATH}/broker.xml" ]]; then
         echo "yacfg broker.xml exists."
         updateAddressSettings "${TUNE_PATH}/broker.xml" "${instanceDir}/etc/broker.xml"
     fi
@@ -638,14 +638,47 @@ function removeWhiteSpace() {
 
 function runServer() {
 
-  echo "Configuring Broker"
+  echo "Running server env: home: ${HOME} AMQ_HOME ${AMQ_HOME} CONFIG_BROKER ${CONFIG_BROKER} RUN_BROKER ${RUN_BROKER}"
   instanceDir="${HOME}/${AMQ_NAME}"
 
-  configure $instanceDir
+  if [ -z ${CONFIG_BROKER+x} ]; then
+    echo "NO CONFIG_BROKER defined"
+    CONFIG_BROKER=true
+  fi
+  if [ -z ${RUN_BROKER+x} ]; then
+    echo "NO RUN_BROKER defined"
+    RUN_BROKER=true
+  fi
 
-  if [ "$1" != "nostart" ]; then
-    echo "Running Broker"
-    exec ${instanceDir}/bin/artemis run
+  if [ "${CONFIG_BROKER}" = "true" ]; then
+    echo "Configuring Broker at ${CONFIG_INSTANCE_DIR}"
+    echo "config Using instanceDir: $instanceDir"
+    configure $instanceDir
+
+    if [ -z "${CONFIG_INSTANCE_DIR+x}" ]; then
+      echo "No CONFIG_INSTANCE_DIR defined"
+    else
+      echo "user defined CONFIG_INSTANCE_DIR, copying"
+      cp -r $instanceDir "${CONFIG_INSTANCE_DIR}"
+      ls ${CONFIG_INSTANCE_DIR}
+    fi
+  fi
+
+  if [ "${RUN_BROKER}" == "true" ]; then
+    if [ "${CONFIG_BROKER}" != "true" ]; then
+      if [ -z "${CONFIG_INSTANCE_DIR+x}" ]; then
+        echo "No custom configuration supplied"
+      else
+        echo "Using custom configuration. Copy from ${CONFIG_INSTANCE_DIR} to ${instanceDir}"
+        rm -rf ${instanceDir}
+        ls ${CONFIG_INSTANCE_DIR}/*
+        cp -r ${CONFIG_INSTANCE_DIR}/* ${HOME}
+      fi
+    fi
+    if [ "$1" != "nostart" ]; then
+      echo "Running Broker in ${instanceDir}"
+      exec ${instanceDir}/bin/artemis run
+    fi
   fi
 }
 
