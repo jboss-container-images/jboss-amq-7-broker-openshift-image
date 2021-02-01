@@ -18,4 +18,6 @@ artifacts:
 - name: netty-tcnative-s390_64
   target: netty-tcnative-2.0.34.Final-redhat-00001-linux-s390_64-fedora.jar
   md5: 8fff7a3f8f9e34c023fe4c69df7b6d59
-
+- name: netty-tcnative-ppcle_64
+  target: netty-tcnative-2.0.34.Final-redhat-00001-linux-ppcle_64-fedora.jar
+  md5: 52f838e23d3a643578a97680b3f1671b
