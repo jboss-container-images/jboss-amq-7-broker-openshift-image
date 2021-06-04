@@ -273,18 +273,8 @@ parameters:
 - description: Broker Image
   displayName: Image
   name: IMAGE
-<<<<<<< HEAD:templates/amq-broker-78-persistence.yaml
   required: true  
   value: registry.redhat.io/amq7/amq-broker:7.8
-=======
-<<<<<<< HEAD
-  required: true
-  value: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:0.2.2
-=======
-  required: true
-  value: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:0.2.0
->>>>>>> 92ee05c (Prefix AMQ_CREDENTIAL_SECRET with application name so it allows multiple)
->>>>>>> f7c4296 (Prefix AMQ_CREDENTIAL_SECRET with application name so it allows multiple):templates/activemq-artemis-persistence.yaml
 - description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
   name: AMQ_CREDENTIAL_SECRET
