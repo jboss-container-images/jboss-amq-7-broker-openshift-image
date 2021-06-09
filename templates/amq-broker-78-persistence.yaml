@@ -14,7 +14,7 @@ metadata:
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
       This template defines resources needed to develop a Red Hat AMQ Broker 7.8 based application, including a statefulset configuration, using persistent storage.
-    template.openshift.io/support-url: 'https://access.redhat.com'    
+    template.openshift.io/support-url: 'https://access.redhat.com'
     version: 1.4.16
   name: amq-broker-78-persistence
 objects:
@@ -23,7 +23,7 @@ objects:
   metadata:
     annotations:
       description: Credentials used in broker config. Default values are admin(AMQ_USER and AMQ_PASSWORD).
-    name: amq-credential-secret
+    name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
   type: Opaque
   data:
     ${AMQ_USER}: YWRtaW4=
@@ -99,12 +99,12 @@ objects:
           - name: AMQ_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_USER}
           - name: AMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_PASSWORD}
           - name: AMQ_ROLE
             value: ${AMQ_ROLE}
@@ -139,12 +139,12 @@ objects:
           - name: AMQ_JOLOKIA_AGENT_USER
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_USER}
           - name: AMQ_JOLOKIA_AGENT_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: ${AMQ_CREDENTIAL_SECRET}
+                name: ${APPLICATION_NAME}-${AMQ_CREDENTIAL_SECRET}
                 key: ${AMQ_JOLOKIA_AGENT_PASSWORD}
           - name: AMQ_ENABLE_MANAGEMENT_RBAC
             value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
@@ -154,7 +154,7 @@ objects:
               command:
               - "/bin/bash"
               - "-c"
-              - "/opt/amq/bin/readinessProbe.sh"            
+              - "/opt/amq/bin/readinessProbe.sh"
           name: ${APPLICATION_NAME}-amq
           ports:
           - containerPort: 8161
@@ -198,7 +198,7 @@ objects:
     labels:
       application: ${APPLICATION_NAME}
       app: ${APPLICATION_NAME}
-    name: console-jolokia
+    name: ${APPLICATION_NAME}-console-jolokia
   spec:
     port:
       targetPort: console-jolokia
@@ -273,7 +273,7 @@ parameters:
 - description: Broker Image
   displayName: Image
   name: IMAGE
-  required: true  
+  required: true
   value: registry.redhat.io/amq7/amq-broker:7.8
 - description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
@@ -290,7 +290,7 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
-- description: Enable the Jolokia JVM Agent 
+- description: Enable the Jolokia JVM Agent
   displayName: Enable Jolokia Agent
   name: AMQ_ENABLE_JOLOKIA_AGENT
   value: 'true'
