@@ -1,6 +1,6 @@
-# Red Hat AMQ Broker 7.8.1 OpenShift container image
+# Red Hat AMQ Broker 7.8.2 OpenShift container image
 
-NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-broker-image[Red Hat AMQ Broker 7.8.1 container image]
+NOTE: Extends link:https://github.com/jboss-container-images/jboss-amq-7-broker-image[Red Hat AMQ Broker 7.8.2 container image]
 
 # License
 
