@@ -274,6 +274,21 @@ function injectMetricsPlugin() {
   sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics> <plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/> <\\/metrics>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
 }
 
+function checkBeforeRun() {
+  instanceDir=$1
+  if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
+    pluginStr="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"
+    grep -q "$pluginStr" ${instanceDir}/etc/broker.xml
+    result=$?
+    if [[ $result == 0 ]]; then
+      echo "The Prometheus plugin already configured."
+    else
+      echo "Need to inject Prometheus plugin"
+      injectMetricsPlugin ${instanceDir}
+    fi
+  fi
+}
+
 function selectDelim {
   content="$1"
   DELIM=""
@@ -677,6 +692,7 @@ function runServer() {
     fi
     if [ "$1" != "nostart" ]; then
       echo "Running Broker in ${instanceDir}"
+      checkBeforeRun ${instanceDir}
       exec ${instanceDir}/bin/artemis run
     fi
   fi
