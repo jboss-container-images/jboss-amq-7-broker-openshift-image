@@ -5,4 +5,4 @@ osbs:
     container_file: container.yaml
   repository:
     name: containers/amq-broker
-    branch: amq-broker-7.8-openshift-rhel-7
+    branch: amq-broker-7.9-openshift-rhel-8

@@ -1,6 +1,6 @@
 schema_version: 1
 
-name: amq.broker78.configmap
+name: amq.broker79.configmap
 version: '1.0'
 execute:
     - script: install.sh    
