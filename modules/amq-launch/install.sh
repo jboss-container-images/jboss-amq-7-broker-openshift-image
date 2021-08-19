@@ -15,9 +15,9 @@ mkdir -p ${DEST}/conf/
 
 cp -p ${SOURCES_DIR}/openshift-ping-common-$VERSION.jar \
   ${SOURCES_DIR}/openshift-ping-dns-$VERSION.jar \
-  ${SOURCES_DIR}/netty-tcnative-2.0.29.Final-redhat-00001-linux-x86_64-fedora.jar \
-  ${SOURCES_DIR}/netty-tcnative-2.0.34.Final-redhat-00001-linux-s390_64-fedora.jar \
-  ${SOURCES_DIR}/netty-tcnative-2.0.34.Final-redhat-00001-linux-ppcle_64-fedora.jar \
+  ${SOURCES_DIR}/netty-tcnative-2.0.38.Final-redhat-00001-linux-x86_64-fedora.jar \
+  ${SOURCES_DIR}/netty-tcnative-2.0.38.Final-redhat-00001-linux-s390_64-fedora.jar \
+  ${SOURCES_DIR}/netty-tcnative-2.0.38.Final-redhat-00001-linux-ppcle_64-fedora.jar \
   ${DEST}/lib
 
 cp -p $ADDED_DIR/jgroups-ping.xml \
