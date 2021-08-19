@@ -21,3 +21,4 @@ artifacts:
 - name: netty-tcnative-ppcle_64
   target: netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
   md5: 9bf02c761ded0536b998d6a2d5bdf932
+
