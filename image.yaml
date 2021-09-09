@@ -121,6 +121,7 @@ ports:
 packages:
     install:
         - apr
+        - procps-ng
 
 modules:
       repositories:
