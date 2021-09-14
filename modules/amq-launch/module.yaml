@@ -12,16 +12,9 @@ artifacts:
 - name: openshift-ping-dns
   target: openshift-ping-dns-1.2.6.Final-redhat-1.jar
   md5: 59925c951d904b7734c2d10dc41a6515
-- name: netty-tcnative-x86_64
-  target: netty-tcnative-2.0.40.Final-redhat-00001-linux-x86_64-fedora.jar
-  md5: 44db5dc13f6b4aea90528cda84c41db2
-  url: http://download.devel.redhat.com/brewroot/packages/io.netty-netty-tcnative-parent/2.0.40.Final_redhat_00001/1/maven/io/netty/netty-tcnative/2.0.40.Final-redhat-00001/netty-tcnative-2.0.40.Final-redhat-00001-linux-x86_64-fedora.jar
 - name: netty-tcnative-s390_64
   target: netty-tcnative-2.0.40.Final-redhat-00001-linux-s390_64-fedora.jar
   md5: 6f98e9ae0710294a96c6340c6399d7a4
-  url: http://download.eng.bos.redhat.com/brewroot/packages/io.netty-netty-tcnative-parent-s390x/2.0.40.Final_redhat_00001/1/maven/io/netty/netty-tcnative/2.0.40.Final-redhat-00001/netty-tcnative-2.0.40.Final-redhat-00001-linux-s390_64-fedora.jar
 - name: netty-tcnative-ppcle_64
   target: netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
   md5: 9bf02c761ded0536b998d6a2d5bdf932
-  url: http://download.eng.bos.redhat.com/brewroot/packages/io.netty-netty-tcnative-parent-ppcle/2.0.40.Final_redhat_00001/1/maven/io/netty/netty-tcnative/2.0.40.Final-redhat-00001/netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
-
