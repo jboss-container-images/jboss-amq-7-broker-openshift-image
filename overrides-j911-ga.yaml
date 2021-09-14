@@ -39,6 +39,7 @@ packages:
     install:
         - openssl
         - apr
+        - procps-ng
 
 osbs:
   configuration:
