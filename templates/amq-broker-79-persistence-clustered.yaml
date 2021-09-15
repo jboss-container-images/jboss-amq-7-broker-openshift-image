@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-78-persistence-clustered
+  template: amq-broker-79-persistence-clustered
   xpaas: 1.4.16
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.8 (Persistence, clustered, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.9 (Persistence, clustered, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.8 based application, including a statefulset configuration, using persistent storage.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.9 based application, including a statefulset configuration, using persistent storage.
     template.openshift.io/support-url: 'https://access.redhat.com'
     version: 1.4.16
-  name: amq-broker-78-persistence-clustered
+  name: amq-broker-79-persistence-clustered
 objects:
 - apiVersion: v1
   kind: Secret
@@ -532,7 +532,7 @@ parameters:
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.redhat.io/amq7/amq-broker:7.8
+  value: registry.redhat.io/amq7/amq-broker:7.9
 - description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
   name: AMQ_CREDENTIAL_SECRET
