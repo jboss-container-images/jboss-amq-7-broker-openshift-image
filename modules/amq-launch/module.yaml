@@ -12,12 +12,9 @@ artifacts:
 - name: openshift-ping-dns
   target: openshift-ping-dns-1.2.6.Final-redhat-1.jar
   md5: 59925c951d904b7734c2d10dc41a6515
-- name: netty-tcnative-x86_64
-  target: netty-tcnative-2.0.29.Final-redhat-00001-linux-x86_64-fedora.jar
-  md5: 48b03c0f95ab093e70eb15c1f29fdaea
 - name: netty-tcnative-s390_64
-  target: netty-tcnative-2.0.34.Final-redhat-00001-linux-s390_64-fedora.jar
-  md5: 8fff7a3f8f9e34c023fe4c69df7b6d59
+  target: netty-tcnative-2.0.40.Final-redhat-00001-linux-s390_64-fedora.jar
+  md5: 6f98e9ae0710294a96c6340c6399d7a4
 - name: netty-tcnative-ppcle_64
-  target: netty-tcnative-2.0.34.Final-redhat-00001-linux-ppcle_64-fedora.jar
-  md5: 52f838e23d3a643578a97680b3f1671b
+  target: netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
+  md5: 9bf02c761ded0536b998d6a2d5bdf932
