@@ -1,6 +1,6 @@
 schema_version: 1
 
-name: amq.broker78.launch
+name: amq.broker79.launch
 version: '1.2'
 execute:
     - script: install.sh    
@@ -12,12 +12,9 @@ artifacts:
 - name: openshift-ping-dns
   target: openshift-ping-dns-1.2.6.Final-redhat-1.jar
   md5: 59925c951d904b7734c2d10dc41a6515
-- name: netty-tcnative-x86_64
-  target: netty-tcnative-2.0.38.Final-redhat-00001-linux-x86_64-fedora.jar
-  md5: f2ddc0f4a95453aa415578b6ebe0e42f
 - name: netty-tcnative-s390_64
-  target: netty-tcnative-2.0.38.Final-redhat-00001-linux-s390_64-fedora.jar
-  md5: 6fe6b1f51f10751c38c6edeec3d2129b
+  target: netty-tcnative-2.0.40.Final-redhat-00001-linux-s390_64-fedora.jar
+  md5: 6f98e9ae0710294a96c6340c6399d7a4
 - name: netty-tcnative-ppcle_64
-  target: netty-tcnative-2.0.38.Final-redhat-00001-linux-ppcle_64-fedora.jar
-  md5: cbf7ff0447c0b06c9e21aedc9759cf0a
+  target: netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
+  md5: 9bf02c761ded0536b998d6a2d5bdf932

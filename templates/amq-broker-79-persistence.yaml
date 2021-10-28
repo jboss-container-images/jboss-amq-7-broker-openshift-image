@@ -1,22 +1,22 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: amq-broker-78-basic
+  template: amq-broker-79-persistence
   xpaas: 1.4.16
 message: A new messaging service has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}.
 metadata:
   annotations:
     description: Application template for Red Hat AMQ brokers. This template doesn't feature SSL support.
     iconClass: icon-amq
-    openshift.io/display-name: Red Hat AMQ Broker 7.8 (Ephemeral, no SSL)
+    openshift.io/display-name: Red Hat AMQ Broker 7.9 (Persistence, no SSL)
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq,xpaas
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
-      This template defines resources needed to develop a Red Hat AMQ Broker 7.8 based application, including a deployment configuration, using ephemeral (temporary) storage.
+      This template defines resources needed to develop a Red Hat AMQ Broker 7.9 based application, including a statefulset configuration, using persistent storage.
     template.openshift.io/support-url: 'https://access.redhat.com'
     version: 1.4.16
-  name: amq-broker-78-basic
+  name: amq-broker-79-persistence
 objects:
 - apiVersion: v1
   kind: Secret
@@ -34,108 +34,64 @@ objects:
   kind: Service
   metadata:
     annotations:
-      description: The broker's console and Jolokia port.
+      description: The broker's headless, non load balanced service
     labels:
       application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-jolokia
+      app: ${APPLICATION_NAME}
+    name: ${AMQ_NAME}-amq-headless
   spec:
+    clusterIP: None
+    publishNotReadyAddresses: true
     ports:
+    - port: 61616
+      name: all
+      protocol: TCP
+      targetPort: 61616
     - port: 8161
+      name: console-jolokia
+      protocol: TCP
       targetPort: 8161
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's Jolokia JVM Agent port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-jolokia-jvm-agent
-  spec:
-    ports:
     - port: 8778
+      name: jolokia
+      protocol: TCP
       targetPort: 8778
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's AMQP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-amqp
-  spec:
-    ports:
     - port: 5672
+      name: amqp
+      protocol: TCP
       targetPort: 5672
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's MQTT port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-mqtt
-  spec:
-    ports:
     - port: 1883
+      name: mqtt
+      protocol: TCP
       targetPort: 1883
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's STOMP port.
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-stomp
-  spec:
-    ports:
     - port: 61613
+      name: stomp
+      protocol: TCP
       targetPort: 61613
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-      description: The broker's OpenWire port.
-      service.alpha.openshift.io/dependencies: '[{"name": "${AMQ_NAME}-amq-amqp",
-        "kind": "Service"},{"name": "${AMQ_NAME}-amq-mqtt", "kind": "Service"},{"name":
-        "${AMQ_NAME}-amq-stomp", "kind": "Service"}]'
-    labels:
-      application: ${APPLICATION_NAME}
-    name: ${AMQ_NAME}-amq-tcp
-  spec:
-    ports:
-    - port: 61616
-      targetPort: 61616
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- apiVersion: v1
-  kind: DeploymentConfig
+    type: ClusterIP
+- apiVersion: apps/v1beta1
+  kind: StatefulSet
   metadata:
     labels:
       application: ${APPLICATION_NAME}
     name: ${APPLICATION_NAME}-amq
   spec:
-    replicas: 1
+    podManagementPolicy: OrderedReady
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
+      matchLabels:
+        app: ${APPLICATION_NAME}-amq
     strategy:
       rollingParams:
         maxSurge: 0
       type: Rolling
+    serviceName: ${AMQ_NAME}-amq-headless
     template:
       metadata:
         labels:
           application: ${APPLICATION_NAME}
           deploymentConfig: ${APPLICATION_NAME}-amq
+          app: ${APPLICATION_NAME}-amq
         name: ${APPLICATION_NAME}-amq
       spec:
         containers:
@@ -164,6 +120,10 @@ objects:
             value: ${AMQ_GLOBAL_MAX_SIZE}
           - name: AMQ_REQUIRE_LOGIN
             value: ${AMQ_REQUIRE_LOGIN}
+          - name: AMQ_DATA_DIR
+            value: ${AMQ_DATA_DIR}
+          - name: AMQ_DATA_DIR_LOGGING
+            value: ${AMQ_DATA_DIR_LOGGING}
           - name: AMQ_EXTRA_ARGS
             value: ${AMQ_EXTRA_ARGS}
           - name: AMQ_ANYCAST_PREFIX
@@ -189,7 +149,6 @@ objects:
           - name: AMQ_ENABLE_MANAGEMENT_RBAC
             value: ${AMQ_ENABLE_MANAGEMENT_RBAC}
           image: ${IMAGE}
-          imagePullPolicy: Always
           readinessProbe:
             exec:
               command:
@@ -214,9 +173,23 @@ objects:
             name: stomp
             protocol: TCP
           - containerPort: 61616
-            name: artemis
+            name: all
             protocol: TCP
+          volumeMounts:
+          - name: ${APPLICATION_NAME}-amq-pvol
+            mountPath: ${AMQ_DATA_DIR}
         terminationGracePeriodSeconds: 60
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ${APPLICATION_NAME}-amq-pvol
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: ${VOLUME_CAPACITY}
     triggers:
     - type: ConfigChange
 - apiVersion: v1
@@ -224,11 +197,14 @@ objects:
   metadata:
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-console
+      app: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-console-jolokia
   spec:
+    port:
+      targetPort: console-jolokia
     to:
       kind: Service
-      name: ${AMQ_NAME}-amq-jolokia
+      name: ${AMQ_NAME}-amq-headless
 parameters:
 - description: The name for the application.
   displayName: Application Name
@@ -245,6 +221,11 @@ parameters:
 - description: Address names, separated by commas. These addresses will be automatically created when the broker starts. If left empty, addresses will be still created dynamically.
   displayName: Addresses
   name: AMQ_ADDRESSES
+- description: Size of the volume used by AMQ for persisting messages.
+  displayName: AMQ Volume Size
+  name: VOLUME_CAPACITY
+  value: 1Gi
+  required: true
 - description: User name for standard broker user. It is required for connecting to the broker. If left empty, it will be generated. It serves as a key by which the real user name is retrieved from kubernetes secret object.
   displayName: AMQ Username
   from: user[a-zA-Z0-9]{3}
@@ -263,11 +244,19 @@ parameters:
   displayName: AMQ Name
   name: AMQ_NAME
   value: broker
+- description: The directory to use for data storage
+  displayName: AMQ Data Directory
+  name: AMQ_DATA_DIR
+  value: /opt/amq/data
+- description: Use the AMQ Data Directory for logging
+  displayName: AMQ Data Directory for logging
+  name: AMQ_DATA_DIR_LOGGING
+  value: 'true'
 - description: "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)."
   displayName: AMQ Global Max Size
   name: AMQ_GLOBAL_MAX_SIZE
   value: 100 gb
-- description: "Determines whether or not the broker will allow anonymous access, or require login"
+- description: "Determines whether or not the broker will allow anonymous access, or require login."
   displayName: AMQ Require Login
   name: AMQ_REQUIRE_LOGIN
 - description: Extra arguments for broker creation
@@ -281,17 +270,12 @@ parameters:
   displayName: AMQ Multicast Prefix
   name: AMQ_MULTICAST_PREFIX
   required: false
-- description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
-  displayName: ImageStream Namespace
-  name: IMAGE_STREAM_NAMESPACE
-  required: true
-  value: openshift
 - description: Broker Image
   displayName: Image
   name: IMAGE
   required: true
-  value: registry.redhat.io/amq7/amq-broker:7.8
-- description: Name of a secret containing credential data such as passwords and SSL related files
+  value: registry.redhat.io/amq7/amq-broker:7.9
+- description: Name of a secret containing credential data such as usernames and passwords
   displayName: Secret Name
   name: AMQ_CREDENTIAL_SECRET
   required: true
