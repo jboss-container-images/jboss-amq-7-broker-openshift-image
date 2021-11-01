@@ -3,7 +3,7 @@ kind: Template
 labels:
   template: amq-broker-78-ssl
   xpaas: 1.4.16
-message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content. 
+message: A new messaging service with SSL support has been created in your project. It will handle the protocol(s) "${AMQ_PROTOCOL}". The username/password for accessing the service is ${AMQ_USER}/${AMQ_PASSWORD}. Please be sure to create a secret named "${AMQ_SECRET}" containing the trust store and key store files ("${AMQ_TRUSTSTORE}" and "${AMQ_KEYSTORE}") used for serving secure content.
 metadata:
   annotations:
     description: An example Red Hat AMQ Broker application.  This template supports SSL and requires usage of OpenShift secrets.
@@ -14,7 +14,7 @@ metadata:
     template.openshift.io/documentation-url: 'https://access.redhat.com/documentation/en/red-hat-amq/'
     template.openshift.io/long-description: >-
       This template defines resources needed to develop a Red Hat AMQ Broker 7.8 based application, including a deployment configuration, using ephemeral (temporary) storage and secure communication using SSL.
-    template.openshift.io/support-url: 'https://access.redhat.com'    
+    template.openshift.io/support-url: 'https://access.redhat.com'
     version: 1.4.16
   name: amq-broker-78-ssl
 objects:
@@ -201,6 +201,13 @@ objects:
         labels:
           application: ${APPLICATION_NAME}
           deploymentConfig: ${APPLICATION_NAME}-amq
+          com.company: "Red_Hat"
+          rht.prod_name: "Red_Hat_Integration"
+          rht.prod_ver: "2021.Q4"
+          rht.comp: "Broker_AMQ"
+          rht.comp_ver: "7.8"
+          rht.subcomp: "broker-amq"
+          rht.subcomp_t: "application"
         name: ${APPLICATION_NAME}-amq
       spec:
         containers:
