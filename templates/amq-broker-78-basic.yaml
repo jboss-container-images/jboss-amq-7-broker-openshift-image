@@ -136,6 +136,13 @@ objects:
         labels:
           application: ${APPLICATION_NAME}
           deploymentConfig: ${APPLICATION_NAME}-amq
+          com.company: "Red_Hat"
+          rht.prod_name: "Red_Hat_Integration"
+          rht.prod_ver: "2021.Q4"
+          rht.comp: "Broker_AMQ"
+          rht.comp_ver: "7.8"
+          rht.subcomp: "broker-amq"
+          rht.subcomp_t: "application"
         name: ${APPLICATION_NAME}-amq
       spec:
         containers:
