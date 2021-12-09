@@ -14,4 +14,5 @@ platforms:
 image_build_method: imagebuilder
 tags:
 - "7.8.3.CON.1.GA"
+- "7.8.3-PATCH-3148"
 
