@@ -13,4 +13,4 @@ platforms:
 image_build_method: imagebuilder
 tags:
 
-- "7.9.0.CON.1.GA"
+- "7.9.2.CON.1.GA"
