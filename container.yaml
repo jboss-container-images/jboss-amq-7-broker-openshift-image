@@ -12,4 +12,4 @@ platforms:
     - ppc64le
 image_build_method: imagebuilder
 tags:
-- "7.8.4.CON.1.GA"
+- "7.8.5.CON.1.GA"
