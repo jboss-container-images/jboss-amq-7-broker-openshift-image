@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-broker-7/amq-broker-79-openshift-rhel8"
 description: "Red Hat AMQ Broker 7.9.4 OpenShift container image"
 version: "7.9"
-from: "amq-broker-7/amq-broker-79-rhel8:7.9-15"
+from: "amq-broker-7/amq-broker-79-rhel8:7.9-16"
 labels:
     - name: "com.redhat.component"
       value: "amq-broker-rhel8-openshift-container"
