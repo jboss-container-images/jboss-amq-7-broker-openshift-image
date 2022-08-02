@@ -17,7 +17,9 @@ artifacts:
   md5: 44db5dc13f6b4aea90528cda84c41db2
 - name: netty-tcnative-s390_64
   target: netty-tcnative-2.0.40.Final-redhat-00001-linux-s390_64-fedora.jar
-  md5: 6f98e9ae0710294a96c6340c6399d7a4
+  md5: 5dcc301e3dc3926db00bbd2102ec275a
+  url: http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/io.netty-netty-tcnative-parent-s390x/2.0.40.Final_redhat_00003/1/maven/io/netty/netty-tcnative/2.0.40.Final-redhat-00003/netty-tcnative-2.0.40.Final-redhat-00003-linux-s390_64-fedora.jar
 - name: netty-tcnative-ppcle_64
   target: netty-tcnative-2.0.40.Final-redhat-00001-linux-ppcle_64-fedora.jar
-  md5: 9bf02c761ded0536b998d6a2d5bdf932
+  md5: 8f7862c5d7e264c73406d4f37c8b5fb7
+  url: http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/io.netty-netty-tcnative-parent-ppcle/2.0.40.Final_redhat_00002/1/maven/io/netty/netty-tcnative/2.0.40.Final-redhat-00002/netty-tcnative-2.0.40.Final-redhat-00002-linux-ppcle_64-fedora.jar
